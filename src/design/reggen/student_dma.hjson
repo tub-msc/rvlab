@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2024 RVLab Contributors
+
+{
+  name: "student_dma"
+  clock_primary: sys_clk
+  bus_device: tlul
+  bus_host: none
+  available_input_list: []
+  available_output_list: []
+  regwidth: "32"
+  registers:
+  [
+    {
+      name: status
+      desc: "Status"
+      swaccess: ro
+      hwaccess: hwo
+      hwext: "true"
+      fields:
+      [
+        {
+          bits: 1:0
+          name: "val"
+          desc: "0 = idle, 1 = memset in progress, 2 = memcp in progress"
+        }
+      ]
+    }
+    {
+      name: now_dadr
+      desc: "Pointer to descriptor. Writing while idle will start the operation. Writes while not idle are ignored. Must be 32bit aligned [1:0]=0."
+      swaccess: rw
+      hwaccess: hro
+      hwqe : "true"
+      fields:
+      [
+        {
+          bits: 31:0
+          name: "val"
+          desc: ""
+        }
+      ]
+    }
+    {
+      name: cmd
+      desc: Command.
+      swaccess: wo
+      hwaccess: hro
+      hwext: "true"
+      hwqe : "true"
+      fields:
+      [
+        {
+          bits: 0
+          name: "stop"
+          desc: "1 - abort current operation"
+        }
+      ]
+    }
+    {
+      name: length
+      desc: "number of bytes remaining to be set / copied"
+      swaccess: ro
+      hwaccess: hwo
+      hwext: "true"
+      fields:
+      [
+        {
+          bits: 31:0
+          name: "val"
+          desc: ""
+        }
+      ]
+    }
+    {
+    name: src_adr
+    desc: "memset: fill value. memcpy: current read address"
+    swaccess: ro
+    hwaccess: hwo
+    hwext: "true"
+    fields:
+    [
+      {
+        bits: 31:0
+        name: "val"
+        desc: ""
+      }
+    ]
+    }
+    {
+      name: dst_adr
+      desc: "current write address"
+      swaccess: ro
+      hwaccess: hwo
+      hwext: "true"
+      fields:
+      [
+        {
+          bits: 31:0
+          name: "val"
+          desc: ""
+        }
+      ]
+    }    
+  ]
+}
