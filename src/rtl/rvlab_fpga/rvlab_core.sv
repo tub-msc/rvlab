@@ -92,7 +92,15 @@ module rvlab_core (
 
   logic debug_req;
 
-  rvlab_cpu cpu_i (
+  rvlab_cpu #(
+    .PIPELINE_I_O('1),
+    .PIPELINE_I_I('0),
+    .PIPELINE_D_O('0),
+    .PIPELINE_D_I('0),
+
+    .RANDOMIZE_I ('0),
+    .RANDOMIZE_D ('0)
+  ) cpu_i (
     .clk_i,
     .rst_ni,
     .irq_external_i(irq_external),

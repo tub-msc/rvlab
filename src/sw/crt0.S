@@ -78,6 +78,8 @@ _start:
     li  x30,0
     li  x31,0
 
+    csrrci zero, mcountinhibit, 5 // enable mcycle + minstret counters
+
     // write irq thread stack pointer to mscratch CSR
     lui sp,      %hi(_irq_stack_top)
     addi sp, sp, %lo(_irq_stack_top)

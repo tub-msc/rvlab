@@ -23,7 +23,7 @@ class Sources(Block):
 
         design_srcs_pkg = []
         design_srcs_pkg += [self.src_dir / "rtl/inc/prim_assert.sv"]
-        for d in ["rvlab_fpga", "prim", "prim2", "ibex", "tlul", "rv_dm"]:
+        for d in ["rvlab_fpga", "prim", "prim2", "cv32e40p", "tlul", "rv_dm"]:
             design_srcs_pkg += [x for x in self.src_dir.glob(f"rtl/{d}/pkg/*.sv")]
         design_srcs = []
         design_srcs += [x for x in self.src_dir.glob("rtl/*/*.sv")]    
