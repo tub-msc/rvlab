@@ -1,5 +1,6 @@
-// Copyright David Schröder 2025.
-//
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 // OBI <-> TL-UL Adapter where OBI is the master interface and TL-UL is the slave interface.
 // Implements TL-UL Response Reordering using an ROB-like structure.
 
@@ -39,9 +40,6 @@ module tlul_obi_adapter #(
 		.device_i(tl_i),
 		.device_o(tl_o)
 	);
-
-	//assign tl_o = host_h2d;
-	//assign host_d2h = tl_i;
 
 	assign host_h2d = '{
 		a_valid: obi_req_i,

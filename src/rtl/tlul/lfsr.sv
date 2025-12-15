@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 /* 16-bit Linear Feedback Shift Register */
-// David Schröder 2025
 
 module lfsr #(
 	SEED = 16'hCAFE

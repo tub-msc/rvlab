@@ -1,5 +1,6 @@
-// Copyright David Schröder 2025.
-//
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 // TL-UL <-> TL-UL Randomizer.
 // Reorders TL-UL responses (brings them out of order) to test conformance with TL-UL standards.
 
@@ -32,11 +33,11 @@ module tlul_order_randomizer #(
 	WAIT_CYCLES cycles, then waits until all requests have been met with a response. Until then,
 	no more requests are accepted.
 
-	Once there are no more outstanding responses, the reordering process begins.
+	Once there are no more pending responses, the reordering process begins.
 	The reordering of response objects is based on an LRU selector combined with a 16-bit LFSR.
 	Every cycle that the randomizer is in the reordering state, the response pointed to by the
 	LRU's selected output is dispatched back to the host, updating the LRU when the response is
-	ACK'd by the host. The LRU's selected output is however generated slightly abnormally, as
+	ACK'd. The LRU's selected output is however generated slightly abnormally, as
 	it should only select queue entries which actually have data. For this to occur, the LRU
 	(which is based on a promotion queue) is combined with a priority encoder, selecting the
 	least recent promotion queue item whose data is valid.
@@ -44,11 +45,11 @@ module tlul_order_randomizer #(
 	When the randomizer is not in the dispatching state, the LRU is continuously updated by
 	the LFSR. Every cycle, the bottom log2(MAX_SIZE) bits of the LFSR are used as an index
 	into the LRU to "use" the corresponding entry. The LFSR is updated every cycle, even
-	during dispatch. Its starting seed can be specified by varying LFSR_SEED.
+	during dispatch. Its starting seed can be specified using LFSR_SEED.
 
 	Overall, this results in the following states:
 	- COLLECT state, where outgoing requests are counted until the first response arrives
-	- RECEIVE state, where all outstanding responses are awaited
+	- RECEIVE state, where all pending responses are awaited
 	- WAIT state, waiting for WAIT_CYCLES cycles
 	- DISPATCH state, where the responses are reordered and dispatched
 */

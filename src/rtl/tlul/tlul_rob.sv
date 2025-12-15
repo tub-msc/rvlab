@@ -1,5 +1,6 @@
-// Copyright David Schröder 2025.
-//
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 // TL-UL <-> TL-UL Re-Order buffer.
 // Guarantees that the host output response order matches the host request order.
 

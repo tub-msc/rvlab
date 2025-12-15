@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 module cv32e40p_clock_gate (
     input  logic clk_i,
     input  logic en_i,
