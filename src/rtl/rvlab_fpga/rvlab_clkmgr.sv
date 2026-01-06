@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SHL-2.1
-// SPDX-FileCopyrightText: 2024 RVLab Contributors
+// SPDX-FileCopyrightText: 2024-2026 RVLab Contributors
 
 module rvlab_clkmgr (
   input  logic clk_100mhz_i,
@@ -80,10 +80,11 @@ module rvlab_clkmgr (
     .CLKFBIN  (clk_fb)                // 1-bit input: Feedback clock
   );
 
-  BUFGCE clkbuf_i (
-    .O (sys_clk_o),     // 1-bit output: Clock output
-    .CE(locked_o),  // according to doc, this seems to be a glitch-free (latch based) clock gate
-    .I (clkout0)    // 1-bit input: Primary clock
+  prim_clock_gating sys_clk_cg_i (
+    .clk_i    (clkout0),
+    .en_i     (locked_o),
+    .test_en_i('0),
+    .clk_o    (sys_clk_o)
   );
 
   BUFG clkbuf_200mhz_i (

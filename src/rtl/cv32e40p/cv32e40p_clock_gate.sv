@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SHL-2.1
-// SPDX-FileCopyrightText: 2025 RVLab Contributors
+// SPDX-FileCopyrightText: 2025-2026 RVLab Contributors
 
 module cv32e40p_clock_gate (
     input  logic clk_i,
@@ -8,13 +8,11 @@ module cv32e40p_clock_gate (
     output logic clk_o
 );
 
-  	logic enable_clock;
-  	assign enable_clock = en_i | scan_cg_en_i;
-  	
-  	BUFGCE clkbuf_i (
-		.O (clk_o),
-		.CE(enable_clock),  // according to doc, this seems to be a glitch-free (latch based) clock gate
-		.I (clk_i)
-	);
+  	prim_clock_gating cg_i (
+  		.clk_i,
+  		.en_i,
+  		.test_en_i(scan_cg_en_i),
+  		.clk_o
+  	);
 
 endmodule  // cv32e40p_clock_gate
