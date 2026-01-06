@@ -31,12 +31,12 @@ class OpenOcd:
         self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def __enter__(self):
-        self.conn.connect((self.tclRpcIp, self.tclRpcPort))
+        self.conn.connect((self.remote_host, self.remote_port))
         return self
 
     def __exit__(self, type, value, traceback):
         try:
-            self.cmd("exit")
+            self.cmd("shutdown")
         finally:
             self.conn.close()
 
@@ -48,7 +48,7 @@ class OpenOcd:
 
         # Read response message ending with 0x1A:
         data = bytes()
-        while len(data) == 0 or data[-1] != b'\x1A':
+        while len(data) == 0 or data[-1] != 0x1A:
             data += self.conn.recv(4096)
         data = data[:-1].decode("utf-8").strip()
 
@@ -59,6 +59,7 @@ class OpenOcd:
 
     def load_image(self, filename):
         self.cmd(f"load_image {filename} 0 elf")
+        self.cmd(f"verify_image {filename} 0 elf")
         self.cmd("reg pc 0x80")
         self.cmd("riscv set_mem_access sysbus")
 
@@ -158,10 +159,7 @@ class OpenOcd:
 
 @contextmanager
 def start(openocd_cfg):
-    #proc = subprocess.Popen(["openocd", "-f", str(openocd_cfg)],
-    #    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    proc = subprocess.Popen(["xterm", "-hold", "-e", f"openocd -f {openocd_cfg}"])
-    #time.sleep(15)
+    proc = subprocess.Popen(f"xterm -e openocd -f {openocd_cfg}", shell=True)
     time.sleep(1)
     try:
         with OpenOcd() as ocd:
