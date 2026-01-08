@@ -5,9 +5,17 @@ import socket
 import sys
 import subprocess
 import time
-import tty
-import termios
+try:
+    import tty
+    import termios
+    HAS_TERMIOS = True
+except ImportError:
+    # Windows doesn't have termios or tty modules
+    tty = None
+    termios = None
+    HAS_TERMIOS = False
 import select
+import shutil
 from contextlib import contextmanager
 
 class Hostio:
@@ -93,6 +101,7 @@ class OpenOcd:
         widx = self.readword(Hostio.OBUF_WIDX)
 
         wordaddr_last = -1
+        word = 0
         while widx != self.obuf_ridx:
             wordaddr = Hostio.OBUF + (self.obuf_ridx&~3)
             if wordaddr != wordaddr_last:
@@ -136,9 +145,26 @@ class OpenOcd:
 
         time.sleep(1)
 
-        old_settings = termios.tcgetattr(sys.stdin.fileno())
-        try:
-            tty.setraw(sys.stdin.fileno())
+        if HAS_TERMIOS:
+            old_settings = termios.tcgetattr(sys.stdin.fileno())
+            try:
+                tty.setraw(sys.stdin.fileno())
+                while (flags & 1) == 0:
+                    flags = self.readword(Hostio.FLAGS)
+
+                    self.hostio_read()
+
+                    rready, _, _ = select.select([sys.stdin], [], [], 0)
+                    if len(rready) > 0:
+                        c = sys.stdin.read(1)
+                        #print(repr(c))
+                        if c in ('\x03', '\x04'): #Ctrl+C or Ctrl+D
+                            break
+                        self.hostio_write(c)
+            finally:
+                termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
+        else:
+            # Windows: no raw terminal mode, just poll stdin with select
             while (flags & 1) == 0:
                 flags = self.readword(Hostio.FLAGS)
 
@@ -151,15 +177,18 @@ class OpenOcd:
                     if c in ('\x03', '\x04'): #Ctrl+C or Ctrl+D
                         break
                     self.hostio_write(c)
-        finally:
-            termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
 
         retval = self.readword(Hostio.RETVAL)
         print("Execution finished. Return value:", retval)
 
 @contextmanager
 def start(openocd_cfg):
-    proc = subprocess.Popen(["xterm", "-e", "openocd", "-f", openocd_cfg])
+    if shutil.which('xterm') is not None:
+        proc = subprocess.Popen(["xterm", "-e", "openocd", "-f", str(openocd_cfg)])
+    else:
+        proc = subprocess.Popen(["openocd", "-f", str(openocd_cfg)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     time.sleep(1)
     try:
         with OpenOcd() as ocd:

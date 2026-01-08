@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SHL-2.1
-// SPDX-FileCopyrightText: 2024 RVLab Contributors
+// SPDX-FileCopyrightText: 2026 RVLab Contributors
 
 module tlul_test_host (
     input  logic              clk_i,
@@ -32,19 +32,21 @@ module tlul_test_host (
   task do_transaction();
     integer i;
     // Send request on A channel:
-    @(posedge clk_i);
-    tl_o.a_valid <= '1;
-    @(posedge clk_i);
+    @(negedge clk_i);
+    tl_o.a_valid = 1'b1;
+    tl_o.d_ready = 1'b1;
     i = '0;
-    while (!tl_i.a_ready) begin
+    while (1) begin
+      @(posedge clk_i);
+      if (tl_i.a_ready) begin
+        break;
+      end
       if (i++ == 10) begin
         $display("Warning: device takes > 10 cycles to respond.");
       end
-      @(posedge clk_i);
     end
-    tl_o.a_valid <= '0;
-    tl_o.d_ready <= '1;
-    @(posedge clk_i);
+    @(negedge clk_i);
+    tl_o.a_valid = 1'b0;
     //tl_o <= TlIdle;  // a_valid <= '0;
     while (!tl_i.d_valid) begin
       @(posedge clk_i);
@@ -62,11 +64,11 @@ module tlul_test_host (
   endtask
 
   task put_word(input logic [31:0] addr, input logic [31:0] wdata);
-    tl_o.a_address <= addr;
-    tl_o.a_opcode  <= tlul_pkg::PutFullData;
-    tl_o.a_size    <= 2;  // 2^2 = 4 byte access
-    tl_o.a_data    <= wdata;
-    tl_o.a_mask    <= 4'b1111;
+    tl_o.a_address = addr;
+    tl_o.a_opcode  = tlul_pkg::PutFullData;
+    tl_o.a_size    = 2;  // 2^2 = 4 byte access
+    tl_o.a_data    = wdata;
+    tl_o.a_mask    = 4'b1111;
     do_transaction();
     if (tl_i.d_opcode != tlul_pkg::AccessAck) begin
       $display("Warning: put response d_opcode was %p.", tl_i.d_opcode);
@@ -76,14 +78,14 @@ module tlul_test_host (
   endtask
 
   task get_word(input logic [31:0] addr, output logic [31:0] rdata);
-    tl_o.a_address <= addr;
-    tl_o.a_opcode  <= tlul_pkg::Get;
-    tl_o.a_size    <= 2;  // 2^2 = 4 byte access
-    tl_o.a_mask    <= 4'b1111;
+    tl_o.a_address = addr;
+    tl_o.a_opcode  = tlul_pkg::Get;
+    tl_o.a_size    = 2;  // 2^2 = 4 byte access
+    tl_o.a_mask    = 4'b1111;
     do_transaction();
-    rdata <= tl_i.d_data;
+    rdata = tl_i.d_data;
     if (tl_i.d_opcode != tlul_pkg::AccessAckData) begin
-      $display("Warning: put response d_opcode was %p.", tl_i.d_opcode);
+      $display("Warning: get response d_opcode was %p.", tl_i.d_opcode);
     end
     @(posedge clk_i);
     $display("Debug: get word addr=0x%08x, rdata=0x%08x", addr, rdata);
