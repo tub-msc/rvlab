@@ -1,6 +1,9 @@
-/* Copyright David Schröder 2025. */
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 // Safety fallback to prevent clock speed changes from irrevocably
 // making the SoC unresponsive
+
 
 /* Variable clocking Configuration: */
 /*

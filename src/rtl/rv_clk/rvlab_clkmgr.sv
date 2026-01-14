@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 // Clock manager for RISC-V Lab.
 // Supports dynamic clock divider adjusting, enabling clock speed changes
 // without having to regenerate a new bitstream.
-
 
 /* Variable clocking Configuration: */
 /*
