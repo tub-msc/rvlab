@@ -101,16 +101,28 @@ module rvlab_fpga_top (
   logic clk_100mhz_buffered;
   logic locked;
   logic ndmreset;
+  logic recovery_reset; // fallback when system clock prescaler
+                        // is set too low
   logic locked_q = '0;  // fpga bitstream init val = reset active
   logic dbg_rst_n = '0;  // fpga bitstream init val = reset active
   logic sys_rst_n = '0;  // fpga bitstream init val = reset active
+
+  tl_h2d_t tl_clk_reconf_h2d;
+  tl_d2h_t tl_clk_reconf_d2h;
 
   rvlab_clkmgr clkmgr_i (
     .clk_100mhz_i         (clk_100mhz_i),
     .clk_100mhz_buffered_o(clk_100mhz_buffered),
     .sys_clk_o            (sys_clk),
     .clk_200mhz_o         (clk_200mhz),
-    .locked_o             (locked)
+    .locked_o             (locked),
+    
+    .sys_rst_no           (recovery_reset),
+    .jtag_srst_ni,
+
+    .tl_reconfig_i        (tl_clk_reconf_h2d),
+    .tl_reconfig_o        (tl_clk_reconf_d2h),
+    .reconfig_status_o    ()
   );
 
 
@@ -118,7 +130,7 @@ module rvlab_fpga_top (
     // dbg_rst_n is only asserted through locked right after bitstream loading.
     // The external system reset button is disconnected for mechanical reasons
     // and simplicity.
-    locked_q  <= locked && jtag_srst_ni;
+    locked_q  <= locked && jtag_srst_ni && recovery_reset;
     dbg_rst_n <= locked_q;
     // Attention: ndmreset and dbg_rst_n are both synchronous, but not
     // glitch-free, so we need another FF.
@@ -414,6 +426,9 @@ module rvlab_fpga_top (
     .tl_ddr_i     (tl_ddr_d2h),
     .tl_ddr_ctrl_o(tl_ddr_ctrl_h2d),
     .tl_ddr_ctrl_i(tl_ddr_ctrl_d2h),
+
+    .tl_clk_reconf_o(tl_clk_reconf_h2d),
+    .tl_clk_reconf_i(tl_clk_reconf_d2h),
 
     .userio_i(userio_b2f),
     .userio_o(userio_f2b)

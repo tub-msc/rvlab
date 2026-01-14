@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SHL-2.1
-// SPDX-FileCopyrightText: 2024 RVLab Contributors
+// SPDX-FileCopyrightText: 2024-2026 RVLab Contributors
 
 module rvlab_core (
   input  logic clk_i,
@@ -19,7 +19,10 @@ module rvlab_core (
   output tlul_pkg::tl_h2d_t tl_ddr_o,
   input  tlul_pkg::tl_d2h_t tl_ddr_i,
   output tlul_pkg::tl_h2d_t tl_ddr_ctrl_o,
-  input  tlul_pkg::tl_d2h_t tl_ddr_ctrl_i
+  input  tlul_pkg::tl_d2h_t tl_ddr_ctrl_i,
+
+  output tlul_pkg::tl_h2d_t tl_clk_reconf_o,
+  input  tlul_pkg::tl_d2h_t tl_clk_reconf_i
 
 );
 
@@ -75,6 +78,8 @@ module rvlab_core (
     .tl_main_i(tl_peri_h2d),
     .tl_main_o(tl_peri_d2h),
 
+    .tl_clk_reconf_o,
+    .tl_clk_reconf_i,
     .tl_dbgmem_o             (tl_dbgmem_h2d),
     .tl_dbgmem_i             (tl_dbgmem_d2h),
     .tl_timer_o              (tl_timer_h2d),
