@@ -27,6 +27,9 @@ int ddr_init(void);
 #include <reggen/student_dma.h>
 #define STUDENT_DMA0_BASE_ADDR 0x20000000
 
+// Variable clocking
+#define RV_CLK_BASE_ADDR 0x1d000000
+
 // Add includes for additional register definition headers
 // and define corresponding _BASE_ADDR values here.
 

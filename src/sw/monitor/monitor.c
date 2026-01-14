@@ -1,11 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0
- * SPDX-FileCopyrightText: 2024 RVLab Contributors
+ * SPDX-FileCopyrightText: 2024-2026 RVLab Contributors
  */
 
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <rvlab.h>
+#include <clocking.h>
 
 #define LINE_SIZE 256
 char *readline(void) {
@@ -46,10 +47,15 @@ char *readline(void) {
 
 }
 
+/* Commands */
 void cmd_help(char *args[]);
 void cmd_lw(char *args[]);
 void cmd_sw(char *args[]);
 void cmd_dump(char *args[]);
+void cmd_sysclk_get(char *args[]);
+void cmd_sysclk_set(char *args[]);
+void cmd_get_cpi(char *args[]);
+void cmd_quit(char *args[]);
 
 struct cmd {
     char *name;
@@ -61,6 +67,10 @@ struct cmd {
     {"lw", " ADDR: Load word.", 1, cmd_lw},
     {"sw", " ADDR DATA: Store word.", 2, cmd_sw},
     {"dump", " ADDR WORDS: Dump memory.", 2, cmd_dump},
+    {"sysclk_get", ": Get sys_clk clock divisor.", 0, cmd_sysclk_get},
+    {"sysclk_set", " DIV: Set sys_clk clock divisor.", 1, cmd_sysclk_set},
+    {"get_cpi", ": Retrieve performance counters.", 0, cmd_get_cpi},
+    {"quit", ": Exit the program", 0, cmd_quit},
     {NULL, NULL, 0, NULL}
 };
 
@@ -139,6 +149,64 @@ void cmd_sw(char *args[]) {
     *((unsigned *) addr) = data;
 
     printf("wrote 0x%08x: 0x%08x\n", addr, data);
+}
+
+
+
+void cmd_sysclk_get(char *args[]) {
+    uint32_t sysclk_val = rvlab_get_sysclock();
+    printf("sys_clk divider value: %u\n", sysclk_val);
+}
+
+
+void cmd_sysclk_set(char *args[]) {
+    char *endptr;
+
+    unsigned div = strtoul(args[1], &endptr, 0);
+    if (*args[1]=='\0' || *endptr!='\0') {
+        printf("Error: Failed to parse DIV.\n");
+        return;
+    }
+
+    rvlab_set_sysclock(div);
+    printf("updated system clock divisor to %u.\n", div);
+}
+
+
+void cmd_get_cpi(char *args[]) {
+    /* Determine CPI */
+
+    // Fetch 64-bit mcycle + minstret counters
+    disable_performance_counters();
+    
+    uint64_t cycle_l, cycle_h, instret_l, instret_h;
+    cycle_l = read_csr("mcycle");
+    instret_l = read_csr("minstret"); // might be off by a few but doesn't impact result
+    cycle_h = read_csr("mcycleh");
+    instret_h = read_csr("minstreth");
+
+    enable_performance_counters();
+
+    uint64_t mcycle = (cycle_h << 32) | cycle_l;
+    uint64_t minstret = (instret_h << 32) | instret_l;
+
+
+    // Compute CPI
+    uint32_t cpi_x100 = (100 * mcycle) / minstret;
+    uint32_t cpi_natural, cpi_fractional;
+    cpi_natural = cpi_x100 / 100;
+    cpi_fractional = cpi_x100 % 100;
+
+
+    // Output
+    printf("cpi      : %d.%02d \n", cpi_natural, cpi_fractional);
+    printf("mcycle   : 0x%08x_%08x\n", (uint32_t)cycle_h, (uint32_t)cycle_l);
+    printf("minstret : 0x%08x_%08x\n", (uint32_t)instret_h, (uint32_t)instret_l);
+}
+
+
+void cmd_quit(char *args[]) {
+    _exit(0);
 }
 
 

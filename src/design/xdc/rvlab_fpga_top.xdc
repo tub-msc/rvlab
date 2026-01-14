@@ -10,7 +10,7 @@ set_property CFGBVS VCCO [current_design]
 # -----------
 set_property -dict { PACKAGE_PIN R4    IOSTANDARD LVCMOS33 } [get_ports { clk_100mhz_i }]; #IO_L13P_T2_MRCC_34 Sch=sysclk
 create_clock -add -name clk_100mhz -period 10.00 -waveform {0 5} [get_ports clk_100mhz_i]
-create_generated_clock -name sys_clk [get_pin clkmgr_i/mmcm_i/CLKOUT0]
+create_generated_clock -name sys_clk [get_pin clkmgr_i/sys_mmcm_i/CLKOUT0]
 
 # JTAG via FT2232H
 # ----------------

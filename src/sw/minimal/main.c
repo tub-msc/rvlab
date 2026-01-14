@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <rvlab.h>
+#include <clocking.h>
 
 int main(void) {
     printf("Hello!\n");

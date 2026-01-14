@@ -43,6 +43,7 @@
     .option pop
 
     .global _start
+    .global _exit
 _start:
 
     //  x0 == zero
@@ -93,7 +94,12 @@ _start:
 
     csrs mstatus, 0x8 // global interrupt enable
 
+    jal sysclk_status_check
+    bne a0, zero, _exit
+
     jal main
+
+_exit:
 
     csrc mstatus, 0x8 // global interrupt disable
 

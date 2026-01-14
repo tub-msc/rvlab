@@ -22,6 +22,12 @@
 #define write_csr(reg, val) ({ \
   asm volatile ("csrw " reg ", %0" :: "rK"(val)); })
 
+#define clear_csr_bits(reg, bitmask) ({ \
+  asm volatile ("csrc " reg ", %0" :: "r"(bitmask)); })
+
+#define set_csr_bits(reg, bitmask) ({ \
+  asm volatile ("csrs " reg ", %0" :: "r"(bitmask)); })
+
 
 inline void irq_enable(int mask) {
 	asm volatile ("csrs mie, %0":: "r" (mask));
