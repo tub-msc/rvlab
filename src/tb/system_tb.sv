@@ -82,7 +82,6 @@ module system_tb;
   // ----------------------------------------
 
   assign                switch        = '0;
-  assign                srst_n        = '1;  // System reset is done via MMCM lock
 
   assign                uart_tx_in    = '0;
 
@@ -219,6 +218,11 @@ module system_tb;
 
   initial begin
     string sw_mem_filename;
+
+    srst_n <= '0;
+    @(posedge clk);
+    srst_n <= '1;
+    @(posedge clk);
 
     tests.test_idcode();
     tests.test_dtmcs();
