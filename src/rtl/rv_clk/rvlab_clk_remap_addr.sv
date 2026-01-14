@@ -1,4 +1,6 @@
-/* Copyright David Schröder 2025. */
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 /* Combinational address remapper for dynamic clocking */
 /* Maps virtual address space of RVLab dynamic clocking module to */
 /* MMCM DRP module address space */

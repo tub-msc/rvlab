@@ -1,4 +1,6 @@
-/* Copyright David Schröder 2025. */
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 /* TL-UL <-> TL-UL Variable Clocking manager */
 /* Allows the getting and setting of the current system clock divider */
 /* Implements a CDC to prevent spurious resets on reconfiguration */

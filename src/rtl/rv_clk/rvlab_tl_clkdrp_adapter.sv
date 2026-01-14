@@ -1,4 +1,6 @@
-/* Copyright David Schröder 2025. */
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2025 RVLab Contributors
+
 /* TL-UL <-> MMCM Dynamic Reconfiguration Port (DRP) adapter */
 /* Processes one request at a time */
 
