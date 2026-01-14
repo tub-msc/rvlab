@@ -254,10 +254,11 @@ module rvlab_clkmgr #(
     .status_o     (reconfig_status_o)
   );
 
-  BUFGCE clkbuf_i (
-    .O (sys_clk_o), // 1-bit output: Clock output
-    .CE(locked_o),  // according to doc, this seems to be a glitch-free (latch based) clock gate
-    .I (clkout0)    // 1-bit input: Primary clock
+  prim_clock_gating clkbuf_i (
+    .clk_i    (clkout0),
+    .en_i     (locked_o),
+    .test_en_i('0),
+    .clk_o    (sys_clk_o)
   );
 
   BUFG clkbuf_200mhz_i (
