@@ -16,24 +16,24 @@
 // CPU CSR access macros:
 
 #define read_csr(reg) ({ unsigned long __tmp; \
-  asm volatile ("csrr %0, " reg : "=r"(__tmp)); \
-  __tmp; })
+    asm volatile ("csrr %0, " reg : "=r"(__tmp)); \
+    __tmp; })
 
 #define write_csr(reg, val) ({ \
-  asm volatile ("csrw " reg ", %0" :: "rK"(val)); })
+    asm volatile ("csrw " reg ", %0" :: "rK"(val)); })
 
 #define clear_csr_bits(reg, bitmask) ({ \
-  asm volatile ("csrc " reg ", %0" :: "r"(bitmask)); })
+    asm volatile ("csrc " reg ", %0" :: "r"(bitmask)); })
 
 #define set_csr_bits(reg, bitmask) ({ \
-  asm volatile ("csrs " reg ", %0" :: "r"(bitmask)); })
+    asm volatile ("csrs " reg ", %0" :: "r"(bitmask)); })
 
 inline void irq_enable(int mask) {
-	set_csr_bits("mie", mask);
+    set_csr_bits("mie", mask);
 }
 
 inline void irq_disable(int mask) {
-  clear_csr_bits("mie", mask);
+    clear_csr_bits("mie", mask);
 }
 
 #define MCOUNTINHIBIT_MCYCLE   (1 << 0)
