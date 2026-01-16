@@ -169,11 +169,17 @@ class RvlabFpgaTop(Block):
         with Vivado(cwd=cwd) as t:
             t.open_hw_manager()
             t.connect_hw_server(allow_non_jtag=True)
+
+            hw_targets = t.get_hw_targets()
+            hw_target = t.lindex(hw_targets, 1)
+            t.current_hw_target(hw_target)
+
             t.open_hw_target()
+
             device = t.get_hw_devices("xc7a200t_0")
             t.refresh_hw_device(device, update_hw_probes="false")
             t.set_property("PROBES.FILE", "", device)
             t.set_property("FULL_PROBES.FILE", "", device)
             t.set_property("PROGRAM.FILE", bitstream.bit_file, device)
-            t.program_hw_devices(device)
 
+            t.program_hw_devices(device)
