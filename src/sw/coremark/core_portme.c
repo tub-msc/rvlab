@@ -46,8 +46,27 @@ volatile ee_s32 seed3_volatile = 0x8;
 volatile ee_s32 seed4_volatile = ITERATIONS;
 volatile ee_s32 seed5_volatile = 0;
 
+
+// Pretty string for colorful printing :)
+#define RVLAB_STRING "[\033[36mRVLAB\033[0m]"
+#define RVLAB_HEADER ee_printf(RVLAB_STRING " ");
+
+
+/* Performance measurement related utilities */
 #define disable_performance_counters() set_csr_bits("mcountinhibit", MCOUNTINHIBIT_MCYCLE | MCOUNTINHIBIT_MINSTRET)
 #define enable_performance_counters() clear_csr_bits("mcountinhibit", MCOUNTINHIBIT_MCYCLE | MCOUNTINHIBIT_MINSTRET)
+
+#define __STRINGIFY(name) #name
+#define __STR_EVAL(name) __STRINGIFY(name) // preprocessor hack
+
+// e.g. passing LD to name   -> write_csr("mhpmevent6", (1 << 5))
+#define SETUP_MHPMCOUNTER(name) write_csr("mhpmevent" __STR_EVAL(MHPM_ ## name), MHPM_EVENT_ ## name)
+
+// e.g. passing LD to name  -> printf("Number of load instructions : %d\n", read_csr("mhpmcounter6"))
+#define DUMP_MHPMCOUNTER(name) printf("Number of " MHPM_NAME_ ## name " : %10d [0x%08x_%08x]\n", \
+  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)), \
+  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name) "h"), read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)))
+
 
 /* Porting : Timing functions
         How to capture time and convert to seconds must be ported to whatever is
@@ -78,10 +97,6 @@ static inline uint32_t get_ticks_per_second() {
     // 1 tick = 1 cycle, i.e. return clock speed in Hz
     return CM_STATIC_TPS;
 }
-
-// Pretty string for colorful printing :)
-#define RVLAB_STRING "[\033[36mRVLAB\033[0m]"
-#define RVLAB_HEADER ee_printf(RVLAB_STRING " ");
 
 
 CORETIMETYPE

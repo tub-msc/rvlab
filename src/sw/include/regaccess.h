@@ -77,15 +77,4 @@ inline void irq_disable(int mask) {
 #define MHPM_NAME_COMP_INSTR   "compressed instructions "
 #define MHPM_NAME_PIPE_STALL   "pipeline stall cycles   "
 
-#define __STRINGIFY(name) #name
-#define __STR_EVAL(name) __STRINGIFY(name) // preprocessor hack
-
-// e.g. passing LD to name   -> write_csr("mhpmevent6", (1 << 5))
-#define SETUP_MHPMCOUNTER(name) write_csr("mhpmevent" __STR_EVAL(MHPM_ ## name), MHPM_EVENT_ ## name)
-
-// e.g. passing LD to name  -> printf("Number of load instructions : %d\n", read_csr("mhpmcounter6"))
-#define DUMP_MHPMCOUNTER(name) printf("Number of " MHPM_NAME_ ## name " : %10d [0x%08x_%08x]\n", \
-  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)), \
-  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name) "h"), read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)))
-
 #endif // _REGACCESS_H
