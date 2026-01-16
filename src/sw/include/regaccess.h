@@ -22,19 +22,70 @@
 #define write_csr(reg, val) ({ \
   asm volatile ("csrw " reg ", %0" :: "rK"(val)); })
 
+#define clear_csr_bits(reg, bitmask) ({ \
+  asm volatile ("csrc " reg ", %0" :: "r"(bitmask)); })
+
+#define set_csr_bits(reg, bitmask) ({ \
+  asm volatile ("csrs " reg ", %0" :: "r"(bitmask)); })
 
 inline void irq_enable(int mask) {
-	asm volatile ("csrs mie, %0":: "r" (mask));
+	set_csr_bits("mie", mask);
 }
 
 inline void irq_disable(int mask) {
-	asm volatile ("csrc mie, %0":: "r" (mask));
+  clear_csr_bits("mie", mask);
 }
 
-/*
-#define MCYCLE (0xB00)
+#define MCOUNTINHIBIT_MCYCLE   (1 << 0)
+#define MCOUNTINHIBIT_MINSTRET (1 << 2)
 
-#define FENCE ({asm volatile("": : :"memory");})
-*/
+/* Specific CSR Access Wrappers */
+
+// MHPM Event names
+#define MHPM_EVENT_LD_STALL     (1 << 2)
+#define MHPM_EVENT_JMP_STALL    (1 << 3)
+#define MHPM_EVENT_IMISS        (1 << 4)
+#define MHPM_EVENT_LD           (1 << 5)
+#define MHPM_EVENT_ST           (1 << 6)
+#define MHPM_EVENT_JUMP         (1 << 7)
+#define MHPM_EVENT_BRANCH       (1 << 8)
+#define MHPM_EVENT_BRANCH_TAKEN (1 << 9)
+#define MHPM_EVENT_COMP_INSTR   (1 << 10)
+#define MHPM_EVENT_PIPE_STALL   (1 << 11)
+
+// Assigned MHPM Counter registers
+#define MHPM_LD_STALL     3
+#define MHPM_JMP_STALL    4
+#define MHPM_IMISS        5
+#define MHPM_LD           6
+#define MHPM_ST           7
+#define MHPM_JUMP         8
+#define MHPM_BRANCH       9
+#define MHPM_BRANCH_TAKEN 10
+#define MHPM_COMP_INSTR   11
+#define MHPM_PIPE_STALL   12
+
+// MHPM Counter names
+#define MHPM_NAME_LD_STALL     "load-use hazards        "
+#define MHPM_NAME_JMP_STALL    "jump register hazards   "
+#define MHPM_NAME_IMISS        "cycles waiting for fetch"
+#define MHPM_NAME_LD           "load instructions       "
+#define MHPM_NAME_ST           "store instructions      "
+#define MHPM_NAME_JUMP         "unconditional jumps     "
+#define MHPM_NAME_BRANCH       "conditional branches    "
+#define MHPM_NAME_BRANCH_TAKEN "cond. branches taken    "
+#define MHPM_NAME_COMP_INSTR   "compressed instructions "
+#define MHPM_NAME_PIPE_STALL   "pipeline stall cycles   "
+
+#define __STRINGIFY(name) #name
+#define __STR_EVAL(name) __STRINGIFY(name) // preprocessor hack
+
+// e.g. passing LD to name   -> write_csr("mhpmevent6", (1 << 5))
+#define SETUP_MHPMCOUNTER(name) write_csr("mhpmevent" __STR_EVAL(MHPM_ ## name), MHPM_EVENT_ ## name)
+
+// e.g. passing LD to name  -> printf("Number of load instructions : %d\n", read_csr("mhpmcounter6"))
+#define DUMP_MHPMCOUNTER(name) printf("Number of " MHPM_NAME_ ## name " : %10d [0x%08x_%08x]\n", \
+  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)), \
+  (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name) "h"), read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)))
 
 #endif // _REGACCESS_H
