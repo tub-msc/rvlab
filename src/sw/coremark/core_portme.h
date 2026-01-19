@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Original Author: Shay Gal-on
-*/
 
-/* SPDX-License-Identifier: Apache-2.0
- * SPDX-FileCopyrightText: 2026 RVLab Contributors
- */
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 RVLab Contributors
+
+Modified by RVLab Contributors.
+*/
 
 /* Topic : Description
         This file contains configuration constants required to execute on

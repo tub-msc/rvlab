@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Original Author: Shay Gal-on
-*/
 
-/* SPDX-License-Identifier: Apache-2.0
- * SPDX-FileCopyrightText: 2026 RVLab Contributors
- */
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 RVLab Contributors
+
+Modified by RVLab Contributors.
+*/
 
 #include "coremark.h"
 #include "core_portme.h"

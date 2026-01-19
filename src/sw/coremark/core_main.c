@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Original Author: Shay Gal-on
-*/
 
-/* SPDX-License-Identifier: Apache-2.0
- * SPDX-FileCopyrightText: 2018 Embedded Microprocessor Benchmark Consortium (EEMBC)
- */
+SPDX-License-Identifier: Apache-2.0
+*/
 
 /* File: core_main.c
         This file contains the framework to acquire a block of memory, seed

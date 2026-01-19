@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Original Author: Shay Gal-on
-*/
 
-/* SPDX-License-Identifier: Apache-2.0
- * SPDX-FileCopyrightText: 2018 Embedded Microprocessor Benchmark Consortium (EEMBC)
- */
+SPDX-License-Identifier: Apache-2.0
+*/
 
 #include "coremark.h"
 /* local functions */
