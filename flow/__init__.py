@@ -23,6 +23,7 @@ sw_dirs = [
     "minimal",
     "test_sim_ddr",
     "test_rvlab",
+    "coremark",
     "test_irq",
     "rlight",
     "dma",
