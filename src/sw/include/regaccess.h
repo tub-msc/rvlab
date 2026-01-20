@@ -41,7 +41,7 @@ inline void irq_disable(int mask) {
 
 /* Specific CSR Access Wrappers */
 
-// MHPM Event names
+// MHPM Event names (Assigned by OpenHW Group)
 #define MHPM_EVENT_LD_STALL     (1 << 2)
 #define MHPM_EVENT_JMP_STALL    (1 << 3)
 #define MHPM_EVENT_IMISS        (1 << 4)
@@ -53,7 +53,10 @@ inline void irq_disable(int mask) {
 #define MHPM_EVENT_COMP_INSTR   (1 << 10)
 #define MHPM_EVENT_PIPE_STALL   (1 << 11)
 
-// Assigned MHPM Counter registers
+// Assigned MHPM Counter registers (arbitrary choice)
+// Note: CV32E40P has MHPM Counters indexed 3-31, so
+//       index 2 cannot be used to start
+//       See https://docs.openhwgroup.org/projects/cv32e40p-user-manual/en/latest/control_status_registers.html
 #define MHPM_LD_STALL     3
 #define MHPM_JMP_STALL    4
 #define MHPM_IMISS        5
@@ -64,17 +67,5 @@ inline void irq_disable(int mask) {
 #define MHPM_BRANCH_TAKEN 10
 #define MHPM_COMP_INSTR   11
 #define MHPM_PIPE_STALL   12
-
-// MHPM Counter names
-#define MHPM_NAME_LD_STALL     "load-use hazards        "
-#define MHPM_NAME_JMP_STALL    "jump register hazards   "
-#define MHPM_NAME_IMISS        "cycles waiting for fetch"
-#define MHPM_NAME_LD           "load instructions       "
-#define MHPM_NAME_ST           "store instructions      "
-#define MHPM_NAME_JUMP         "unconditional jumps     "
-#define MHPM_NAME_BRANCH       "conditional branches    "
-#define MHPM_NAME_BRANCH_TAKEN "cond. branches taken    "
-#define MHPM_NAME_COMP_INSTR   "compressed instructions "
-#define MHPM_NAME_PIPE_STALL   "pipeline stall cycles   "
 
 #endif // _REGACCESS_H

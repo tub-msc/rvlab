@@ -49,8 +49,7 @@ volatile ee_s32 seed5_volatile = 0;
 
 
 // Pretty string for colorful printing :)
-#define RVLAB_STRING "[\033[36mRVLAB\033[0m]"
-#define RVLAB_HEADER ee_printf(RVLAB_STRING " ");
+#define RVLAB_STRING "\033[36m[RVLAB]\033[0m "
 
 
 /* Performance measurement related utilities */
@@ -63,10 +62,22 @@ volatile ee_s32 seed5_volatile = 0;
 // e.g. passing LD to name   -> write_csr("mhpmevent6", (1 << 5))
 #define SETUP_MHPMCOUNTER(name) write_csr("mhpmevent" __STR_EVAL(MHPM_ ## name), MHPM_EVENT_ ## name)
 
-// e.g. passing LD to name  -> printf("Number of load instructions : %d\n", read_csr("mhpmcounter6"))
-#define DUMP_MHPMCOUNTER(name) printf("Number of " MHPM_NAME_ ## name " : %10d [0x%08x_%08x]\n", \
+// e.g. passing LD to name  -> ee_printf("Number of load instructions : %d\n", read_csr("mhpmcounter6"))
+#define DUMP_MHPMCOUNTER(name) ee_printf(RVLAB_STRING "Number of " MHPM_NAME_ ## name " : %10d [0x%08x_%08x]\n", \
   (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)), \
   (uint32_t)read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name) "h"), read_csr("mhpmcounter" __STR_EVAL(MHPM_ ## name)))
+
+// MHPM Counter names
+#define MHPM_NAME_LD_STALL     "load-use hazards        "
+#define MHPM_NAME_JMP_STALL    "jump register hazards   "
+#define MHPM_NAME_IMISS        "cycles waiting for fetch"
+#define MHPM_NAME_LD           "load instructions       "
+#define MHPM_NAME_ST           "store instructions      "
+#define MHPM_NAME_JUMP         "unconditional jumps     "
+#define MHPM_NAME_BRANCH       "conditional branches    "
+#define MHPM_NAME_BRANCH_TAKEN "cond. branches taken    "
+#define MHPM_NAME_COMP_INSTR   "compressed instructions "
+#define MHPM_NAME_PIPE_STALL   "pipeline stall cycles   "
 
 
 /* Porting : Timing functions
@@ -78,11 +89,11 @@ volatile ee_s32 seed5_volatile = 0;
 
 
 /* Clock- and timing-related utilities */
-#define VCO_MHz 1200
+#define VCO_MHZ 1200
 
  // Synchronize with clkmgr's sysclk clock divisor
 #define CM_STATIC_SYSCLK_PRESCALER 24
-#define CM_STATIC_SYSCLK_MHZ (VCO_MHz / CM_STATIC_SYSCLK_PRESCALER)
+#define CM_STATIC_SYSCLK_MHZ (VCO_MHZ / CM_STATIC_SYSCLK_PRESCALER)
 // ticks per second
 #define CM_STATIC_TPS ((VCO_MHz * 1000000) / CM_STATIC_SYSCLK_PRESCALER)
 
@@ -91,7 +102,7 @@ static inline uint32_t get_sysclk_mhz() {
 }
 
 static inline uint32_t get_sysclk_khz() {
-    return (1000 * VCO_MHz) / CM_STATIC_SYSCLK_PRESCALER;
+    return (1000 * VCO_MHZ) / CM_STATIC_SYSCLK_PRESCALER;
 }
 
 static inline uint32_t get_ticks_per_second() {
@@ -162,7 +173,7 @@ stop_time(void)
     GETMYTIME(&stop_time_val);
 
     // This function is called once right before main CoreMark output, so:
-    RVLAB_HEADER ee_printf("CoreMark output:\033[1m\n\n");
+    ee_printf(RVLAB_STRING "CoreMark output:\033[1m\n\n");
 }
 /* Function : get_time
         Return an abstract "ticks" number that signifies time on the system.
@@ -207,7 +218,7 @@ ee_u32 default_num_contexts = 1;
 void
 portable_init(core_portable *p, int *argc, char *argv[])
 {
-    RVLAB_HEADER ee_printf("Initializing RVLab SoC for CoreMark benchmark!\n");
+    ee_printf(RVLAB_STRING "Initializing RVLab SoC for CoreMark benchmark!\n");
 
     p->portable_id = 1;
     
@@ -226,7 +237,7 @@ portable_init(core_portable *p, int *argc, char *argv[])
 	// Enable counters
 	write_csr("mcountinhibit", 0);
 
-    RVLAB_HEADER ee_printf("Starting CoreMark benchmark!\n");
+    ee_printf(RVLAB_STRING "Starting CoreMark benchmark!\n");
 }
 
 /* Function : portable_fini
@@ -267,28 +278,28 @@ portable_fini(core_portable *p)
 
     // Output
     ee_printf("\033[0m\n");
-    RVLAB_HEADER ee_printf("Average CPI during CoreMark execution: %d.%d [0x%08x_%08x/0x%08x_%08x]\n",
+    ee_printf(RVLAB_STRING "Average CPI during CoreMark execution: %d.%d [0x%08x_%08x/0x%08x_%08x]\n",
     		  cpi_natural, cpi_fractional, (uint32_t)cycle_h, (uint32_t)cycle_l, (uint32_t)instret_h, (uint32_t)instret_l);
     
 
     /* MHPM Counter Output */
     
-    RVLAB_HEADER ee_printf("----- MHPM Counter Dump -----\n");
-	RVLAB_HEADER DUMP_MHPMCOUNTER(LD_STALL);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(JMP_STALL);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(IMISS);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(LD);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(ST);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(JUMP);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(BRANCH);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(BRANCH_TAKEN);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(COMP_INSTR);
-	RVLAB_HEADER DUMP_MHPMCOUNTER(PIPE_STALL);
+    ee_printf(RVLAB_STRING "----- MHPM Counter Dump -----\n");
+	DUMP_MHPMCOUNTER(LD_STALL);
+	DUMP_MHPMCOUNTER(JMP_STALL);
+	DUMP_MHPMCOUNTER(IMISS);
+	DUMP_MHPMCOUNTER(LD);
+	DUMP_MHPMCOUNTER(ST);
+	DUMP_MHPMCOUNTER(JUMP);
+	DUMP_MHPMCOUNTER(BRANCH);
+	DUMP_MHPMCOUNTER(BRANCH_TAKEN);
+	DUMP_MHPMCOUNTER(COMP_INSTR);
+	DUMP_MHPMCOUNTER(PIPE_STALL);
 
 
     /* Clock speed output */
 
     int mhz_integer = get_sysclk_mhz();
     int mhz_fractional = get_sysclk_khz() % 1000;
-    RVLAB_HEADER ee_printf("Clock Speed: %d.%03dMHz\n", mhz_integer, mhz_fractional);
+    ee_printf(RVLAB_STRING "Clock Speed: %d.%03dMHz\n", mhz_integer, mhz_fractional);
 }
