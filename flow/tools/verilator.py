@@ -40,6 +40,7 @@ def compile(
         '--main',
         '--exe',
         '--cc',
+        '--trace-structs',
         '--top-module', top_module,
         '--timescale', timescale,
     ]
