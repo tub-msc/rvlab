@@ -33,10 +33,7 @@ module student_rlight_tb;
     
   initial begin
     logic [31:0] rdata;
-`ifdef VERILATOR
-    $dumpfile("trace.vcd");
-    $dumpvars(0, student_rlight_tb);
-`endif
+    
     bus.reset();
 
     // write and read pattern register 2x:
@@ -61,5 +58,10 @@ module student_rlight_tb;
     $finish;
   end
 
-
+  `ifdef VERILATOR
+    initial begin
+      $dumpfile("trace.vcd");
+      $dumpvars(0, student_rlight_tb);
+    end
+  `endif
 endmodule

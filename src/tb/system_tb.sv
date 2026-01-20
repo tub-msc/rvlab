@@ -2,12 +2,6 @@
 // SPDX-FileCopyrightText: 2024 RVLab Contributors
 
 module system_tb;
-
-`ifdef VERILATOR
-  // Provide a glbl instance so unisims can resolve glbl.GSR/GTS in Verilator.
-  glbl glbl();
-`endif
-
   // Signal definitions
   // ------------------
 
@@ -224,10 +218,6 @@ module system_tb;
 
   initial begin
     string sw_mem_filename;
-`ifdef VERILATOR
-    $dumpfile("trace.vcd");
-    $dumpvars(0, system_tb);
-`endif
 
     tests.test_idcode();
     tests.test_dtmcs();
@@ -242,4 +232,13 @@ module system_tb;
     $finish;
   end
 
+  `ifdef VERILATOR
+    initial begin
+      $dumpfile("trace.vcd");
+      $dumpvars(0, system_tb);
+    end
+
+    // Provide a glbl instance so unisims can resolve glbl.GSR/GTS in Verilator.
+    glbl glbl();
+  `endif
 endmodule
