@@ -61,7 +61,6 @@ def simulate(
         batch_mode: bool=False,
         timescale: str="1ps/1fs",
         plusargs: dict[str,str]={},
-        netlist_sim=None,
         libs: list=[],
         hide_mig_timingcheck_msg:bool=False,
         ):

@@ -4,6 +4,7 @@ version = 1
 # Documentation files:
 path = [
     "README.md",
+    "vendor/README.md",
     "docs/**/*.rst",
     "docs/**/*.svg",
     "docs/cell_lib/base.py",

@@ -29,7 +29,6 @@ class Sources(Block):
         design_srcs += [x for x in self.src_dir.glob("rtl/*/*.sv")]    
 
         r.tb_srcs = [x for x in self.src_dir.glob("tb/*.sv")]
-        r.tb_srcs += [vivado.vivado_dir() / "data/verilog/src/glbl.v"]
         r.tb_srcs = filter_solutions_overlay(r.tb_srcs, self.src_dir)
 
 

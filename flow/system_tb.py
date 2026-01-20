@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 RVLab Contributors
 
 from pydesignflow import Block, task, Result
-from .tools import questasim, xsim, vivado
+from .tools import questasim, xsim, vivado, verilator
 import shutil
 
 class SystemTb(Block):
@@ -17,7 +17,7 @@ class SystemTb(Block):
         """Generic function that is called by all sim_... tasks."""
 
         plusargs = {"jtag_prog_mem":sw.deltafile}
-        top_modules = [self.name, 'glbl']
+        top_modules = [self.name]
 
         verilog_srcs = srcs.design_srcs + srcs.tb_srcs
         if netlist:
@@ -25,6 +25,10 @@ class SystemTb(Block):
 
         kwargs = {}
 
+        if simulator in ('questasim', 'xsim'):
+            verilog_srcs.append(vivado.vivado_dir() / "data/verilog/src/glbl.v")
+            top_modules.append('glbl') # Verilator only support single top-level module.
+        
         if simulator == 'questasim':
             sim = questasim.simulate
             wave_do = [
@@ -36,6 +40,21 @@ class SystemTb(Block):
         elif simulator == 'xsim':
             sim = xsim.simulate
             wave_do = self.design_dir / f"wave/{self.name}.xsim.wcfg"
+        elif simulator == 'verilator':
+            sim = verilator.simulate
+            wave_do = None
+            unisim_src_dir = self.flow.base_dir / "vendor/XilinxUnisimLibrary/verilog/src"
+            verilog_srcs += [
+                unisim_src_dir / "glbl.v",
+                unisim_src_dir / "unisims/OBUFDS.v",
+                unisim_src_dir / "unisims/IBUFDS.v",
+                unisim_src_dir / "unisims/FDRE.v",
+                unisim_src_dir / "unisims/BUFGCE.v",
+                unisim_src_dir / "unisims/IOBUF.v",
+                unisim_src_dir / "unisims/BUFG.v",
+                unisim_src_dir / "unisims/MMCME2_BASE.v",
+                unisim_src_dir / "unisims/MMCME2_ADV.v",
+            ]
         else:
             raise ValueError(f"Unknown simulator '{simulator}'")
         
@@ -166,3 +185,14 @@ class SystemTb(Block):
             libs=['simprims_ver', 'secureip'], # Xilinx XSim has this as builtin library.
             netlist=pnr.verilog_timesim,
             sdf={'system_tb/board/DUT':pnr.sdf})
+
+    # Verilator tasks
+    # ---------------
+
+    @task(requires={
+        'srcs':'srcs.srcs_noddr',
+        'sw':'sw.delta',
+        })
+    def sim_rtl_verilator(self, cwd, srcs, sw):
+        """RTL simulation with Verilator"""
+        self.simulate('verilator', cwd, srcs, sw)
