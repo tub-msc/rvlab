@@ -23,7 +23,7 @@ class ModuleTb(Block):
 
         if simulator in ('questasim', 'xsim'):
             verilog_srcs.append(vivado.vivado_dir() / "data/verilog/src/glbl.v")
-            top_modules.append('glbl') # Verilator only support single top-level module.
+            top_modules.append('glbl') # Verilator only supports single top-level module.
 
         if simulator == 'questasim':
             sim = questasim.simulate
@@ -34,18 +34,8 @@ class ModuleTb(Block):
         elif simulator == 'verilator':
             sim = verilator.simulate
             wave_do = None
-            unisim_src_dir = self.flow.base_dir / "vendor/XilinxUnisimLibrary/verilog/src"
-            verilog_srcs += [
-                unisim_src_dir / "glbl.v",
-                unisim_src_dir / "unisims/OBUFDS.v",
-                unisim_src_dir / "unisims/IBUFDS.v",
-                unisim_src_dir / "unisims/FDRE.v",
-                unisim_src_dir / "unisims/BUFGCE.v",
-                unisim_src_dir / "unisims/IOBUF.v",
-                unisim_src_dir / "unisims/BUFG.v",
-                unisim_src_dir / "unisims/MMCME2_BASE.v",
-                unisim_src_dir / "unisims/MMCME2_ADV.v",
-            ]    
+            verilog_srcs += verilator.xilinx_sources(
+                self.flow.base_dir / "vendor/XilinxUnisimLibrary/verilog/src")
         else:
             raise ValueError(f"Unknown simulator '{simulator}'")
         

@@ -9,6 +9,19 @@ from typing import Optional
 import os
 import sys
 
+def xilinx_sources(unisim_src_dir: Path) -> list[Path]:
+    return [
+        unisim_src_dir / "glbl.v",
+        unisim_src_dir / "unisims/OBUFDS.v",
+        unisim_src_dir / "unisims/IBUFDS.v",
+        unisim_src_dir / "unisims/FDRE.v",
+        unisim_src_dir / "unisims/BUFGCE.v",
+        unisim_src_dir / "unisims/IOBUF.v",
+        unisim_src_dir / "unisims/BUFG.v",
+        unisim_src_dir / "unisims/MMCME2_BASE.v",
+        unisim_src_dir / "unisims/MMCME2_ADV.v",
+    ]
+
 def compile(
         src_files: list[Path],
         cwd: Path,
@@ -36,12 +49,14 @@ def compile(
     verilator_opts += [str(src) for src in src_files]
 
     full_cmd = ['verilator'] + verilator_opts
-    print(f"Running Verilator compile command:\n{shlex.join(full_cmd)}")
+    print("Running Verilator compile command:")
+    print(shlex.join(full_cmd))
     subprocess.check_call(full_cmd, cwd=cwd)
 
     # Build the simulation 
     make_cmd = ["make", "-j", "-C", "obj_dir", "-f", f"V{top_module}.mk", f"V{top_module}"]
-    print(f"Building Verilator simulation:\n{shlex.join(make_cmd)}")
+    print("Building Verilator simulation:")
+    print(shlex.join(make_cmd))
     subprocess.check_call(make_cmd, cwd=cwd)
 
 def simulate(
@@ -78,7 +93,8 @@ def simulate(
     if vcd_out:
         sim_cmd.append("+vcd")
 
-    print(f"Running Verilator simulation command:\n{shlex.join(sim_cmd)}")
+    print("Running Verilator simulation command:")
+    print(shlex.join(sim_cmd))
     subprocess.check_call(sim_cmd, cwd=cwd)
     if vcd_out:
         # The default trace file from Verilator's --main is trace.vcd in the CWD.
@@ -88,4 +104,3 @@ def simulate(
         vcd_out.parent.mkdir(parents=True, exist_ok=True)
         default_vcd.rename(vcd_out)
         print(f"VCD trace file moved to {vcd_out}")
-
