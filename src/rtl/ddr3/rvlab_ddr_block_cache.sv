@@ -17,7 +17,6 @@
  *   environments. This is unproblematic for the RISC-V Lab.
 */
 
-
 module rvlab_ddr_block_cache #(
   parameter int IDX_BITS = 9,
   parameter int TAG_BITS = rvlab_ddr_pkg::DDR_AW - IDX_BITS
@@ -70,7 +69,7 @@ module rvlab_ddr_block_cache #(
   reg pending_be_req_q, pending_fetch_after_evict;
 
   logic  access, access_q;
-  assign access = fe_req_i.a_valid && ~stall;
+  assign access = fe_req_i.a_valid;
 
   wire   hit, miss;
   assign hit  = tag_rdata == access_tag_q && access_q && ~stall;
@@ -101,14 +100,10 @@ module rvlab_ddr_block_cache #(
       
       if (be_req_o.a_valid && be_rsp_i.a_ready) begin
         pending_be_req_q <= '1;
-        if (be_req_o.a_opcode == PutFullData) begin
-          pending_fetch_after_evict <= '1;
-        end
       end
       if (be_rsp_i.d_valid && be_req_o.d_ready) begin
-        pending_be_req_q <= '0;
         if (be_rsp_i.d_opcode == AccessAckData) begin
-          pending_fetch_after_evict <= '0;
+          pending_be_req_q <= '0;
         end
       end
 
@@ -158,18 +153,19 @@ module rvlab_ddr_block_cache #(
   always_ff @(posedge clk_i) begin
     if (hit && access_type_q inside {PutFullData, PutPartialData}) begin
       for (int i = 0; i < 32; i++) begin
-        if (access_mask_q[i]) data_mem[access_idx][8*i+:8] <= access_data_q[8*i+:8];
+        if (access_mask_q[i]) data_mem[access_idx_q][8*i+:8] <= access_data_q[8*i+:8];
       end
     end
   end
 
   // Tag memory
   always_ff @(posedge clk_i) begin
-    if (be_req_o.a_valid && be_rsp_i.a_ready) begin
+    if (be_req_o.a_valid && be_rsp_i.a_ready && be_req_o.a_opcode == Get) begin
       tag_mem[access_idx_q] <= access_tag_q;
+      tag_rdata <= access_tag_q;
+    end else begin
+      tag_rdata <= tag_mem[access_idx];
     end
-
-    tag_rdata <= tag_mem[access_idx];
   end
 
   // Flag memory
@@ -182,9 +178,10 @@ module rvlab_ddr_block_cache #(
   always_ff @(posedge clk_i) begin
     if (fe_modify_req || modify_clear) begin
       flag_mem[access_idx].modified <= modify_clear ? '0 : '1;
+      flag_rdata <= modify_clear ? '0 : '1;
+    end else begin
+      flag_rdata <= flag_mem[access_idx];
     end
-
-    flag_rdata <= flag_mem[access_idx];
   end
 
   // Populate cache initially
@@ -209,7 +206,7 @@ module rvlab_ddr_block_cache #(
 
     be_req_o = '{
       d_ready: '1,
-      a_valid: (miss || pending_fetch_after_evict) && ~pending_be_req_q,
+      a_valid: miss,
       a_opcode: flag_rdata.modified ? PutFullData : Get,
       a_mask: 32'hFFFFFFFF,
       a_address: {flag_rdata.modified ? tag_rdata : access_tag_q, access_idx_q},
