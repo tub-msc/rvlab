@@ -98,6 +98,8 @@ module rvlab_fpga_top (
 
   logic sys_clk;
   logic clk_200mhz;
+  logic clk_400mhz;
+  logic clk_400mhz_90deg;
   logic clk_100mhz_buffered;
   logic locked;
   logic ndmreset;
@@ -110,6 +112,8 @@ module rvlab_fpga_top (
     .clk_100mhz_buffered_o(clk_100mhz_buffered),
     .sys_clk_o            (sys_clk),
     .clk_200mhz_o         (clk_200mhz),
+    .clk_400mhz_o         (clk_400mhz),
+    .clk_400mhz_90deg_o   (clk_400mhz_90deg),
     .locked_o             (locked)
   );
 
@@ -153,6 +157,8 @@ module rvlab_fpga_top (
     .clk_i                (sys_clk),
     .clk_100mhz_buffered_i(clk_100mhz_buffered),
     .clk_200mhz_i         (clk_200mhz),
+    .clk_400mhz_i         (clk_400mhz),
+    .clk_400mhz_90deg_i   (clk_400mhz_90deg),
     .rst_ni               (sys_rst_n),
     .tl_i                 (tl_ddr_h2d),
     .tl_o                 (tl_ddr_d2h),
@@ -164,6 +170,7 @@ module rvlab_fpga_top (
     .ddr3_dqs_p,
     .ddr3_addr,
     .ddr3_ba,
+    .ddr3_cs_n(),
     .ddr3_ras_n,
     .ddr3_cas_n,
     .ddr3_we_n,

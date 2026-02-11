@@ -1,0 +1,166 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2026 RVLab Contributors
+
+module rvlab_ddr3_topology_tb;
+
+  import tlul_pkg::*;
+  import rvlab_ddr_pkg::*;
+
+  ////////////
+  // Clocks //
+  ////////////
+
+  // sysclk = 50mhz
+  logic sysclk, clk100, clk200, clk400, clk400_90;
+  logic rstn;
+
+  /* System Clock */
+  always begin
+    sysclk = '1;
+    #10000;
+    sysclk = '0;
+    #10000;
+  end
+
+  /* 100MHz (DDR3 Controller) Clock */
+  always begin
+    clk100 = '1;
+    #5000;
+    clk100 = '0;
+    #5000;
+  end
+
+  /* 200MHz (DDR3 Reference) Clock */
+  always begin
+    clk200 = '1;
+    #2500;
+    clk200 = '0;
+    #2500;
+  end
+
+  /* 400MHz (Main DDR3) Clock */
+  always begin
+    clk400 = '1;
+    #625;
+    clk400_90 = '1;
+    #625;
+    clk400 = '0;
+    #625;
+    clk400_90 = '0;
+    #625;
+  end
+
+  ///////////////////////
+  // DDR instantiation //
+  ///////////////////////
+
+  tl_h2d_t tl_host_h2d, tl_ctrl_h2d;
+  tl_d2h_t tl_host_d2h, tl_ctrl_d2h;
+
+  wire [15:0] ddr3_dq;
+  wire [ 1:0] ddr3_dqs_n;
+  wire [ 1:0] ddr3_dqs_p;
+  wire [14:0] ddr3_addr;
+  wire [ 2:0] ddr3_ba;
+  wire [ 0:0] ddr3_cs_n;
+  wire        ddr3_ras_n;
+  wire        ddr3_cas_n;
+  wire        ddr3_we_n;
+  wire        ddr3_reset_n;
+  wire [ 0:0] ddr3_ck_p;
+  wire [ 0:0] ddr3_ck_n;
+  wire [ 0:0] ddr3_cke;
+  wire [ 1:0] ddr3_dm;
+  wire [ 0:0] ddr3_odt;
+
+  import rvlab_ddr_pkg::*;
+
+  ///////////////////
+  //               //
+  // INSTANTIATION //
+  //               //
+  ///////////////////
+
+  rvlab_tlul_ddr DUT (
+    .clk_i                (sysclk),
+    .rst_ni               (rstn),
+    .clk_100mhz_buffered_i(clk100),
+    .clk_200mhz_i         (clk200),
+    .clk_400mhz_i         (clk400),
+    .clk_400mhz_90deg_i   (clk400_90),
+
+    .tl_i     (tl_host_h2d),
+    .tl_o     (tl_host_d2h),
+    .tl_ctrl_i(tl_ctrl_h2d),
+    .tl_ctrl_o(tl_ctrl_d2h),
+
+    .ddr3_dq     (ddr3_dq),
+    .ddr3_dqs_n  (ddr3_dqs_n),
+    .ddr3_dqs_p  (ddr3_dqs_p),
+    .ddr3_addr   (ddr3_addr),
+    .ddr3_ba     (ddr3_ba),
+    .ddr3_ras_n  (ddr3_ras_n),
+    .ddr3_cas_n  (ddr3_cas_n),
+    .ddr3_we_n   (ddr3_we_n),
+    .ddr3_reset_n(ddr3_reset_n),
+    .ddr3_ck_p   (ddr3_ck_p),
+    .ddr3_ck_n   (ddr3_ck_n),
+    .ddr3_cke    (ddr3_cke),
+    .ddr3_cs_n   (ddr3_cs_n),
+    .ddr3_dm     (ddr3_dm),
+    .ddr3_odt    (ddr3_odt)
+  );
+
+  ddr3 ddr3_model_i (
+      .rst_n  (ddr3_reset_n),
+      .ck     (ddr3_ck_p),
+      .ck_n   (ddr3_ck_n),
+      .cke    (ddr3_cke),
+      .cs_n   (ddr3_cs_n),
+      .ras_n  (ddr3_ras_n),
+      .cas_n  (ddr3_cas_n),
+      .we_n   (ddr3_we_n),
+      .dm_tdqs(ddr3_dm),
+      .ba     (ddr3_ba),
+      .addr   (ddr3_addr),
+      .dq     (ddr3_dq),
+      .dqs    (ddr3_dqs_p),
+      .dqs_n  (ddr3_dqs_n),
+      .tdqs_n (),
+      .odt    (ddr3_odt)
+  );
+
+  /////////////
+  // Testing //
+  /////////////
+
+  tlul_test_host bus (
+    .clk_i (sysclk),
+    .rst_no(rstn),
+    .tl_i  (tl_host_d2h),
+    .tl_o  (tl_host_h2d)
+  );
+
+  logic [31:0] rdata;
+
+  initial begin
+    bus.reset();
+
+    bus.put_word(32'h10000000, 32'hbeefcafe);
+
+    for (int i = 0; i < 16384; i+= 4) begin
+      bus.put_word(i, i);
+    end
+    for (int i = 0; i < 16384; i+= 4) begin
+      bus.get_word(i, rdata);
+    end
+
+    bus.get_word(32'h10000000, rdata);
+    bus.get_word(32'h00000000, rdata);
+
+    bus.wait_cycles(100);
+
+    $finish;
+  end
+
+endmodule

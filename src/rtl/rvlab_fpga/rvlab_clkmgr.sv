@@ -5,11 +5,15 @@ module rvlab_clkmgr (
   input  logic clk_100mhz_i,
   output logic sys_clk_o,
   output logic clk_200mhz_o,
+  output logic clk_400mhz_o,
+  output logic clk_400mhz_90deg_o,
   output logic locked_o,
   output logic clk_100mhz_buffered_o
 );
 
   logic clk_200mhz;
+  logic clk_400mhz;
+  logic clk_400mhz_90deg;
   logic clk_100mhz_buffered;
   logic clk_fb;
   logic clkout0;
@@ -27,9 +31,9 @@ module rvlab_clkmgr (
     .CLKFBOUT_PHASE    (0.0),          // Phase offset in degrees of CLKFB (-360.000-360.000).
     .CLKIN1_PERIOD     (10.0),         // 100 MHz input clock = 10 ns clock period
     .CLKOUT0_DIVIDE_F  (24.0),         // freq(CLKOUT0) = fVCO / 24 = 50 MHz
-    .CLKOUT1_DIVIDE    (6),            // freq(clk_200mhz_o) = fVCO / 6 / 200 MHz
-    .CLKOUT2_DIVIDE    (20),           // not used
-    .CLKOUT3_DIVIDE    (20),           // not used
+    .CLKOUT1_DIVIDE    (6),            // freq(clk_200mhz_o) = fVCO / 6 = 200 MHz
+    .CLKOUT2_DIVIDE    (3),            // freq(clk_400mhz_o) = fVCO / 3 = 400 MHz
+    .CLKOUT3_DIVIDE    (3),            // freq(clk_400mhz_90deg_o) = fVCO / 3 = 400 MHz
     .CLKOUT4_DIVIDE    (20),           // not used
     .CLKOUT5_DIVIDE    (20),           // not used
     .CLKOUT6_DIVIDE    (20),           // not used
@@ -43,9 +47,9 @@ module rvlab_clkmgr (
     .CLKOUT6_DUTY_CYCLE(0.5),
     // CLKOUT0_PHASE - CLKOUT6_PHASE: Phase offset for each CLKOUT (-360.000-360.000).
     .CLKOUT0_PHASE     (0.0),
-    .CLKOUT1_PHASE     (90.0),
+    .CLKOUT1_PHASE     (0.0),
     .CLKOUT2_PHASE     (0.0),
-    .CLKOUT3_PHASE     (0.0),
+    .CLKOUT3_PHASE     (90.0),
     .CLKOUT4_PHASE     (0.0),
     .CLKOUT5_PHASE     (0.0),
     .CLKOUT6_PHASE     (0.0),
@@ -57,11 +61,11 @@ module rvlab_clkmgr (
     // Clock Outputs: 1-bit (each) output: User configurable clock outputs
     .CLKOUT0  (clkout0),              // 1-bit output: CLKOUT0
     .CLKOUT0B (),                     // 1-bit output: Inverted CLKOUT0
-    .CLKOUT1  (clk_200mhz),         // 1-bit output: CLKOUT1
+    .CLKOUT1  (clk_200mhz),           // 1-bit output: CLKOUT1
     .CLKOUT1B (),                     // 1-bit output: Inverted CLKOUT1
-    .CLKOUT2  (),                     // 1-bit output: CLKOUT2
+    .CLKOUT2  (clk_400mhz),           // 1-bit output: CLKOUT2
     .CLKOUT2B (),                     // 1-bit output: Inverted CLKOUT2
-    .CLKOUT3  (),                     // 1-bit output: CLKOUT3
+    .CLKOUT3  (clk_400mhz_90deg),     // 1-bit output: CLKOUT3
     .CLKOUT3B (),                     // 1-bit output: Inverted CLKOUT3
     .CLKOUT4  (),                     // 1-bit output: CLKOUT4
     .CLKOUT5  (),                     // 1-bit output: CLKOUT5
@@ -90,6 +94,16 @@ module rvlab_clkmgr (
   BUFG clkbuf_200mhz_i (
     .O (clk_200mhz_o),     // 1-bit output: Clock output
     .I (clk_200mhz)    // 1-bit input: Primary clock
+  );
+
+  BUFG clkbuf_400mhz_i (
+    .O (clk_400mhz_o),
+    .I (clk_400mhz)
+  );
+
+  BUFG clkbuf_400mhz_90deg_i (
+    .O (clk_400mhz_90deg_o),
+    .I (clk_400mhz_90deg)
   );
 
 
