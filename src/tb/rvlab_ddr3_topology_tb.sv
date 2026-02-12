@@ -134,6 +134,13 @@ module rvlab_ddr3_topology_tb;
   // Testing //
   /////////////
 
+  /*
+   * Performance
+   *
+   * Purely functional...................542860ns
+   * Reordering + pipelining requests....475560ns (12.4% faster)
+  */
+
   tlul_test_host bus (
     .clk_i (sysclk),
     .rst_no(rstn),
@@ -148,12 +155,8 @@ module rvlab_ddr3_topology_tb;
 
     bus.put_word(32'h10000000, 32'hbeefcafe);
 
-    for (int i = 0; i < 16384; i+= 4) begin
-      bus.put_word(i, i);
-    end
-    for (int i = 0; i < 16384; i+= 4) begin
-      bus.get_word(i, rdata);
-    end
+    bus.contiguous_write(32'h00000000, 16384);
+    bus.contiguous_read(32'h00000000, 16384);
 
     bus.get_word(32'h10000000, rdata);
     bus.get_word(32'h00000000, rdata);

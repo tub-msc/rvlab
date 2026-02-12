@@ -31,7 +31,7 @@ module rvlab_ddr_cache #(
       a_valid  : tl_i.a_valid,
       a_opcode : tl_i.a_opcode,
       a_address: tl_i.a_address[5+:DDR_AW],
-      a_anc    : blk_wordsel,
+      a_anc    : {tl_i.a_source, blk_wordsel},
       d_ready  : tl_i.d_ready,
       default  : '0
     };
@@ -49,11 +49,12 @@ module rvlab_ddr_cache #(
       d_valid : blk_cache_rsp.d_valid,
       d_opcode: blk_cache_rsp.d_opcode,
       d_size  : 8'h2,
+      d_source: blk_cache_rsp.d_anc[3+:top_pkg::TL_AIW],
       a_ready : blk_cache_rsp.a_ready,
       default : '0
     };
     for (int i = 0; i < 8; i++) begin
-      if (blk_cache_rsp.d_anc == i) begin
+      if (blk_cache_rsp.d_anc[2:0] == i) begin
         tl_o.d_data = blk_cache_rsp.d_data[32*i+:32];
       end
     end

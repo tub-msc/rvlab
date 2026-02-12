@@ -17,11 +17,14 @@ package rvlab_ddr_pkg;
    * - Added ancillary data fields a_anc and d_anc:
    *   d_anc must contain the same value passed to a_anc in the request.
    *   This mirrors the behavior of the X_source fields, yet bears a
-   *   different semantic meaning
+   *   different semantic meaning.
+   *   The width of the ancillary fields suffices for:
+   *   - 3 bit word selection (1/8 32-bit words is selected)
+   *   - Full TL-UL source field width, for TL-UL adapters
   */
 
   localparam int DDR_AW = 24; // 29 bit = byte-addressable 512MiB, block = 2^5 bytes
-  localparam int DDR_ANCW = 3; // Width of ancillary data (bits)
+  localparam int DDR_ANCW = 3 + top_pkg::TL_AIW; // Width of ancillary data (bits)
 
   typedef struct packed {
     logic                a_valid;

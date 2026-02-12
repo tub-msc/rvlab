@@ -35,15 +35,19 @@ module rvlab_tlul_ddr (
 
   import rvlab_ddr_pkg::*;
 
-  logic         ddr3if_stb;
-  logic         ddr3if_we;
-  logic [ 24:0] ddr3if_blk_addr;
-  logic [127:0] ddr3if_wdata;
-  logic [  6:0] ddr3if_req_aux;
-  logic         ddr3if_stall;
-  logic         ddr3if_ack;
-  logic [127:0] ddr3if_rdata;
-  logic [  6:0] ddr3if_rsp_aux;
+  localparam int BLKMGR_REQBUF_SIZE = 16;
+  localparam int BLKMGR_REQBUF_IDXW = $clog2(BLKMGR_REQBUF_SIZE);
+  localparam int AUXW = BLKMGR_REQBUF_IDXW + DDR_ANCW;
+
+  logic            ddr3if_stb;
+  logic            ddr3if_we;
+  logic [    24:0] ddr3if_blk_addr;
+  logic [   127:0] ddr3if_wdata;
+  logic [AUXW-1:0] ddr3if_req_aux;
+  logic            ddr3if_stall;
+  logic            ddr3if_ack;
+  logic [   127:0] ddr3if_rdata;
+  logic [AUXW-1:0] ddr3if_rsp_aux;
 
   ///////////////////
   //               //
@@ -86,7 +90,7 @@ module rvlab_tlul_ddr (
   /* Block Manager */
 
   rvlab_ddr_blkmgr #(
-    .REQBUF_SIZE(16)
+    .REQBUF_SIZE(BLKMGR_REQBUF_SIZE)
   ) blkmgr_i (
     .clk_i        (clk_100mhz_buffered_i),
     .rst_ni       (rst_ni),
@@ -120,7 +124,7 @@ module rvlab_tlul_ddr (
     .COL_BITS(10), //width of column address
     .BA_BITS(3), //width of bank address
     .BYTE_LANES(2), //number of byte lanes of DDR3 RAM
-    .AUX_WIDTH(4 + DDR_ANCW), //width of aux line (must be >= 4) 
+    .AUX_WIDTH(BLKMGR_REQBUF_IDXW + DDR_ANCW), //width of aux line (must be >= 4)
     .MICRON_SIM(1), //enable faster simulation for micron ddr3 model (shorten POWER_ON_RESET_HIGH and INITIAL_CKE_LOW)
     .ODELAY_SUPPORTED(0), //set to 1 if ODELAYE2 is supported
     .SECOND_WISHBONE(0), //set to 1 if 2nd wishbone for debugging is needed 
