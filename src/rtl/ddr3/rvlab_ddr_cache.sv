@@ -53,11 +53,17 @@ module rvlab_ddr_cache #(
       a_ready : blk_cache_rsp.a_ready,
       default : '0
     };
-    for (int i = 0; i < 8; i++) begin
-      if (blk_cache_rsp.d_anc[2:0] == i) begin
-        tl_o.d_data = blk_cache_rsp.d_data[32*i+:32];
-      end
-    end
+
+    unique case (blk_cache_rsp.d_anc[2:0])
+      3'b000: tl_o.d_data = blk_cache_rsp.d_data[  0+:32];
+      3'b001: tl_o.d_data = blk_cache_rsp.d_data[ 32+:32];
+      3'b010: tl_o.d_data = blk_cache_rsp.d_data[ 64+:32];
+      3'b011: tl_o.d_data = blk_cache_rsp.d_data[ 96+:32];
+      3'b100: tl_o.d_data = blk_cache_rsp.d_data[128+:32];
+      3'b101: tl_o.d_data = blk_cache_rsp.d_data[160+:32];
+      3'b110: tl_o.d_data = blk_cache_rsp.d_data[192+:32];
+      3'b111: tl_o.d_data = blk_cache_rsp.d_data[224+:32];
+    endcase
   end
 
   rvlab_ddr_block_cache #(

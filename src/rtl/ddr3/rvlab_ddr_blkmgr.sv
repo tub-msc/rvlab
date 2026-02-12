@@ -129,48 +129,46 @@ module rvlab_ddr_blkmgr #(
 
     case (state_q)
       Primed: begin
-        if (req_i.a_valid && !reqbuf_full) begin
-          case (req_i.a_opcode)
-            PutPartialData: begin
-              /* Fastest case: 64-bit write */
-              wb_stb_o = '1;
-              wb_we_o = '1;
-              if (req_i.a_mask[16]) begin
-                // High dword write
-                wb_wmask_o = req_i.a_mask[31:16];
-                wb_wdata_o = req_i.a_data[255:128];
-                wb_blk_addr_o[0] = '1;
-              end else begin
-                // Low dword write
-                wb_wmask_o = req_i.a_mask[15:0];
-                wb_wdata_o = req_i.a_data[127:0];
-              end
-              if (!wb_stall_i) begin
-                rsp_o.a_ready = '1;
-              end
-            end
-            PutFullData: begin
-              /* 128-bit write */
-              wb_stb_o = '1;
-              wb_we_o = '1;
+        case (req_i.a_opcode)
+          PutPartialData: begin
+            /* Fastest case: 64-bit write */
+            if (req_i.a_valid && !reqbuf_full) wb_stb_o = '1;
+            if (req_i.a_valid && !reqbuf_full) wb_we_o = '1;
+            if (req_i.a_mask[16]) begin
+              // High dword write
+              wb_wmask_o = req_i.a_mask[31:16];
+              wb_wdata_o = req_i.a_data[255:128];
+              wb_blk_addr_o[0] = '1;
+            end else begin
+              // Low dword write
               wb_wmask_o = req_i.a_mask[15:0];
               wb_wdata_o = req_i.a_data[127:0];
-              if (!wb_stall_i) begin
-                state_d = WriteHigh;
-                rsp_o.a_ready = '1;
-              end
             end
-            Get: begin
-              /* 128-bit read */
-              wb_stb_o = '1;
-              if (!wb_stall_i) begin
-                state_d = ReadHigh;
-                rsp_o.a_ready = '1;
-              end
+            if (!wb_stall_i && req_i.a_valid && !reqbuf_full) begin
+              rsp_o.a_ready = '1;
             end
-            default: ;
-          endcase
-        end
+          end
+          PutFullData: begin
+            /* 128-bit write */
+            if (req_i.a_valid && !reqbuf_full) wb_stb_o = '1;
+            if (req_i.a_valid && !reqbuf_full) wb_we_o = '1;
+            wb_wmask_o = req_i.a_mask[15:0];
+            wb_wdata_o = req_i.a_data[127:0];
+            if (!wb_stall_i && req_i.a_valid && !reqbuf_full) begin
+              state_d = WriteHigh;
+              rsp_o.a_ready = '1;
+            end
+          end
+          Get: begin
+            /* 128-bit read */
+            if (req_i.a_valid && !reqbuf_full) wb_stb_o = '1;
+            if (!wb_stall_i && req_i.a_valid && !reqbuf_full) begin
+              state_d = ReadHigh;
+              rsp_o.a_ready = '1;
+            end
+          end
+          default: ;
+        endcase
       end
       WriteHigh: begin
         wb_stb_o = '1;
@@ -191,15 +189,17 @@ module rvlab_ddr_blkmgr #(
     endcase
 
     if (reqbuf_state_mem[reqbuf_rptr] == Valid) begin
-      if (reqbuf_type_mem[reqbuf_rptr] == Read) begin
-        rsp_o.d_opcode = AccessAckData;
-      end else begin
-        rsp_o.d_opcode = AccessAck;
-      end
       rsp_o.d_valid = '1;
-      rsp_o.d_anc = reqbuf_anc_mem[reqbuf_rptr];
-      rsp_o.d_data = reqbuf_data_mem[reqbuf_rptr];
     end
+    
+    if (reqbuf_type_mem[reqbuf_rptr] == Read) begin
+      rsp_o.d_opcode = AccessAckData;
+    end else begin
+      rsp_o.d_opcode = AccessAck;
+    end
+
+    rsp_o.d_anc = reqbuf_anc_mem[reqbuf_rptr];
+    rsp_o.d_data = reqbuf_data_mem[reqbuf_rptr];
   end
 
   wire [REQBUF_AW-1:0] ack_reqbuf_adr;
@@ -230,8 +230,6 @@ module rvlab_ddr_blkmgr #(
         reqbuf_wptr   <= reqbuf_wptr + 1;
         reqbuf_wptr_q <= reqbuf_wptr;
 
-        reqbuf_anc_mem[reqbuf_wptr] <= req_i.a_anc;
-
         if (req_i.a_opcode == PutPartialData) begin
           // Iff opcode is PutPartialData, only one
           // response must arrive for validation
@@ -239,20 +237,12 @@ module rvlab_ddr_blkmgr #(
         end else begin
           reqbuf_state_mem[reqbuf_wptr] <= PendingLow;
         end
-
-        if (req_i.a_opcode == Get) begin
-          reqbuf_type_mem[reqbuf_wptr] <= Read;
-        end else begin
-          reqbuf_type_mem[reqbuf_wptr] <= Write;
-        end
       end
 
       if (wb_ack_i) begin
-        case (reqbuf_state_mem[ack_reqbuf_adr]) 
-          Invalid     : /* ERROR */;
+        case (reqbuf_state_mem[ack_reqbuf_adr])
           PendingLow  : reqbuf_state_mem[ack_reqbuf_adr] <= PendingHigh;
           PendingHigh : reqbuf_state_mem[ack_reqbuf_adr] <= Valid;
-          Valid       : /* ERROR */;
           default     : /* ERROR */;
         endcase
       end
@@ -265,12 +255,20 @@ module rvlab_ddr_blkmgr #(
   end
 
   always_ff @(posedge clk_i) begin
+    if (req_i.a_valid && rsp_o.a_ready) begin
+      reqbuf_anc_mem[reqbuf_wptr] <= req_i.a_anc;
+
+      if (req_i.a_opcode == Get) begin
+        reqbuf_type_mem[reqbuf_wptr] <= Read;
+      end else begin
+        reqbuf_type_mem[reqbuf_wptr] <= Write;
+      end
+    end
+
     if (wb_ack_i) begin
       case (reqbuf_state_mem[ack_reqbuf_adr])
-        Invalid     : /* ERROR */;
         PendingLow  : reqbuf_data_mem[ack_reqbuf_adr][127:0] <= wb_rdata_i;
         PendingHigh : reqbuf_data_mem[ack_reqbuf_adr][255:128] <= wb_rdata_i;
-        Valid       : /* ERROR */;
         default     : /* ERROR */;
       endcase
     end

@@ -43,6 +43,7 @@ module rvlab_tlul_ddr (
   logic            ddr3if_we;
   logic [    24:0] ddr3if_blk_addr;
   logic [   127:0] ddr3if_wdata;
+  logic [    15:0] ddr3if_wmask;
   logic [AUXW-1:0] ddr3if_req_aux;
   logic            ddr3if_stall;
   logic            ddr3if_ack;
@@ -102,12 +103,18 @@ module rvlab_tlul_ddr (
     .wb_we_o      (ddr3if_we),
     .wb_blk_addr_o(ddr3if_blk_addr),
     .wb_wdata_o   (ddr3if_wdata),
+    .wb_wmask_o   (ddr3if_wmask),
     .wb_aux_o     (ddr3if_req_aux),
     .wb_stall_i   (ddr3if_stall),
     .wb_ack_i     (ddr3if_ack),
     .wb_rdata_i   (ddr3if_rdata),
     .wb_aux_i     (ddr3if_rsp_aux)
   );
+
+  logic ddr3_self_refresh;
+  assign ddr3_self_refresh = '0;
+
+  logic ddr3_calib_complete;
 
   /* DDR3 Controller */
   /*
@@ -125,7 +132,9 @@ module rvlab_tlul_ddr (
     .BA_BITS(3), //width of bank address
     .BYTE_LANES(2), //number of byte lanes of DDR3 RAM
     .AUX_WIDTH(BLKMGR_REQBUF_IDXW + DDR_ANCW), //width of aux line (must be >= 4)
+  `ifndef SYNTHESIS
     .MICRON_SIM(1), //enable faster simulation for micron ddr3 model (shorten POWER_ON_RESET_HIGH and INITIAL_CKE_LOW)
+  `endif
     .ODELAY_SUPPORTED(0), //set to 1 if ODELAYE2 is supported
     .SECOND_WISHBONE(0), //set to 1 if 2nd wishbone for debugging is needed 
     .ECC_ENABLE(0), // set to 1 or 2 to add ECC (1 = Side-band ECC per burst, 2 = Side-band ECC per 8 bursts , 3 = Inline ECC ) 
@@ -144,7 +153,7 @@ module rvlab_tlul_ddr (
     .i_wb_we(ddr3if_we), //write-enable (1 = write, 0 = read)
     .i_wb_addr(ddr3if_blk_addr), //burst-addressable {row,bank,col} 
     .i_wb_data(ddr3if_wdata), //write data, for a 4:1 controller data width is 8 times the number of pins on the device
-    .i_wb_sel(16'hffff), //byte strobe for write (1 = write the byte)
+    .i_wb_sel(ddr3if_wmask), //byte strobe for write (1 = write the byte)
     .i_aux(ddr3if_req_aux), //for AXI-interface compatibility (given upon strobe)
     // Wishbone outputs
     .o_wb_stall(ddr3if_stall), //1 = busy, cannot accept requests
@@ -181,8 +190,12 @@ module rvlab_tlul_ddr (
     .io_ddr3_dqs_n(ddr3_dqs_n), // width = BYTE_LANES
     .o_ddr3_dm(ddr3_dm), // width = BYTE_LANES
     .o_ddr3_odt(ddr3_odt),
-    // Debug outputs
-    .o_debug1()
+    // CSR interface
+    .o_debug1(),
+    .o_calib_complete(ddr3_calib_complete),
+    .i_user_self_refresh(ddr3_self_refresh),
+    // UART
+    .uart_tx()
   );
 
 endmodule
