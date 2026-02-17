@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SHL-2.1
-// SPDX-FileCopyrightText: 2024-2026 RVLab Contributors
+// SPDX-FileCopyrightText: 2026 RVLab Contributors
 
 module rvlab_tlul_ddr (
   input logic clk_i,  // sys_clk

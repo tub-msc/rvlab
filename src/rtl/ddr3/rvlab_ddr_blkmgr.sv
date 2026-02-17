@@ -30,41 +30,15 @@ module rvlab_ddr_blkmgr #(
   /*
    * DDR3 Block Access Manager (Outdated description)
    *
-   * Provides access to the DDR3 Wishbone interface in 128-bit blocks.
+   * Provides access to the DDR3 Wishbone interface in 256-bit blocks.
    * Implemented as FSM with states for reading/writing blocks.
-   * Highly combinational, i.e. can answer same-cycle requests.
-   * The FSM comprises several states:
-   * - 'Primed': Several things may happen, depending on req.a_opcode:
-   *     1. Width of Tx = 64b (write with only one write mask bit set):
-   *        Transaction is immediately placed on WB bus, and response
-   *        is immediately directed back to rsp_o.
-   *     2. 128b-wide read:
-   *        Lower 64 bits are read into a holding register, state
-   *        changes to 'ReadHigh', Tx is accepted but not ACK'd yet.
-   *     3. 128b-wide write:
-   *        Lower 64 bits are written to RAM, state changes to
-   *        'WriteHigh', Tx is accepted but not ACK'd yet.
-   * - 'ReadHigh': Upper 64 bits of buffered block (address) are read,
-   *        concatenated with the holding register, returned to Master.
-   *        If master declines request, Value is registered and subse-
-   *        quently returned. No new requests are accepted in this
-   *        time.
-   * - 'WriteHigh': Upper 64 bits of input block (buffered) are written
-   *        to the upper 64 bits of addressed block (in buffer). ACK
-   *        occurs at the earliest in the cycle of the DDR3's ACK.
-   * - 'AckWrite': Present AccessAck beat until req.d_ready goes high.
-   *        Don't accept any new requests in this time.
-   * - 'AckRead': Present AccessAckData beat with data from blkdata_q
-   *        until req.d_ready goes high. Don't accept any new requests
-   *        in this time.
-   *
    *
    * Block Manager uses a request buffer to keep track of outstanding
    * requests. When it is full, no new requests are accepted.
   */
 
   /*
-   * Flow for Block Read
+   * Flow for Block Read (Writes are fairly similar)
    *
    * 1. Block request a_valid goes high
    *    (wait for request buffer to not be full)

@@ -191,8 +191,6 @@ module rvlab_ddr_block_cache #(
       d_anc: ancillary_q
     };
 
-    // TODO: fix subsequent write -> read to same addr
-
     be_req_o = '{
       d_ready: '1,
       a_valid: miss,

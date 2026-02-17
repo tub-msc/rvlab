@@ -18,8 +18,6 @@ module rvlab_ddr_cache #(
 
   import rvlab_ddr_pkg::*;
 
-  // TODO: find a solution for X_source fields -> ancillary data?
-
   ddr3_h2d_t blk_cache_req;
   ddr3_d2h_t blk_cache_rsp;
 
