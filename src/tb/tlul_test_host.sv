@@ -56,8 +56,8 @@ module tlul_test_host (
     if (tl_i.d_size != tl_o.a_size) begin
       $display("Warning: response d_size was %p, expected %p.", tl_i.d_size, tl_o.a_size);
     end
-    if (tl_i.d_sink != tl_o.a_source) begin
-      $display("Warning: response d_sink was %p, expected %p.", tl_i.d_sink, tl_o.a_source);
+    if (tl_i.d_source != tl_o.a_source) begin
+      $display("Warning: response d_source was %p, expected %p.", tl_i.d_source, tl_o.a_source);
     end
   endtask
 
@@ -87,6 +87,45 @@ module tlul_test_host (
     end
     @(posedge clk_i);
     $display("Debug: get word addr=0x%08x, rdata=0x%08x", addr, rdata);
+  endtask
+
+  task contiguous_op(input logic [31:0] init_addr, input int bytes);
+    logic [5:0] lastsrc;
+    tl_o.a_size    <= 2;
+    tl_o.a_mask    <= 4'b1111;
+    tl_o.a_valid   <= '1;
+    tl_o.d_ready   <= '1;
+
+    for (int i = init_addr; i < init_addr + bytes; i += 4) begin
+      tl_o.a_address <= i;
+      tl_o.a_data    <= i;
+      lastsrc         = i & 6'h3F;
+      tl_o.a_source  <= lastsrc; // use 6 bits for source
+      
+      @(posedge clk_i);
+      while (~tl_i.a_ready) @(posedge clk_i);
+      
+      if (tl_o.a_opcode == tlul_pkg::PutFullData) begin
+        $display("Debug: put word addr=0x%08x, wdata=0x%08x", tl_o.a_address, tl_o.a_data);
+      end
+
+      if (tl_i.d_valid) begin
+        if (tl_i.d_opcode == tlul_pkg::AccessAckData) begin
+          $display("Debug: get word addr=0x%08x, rdata=0x%08x", i & 32'hFFFFFFC0 | tl_i.d_source, tl_i.d_data);
+        end
+      end
+    end
+    while (!(tl_i.d_valid && tl_i.d_source == lastsrc)) @(posedge clk_i);
+  endtask
+
+  task contiguous_write(input logic [31:0] init_addr, input int bytes);
+    tl_o.a_opcode <= tlul_pkg::PutFullData;
+    contiguous_op(init_addr, bytes);
+  endtask
+
+  task contiguous_read(input logic [31:0] init_addr, input int bytes);
+    tl_o.a_opcode <= tlul_pkg::Get;
+    contiguous_op(init_addr, bytes);
   endtask
 
 endmodule

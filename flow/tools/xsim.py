@@ -105,15 +105,6 @@ def split_sources(src_files):
     return src_files_xvlog, src_files_xsc
 
 def xvlog(src_files_xvlog, defines, include_dirs, cwd):
-    # During MIG debugging, I thought that sepating V and SV files might help (it did not).
-    #v_sources = []
-    #sv_sources = []
-    #for f in src_files_xvlog:
-    #    if str(f).endswith('.v'):
-    #        v_sources.append(f)
-    #    else:
-    #        sv_sources.append(f)
-    #
     xvlog_opts = []
 
     xvlog_opts += ['-sv']

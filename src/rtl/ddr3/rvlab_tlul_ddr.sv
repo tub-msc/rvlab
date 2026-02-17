@@ -35,6 +35,10 @@ module rvlab_tlul_ddr (
 
   import rvlab_ddr_pkg::*;
 
+  assign tl_ctrl_o = '{d_opcode: tlul_pkg::AccessAck, default: '0};
+
+`ifdef WITH_EXT_DRAM
+
   localparam int BLKMGR_REQBUF_SIZE = 16;
   localparam int BLKMGR_REQBUF_IDXW = $clog2(BLKMGR_REQBUF_SIZE);
   localparam int AUXW = BLKMGR_REQBUF_IDXW + DDR_ANCW;
@@ -197,5 +201,25 @@ module rvlab_tlul_ddr (
     // UART
     .uart_tx()
   );
+
+`else
+
+  // Make sure all output signals are somehow valid, in case someone tries to
+  // build a bitstream of the design without DDR.
+
+  assign ddr3_addr    = '0;
+  assign ddr3_ba      = '0;
+  assign ddr3_ras_n   = '1;
+  assign ddr3_cas_n   = '1;
+  assign ddr3_we_n    = '1;
+  assign ddr3_reset_n = '0;
+
+  assign ddr3_ck_p    = '1;
+  assign ddr3_ck_n    = '0;
+  assign ddr3_cke     = '0;
+
+  assign ddr3_dm      = '0;
+
+`endif
 
 endmodule
