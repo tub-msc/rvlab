@@ -18,7 +18,9 @@ class RvlabFpgaTop(Block):
     def setup(self):
         self.src_dir = self.flow.base_dir / "src"
         self.design_dir = self.src_dir / "design"
-        self.xdc_in = self.design_dir / "xdc" / f"{self.name}.xdc"
+        self.xdc_in = [
+            self.design_dir / "xdc" / f"{self.name}.xdc"
+        ]
 
     @task(requires={'srcs':'srcs.srcs'}, hidden=True)
     def rtl_elaborate(self, cwd, srcs):
@@ -27,7 +29,8 @@ class RvlabFpgaTop(Block):
             t.read_verilog(srcs.design_srcs)
             for xci in srcs.xcis:
                 t.import_ip(xci)
-            t.read_xdc(self.xdc_in)
+            for xdc in self.xdc_in:
+                t.read_xdc(xdc)
             defines = []
             for k, v in srcs.defines.items():
                 defines += ['-verilog_define', f"{k}={v}"]
@@ -86,7 +89,8 @@ class RvlabFpgaTop(Block):
             t.read_verilog(srcs.design_srcs)
             for xci in srcs.xcis:
                 t.import_ip(xci)
-            t.read_xdc(self.xdc_in)
+            for xdc in self.xdc_in:
+                t.read_xdc(xdc)
             defines = []
             for k, v in srcs.defines.items():
                 defines += ['-verilog_define', f"{k}={v}"]
@@ -153,7 +157,7 @@ class RvlabFpgaTop(Block):
 
                     # Global worst paths
                     t.report_timing(
-                        delay_type="min_max",
+                        delay_type="max",
                         input_pins=True,
                         routable_nets=True,
                         max_paths=NUM_CRITICAL_PATHS,
