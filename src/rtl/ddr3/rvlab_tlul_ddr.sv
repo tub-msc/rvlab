@@ -5,10 +5,7 @@ module rvlab_tlul_ddr (
   input logic clk_i,  // sys_clk
   input logic rst_ni,
 
-  input logic clk_ctrl_i,
-  input logic clk_ref_i,
-  input logic clk_fast_i,
-  input logic clk_fast_90deg_i,
+  input logic clk_100mhz_i,
 
   // TL-UL slave interface
   input  tlul_pkg::tl_h2d_t tl_i,
@@ -62,10 +59,28 @@ module rvlab_tlul_ddr (
   //               //
   ///////////////////
 
-  ddr3_h2d_t blockmgr_req, llc_req;
-  ddr3_d2h_t blockmgr_rsp, llc_rsp;
+  /* Clock */
+
+  logic clk_ctrl;
+  logic clk_ref;
+  logic clk_fast;
+  logic clk_fast90;
+
+  logic ddr_rstn;
+
+  rvlab_ddr_clkmgr clkmgr_i (
+    .clk_100mhz_i,
+    .clk_ctrl_o  (clk_ctrl),
+    .clk_ref_o   (clk_ref),
+    .clk_fast_o  (clk_fast),
+    .clk_fast90_o(clk_fast90),
+    .locked_o    (ddr_rstn)
+  );
 
   /* LLC */
+
+  ddr3_h2d_t blockmgr_req, llc_req;
+  ddr3_d2h_t blockmgr_rsp, llc_rsp;
 
   rvlab_ddr_cache #(
     .IDX_BITS(9)
@@ -85,8 +100,8 @@ module rvlab_tlul_ddr (
   rvlab_ddr_cdc_fifo cdc_fifo_i (
     .clk_h_i (clk_i),
     .rst_h_ni(rst_ni),
-    .clk_d_i (clk_ctrl_i),
-    .rst_d_ni(rst_ni),
+    .clk_d_i (clk_ctrl),
+    .rst_d_ni(ddr_rstn),
 
     .wtl_h_i (llc_req),
     .wtl_h_o (llc_rsp),
@@ -99,8 +114,8 @@ module rvlab_tlul_ddr (
   rvlab_ddr_blkmgr #(
     .REQBUF_SIZE(BLKMGR_REQBUF_SIZE)
   ) blkmgr_i (
-    .clk_i        (clk_ctrl_i),
-    .rst_ni       (rst_ni),
+    .clk_i        (clk_ctrl),
+    .rst_ni       (ddr_rstn),
 
     .req_i        (blockmgr_req),
     .rsp_o        (blockmgr_rsp),
@@ -137,7 +152,7 @@ module rvlab_tlul_ddr (
     .COL_BITS(10), //width of column address
     .BA_BITS(3), //width of bank address
     .BYTE_LANES(2), //number of byte lanes of DDR3 RAM
-    .AUX_WIDTH(BLKMGR_REQBUF_IDXW + DDR_ANCW), //width of aux line (must be >= 4)
+    .AUX_WIDTH(AUXW), //width of aux line (must be >= 4)
   `ifndef SYNTHESIS
     .MICRON_SIM(1), //enable faster simulation for micron ddr3 model (shorten POWER_ON_RESET_HIGH and INITIAL_CKE_LOW)
   `endif
@@ -147,11 +162,11 @@ module rvlab_tlul_ddr (
     .WB_ERROR(0) // set to 1 to support Wishbone error (asserts at ECC double bit error)
   ) ddr_i (
     //clock and reset
-    .i_controller_clk(clk_ctrl_i),
-    .i_ddr3_clk(clk_fast_i), //i_controller_clk has period of CONTROLLER_CLK_PERIOD, i_ddr3_clk has period of DDR3_CLK_PERIOD
-    .i_ref_clk(clk_ref_i), // usually set to 200 MHz
-    .i_ddr3_clk_90(clk_fast_90deg_i), //90 degree phase shifted version i_ddr3_clk (required only when ODELAY_SUPPORTED is zero)
-    .i_rst_n(rst_ni),
+    .i_controller_clk(clk_ctrl),
+    .i_ddr3_clk(clk_fast), //i_controller_clk has period of CONTROLLER_CLK_PERIOD, i_ddr3_clk has period of DDR3_CLK_PERIOD
+    .i_ref_clk(clk_ref), // usually set to 200 MHz
+    .i_ddr3_clk_90(clk_fast90), //90 degree phase shifted version i_ddr3_clk (required only when ODELAY_SUPPORTED is zero)
+    .i_rst_n(ddr_rstn),
     //
     // Wishbone inputs
     .i_wb_cyc(1), //bus cycle active (1 = normal operation, 0 = all ongoing transaction are to be cancelled)

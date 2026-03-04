@@ -17,7 +17,9 @@ module prim_clock_gating (
   logic enable_clock;
   assign enable_clock = en_i | test_en_i;
     
-  BUFGCE clkbuf_i (
+  BUFGCE #(
+    .SIM_DEVICE("7SERIES")
+  ) clkbuf_i (
     .O (clk_o),
     .CE(enable_clock),  // according to doc, this seems to be a glitch-free (latch based) clock gate
     .I (clk_i)

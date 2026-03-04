@@ -155,7 +155,7 @@ module rvlab_ddr_block_cache #(
       tag_mem[access_idx_q] <= access_tag_q;
       tag_rdata <= access_tag_q;
     end else begin
-      tag_rdata <= tag_mem[access_idx];
+      tag_rdata <= tag_mem[stall ? access_idx_q : access_idx];
     end
   end
 
@@ -168,10 +168,9 @@ module rvlab_ddr_block_cache #(
 
   always_ff @(posedge clk_i) begin
     if (fe_modify_req || modify_clear) begin
-      modified_mem[access_idx] <= ~modify_clear;
+      modified_mem[access_idx_q] <= ~modify_clear;
       modified_rdata <= ~modify_clear;
-    end
-    modified_rdata <= modified_mem[access_idx];
+    end else modified_rdata <= modified_mem[access_idx];
   end
 
   // Populate cache initially
@@ -197,7 +196,7 @@ module rvlab_ddr_block_cache #(
       a_opcode: modified_rdata ? PutFullData : Get,
       a_mask: 32'hFFFFFFFF,
       a_address: {modified_rdata ? tag_rdata : access_tag_q, access_idx_q},
-      a_data: data_rdata,
+      a_data: data_rdata_raw,
       a_anc: ancillary_q
     };
   end

@@ -27,6 +27,7 @@ add wave -noupdate /rvlab_ddr3_tb/ddr3_ck_n
 add wave -noupdate /rvlab_ddr3_tb/ddr3_cas_n
 add wave -noupdate /rvlab_ddr3_tb/ddr3_ba
 add wave -noupdate /rvlab_ddr3_tb/ddr3_addr
+add wave -noupdate /rvlab_ddr3_tb/clk400_90
 add wave -noupdate /rvlab_ddr3_tb/clk400
 add wave -noupdate /rvlab_ddr3_tb/clk200
 add wave -noupdate /rvlab_ddr3_tb/clk100
@@ -61,4 +62,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {74130762970 fs} {74177564504 fs}
+WaveRestoreZoom {219089501246 fs} {222804499935 fs}

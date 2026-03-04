@@ -1,8 +1,6 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -divider {Clocks and Resets}
-add wave -noupdate /rvlab_ddr3_tlul_tb/clk400
-add wave -noupdate /rvlab_ddr3_tlul_tb/clk200
 add wave -noupdate /rvlab_ddr3_tlul_tb/clk100
 add wave -noupdate /rvlab_ddr3_tlul_tb/sysclk
 add wave -noupdate /rvlab_ddr3_tlul_tb/rstn
@@ -21,7 +19,6 @@ add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_dqs_p
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_dqs_n
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_dq
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_dm
-add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_cs_n
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_cke
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_ck_p
 add wave -noupdate /rvlab_ddr3_tlul_tb/ddr3_ck_n
@@ -47,8 +44,6 @@ add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/stall_d
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/stall
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/SETS
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/rst_ni
-add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/pending_fetch_after_evict
-add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/pending_be_req_q
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/miss
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/IDX_BITS
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/hit
@@ -58,8 +53,7 @@ add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/data_rdata
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/data_mem
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/clk_i
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/modify_clear
-add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/flag_rdata
-add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/flag_mem
+add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/modified_mem
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/be_rsp_i
 add wave -noupdate -expand /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/be_req_o
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_llc_i/cache_i/ancillary_q
@@ -152,7 +146,7 @@ add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_i/i_ddr3_clk
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_i/i_controller_clk
 add wave -noupdate /rvlab_ddr3_tlul_tb/DUT/ddr_i/i_aux
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {497868808150 fs} 0}
+WaveRestoreCursors {{Cursor 1} {212437928908 fs} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 301
 configure wave -valuecolwidth 181
@@ -168,4 +162,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {497590763910 fs} {498473147258 fs}
+WaveRestoreZoom {212381735820 fs} {213264119168 fs}

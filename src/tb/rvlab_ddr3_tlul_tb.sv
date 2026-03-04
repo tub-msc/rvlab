@@ -11,7 +11,7 @@ module rvlab_ddr3_tlul_tb;
   ////////////
 
   // sysclk = 50mhz
-  logic sysclk, clk100, clk200, clk400, clk400_90;
+  logic sysclk, clk100;
   logic rstn;
 
   /* System Clock */
@@ -30,26 +30,6 @@ module rvlab_ddr3_tlul_tb;
     #5000;
   end
 
-  /* 200MHz (DDR3 Reference) Clock */
-  always begin
-    clk200 = '1;
-    #2500;
-    clk200 = '0;
-    #2500;
-  end
-
-  /* 400MHz (Main DDR3) Clock */
-  always begin
-    clk400 = '1;
-    #625;
-    clk400_90 = '1;
-    #625;
-    clk400 = '0;
-    #625;
-    clk400_90 = '0;
-    #625;
-  end
-
   ///////////////////////
   // DDR instantiation //
   ///////////////////////
@@ -62,7 +42,6 @@ module rvlab_ddr3_tlul_tb;
   wire [ 1:0] ddr3_dqs_p;
   wire [14:0] ddr3_addr;
   wire [ 2:0] ddr3_ba;
-  wire [ 0:0] ddr3_cs_n;
   wire        ddr3_ras_n;
   wire        ddr3_cas_n;
   wire        ddr3_we_n;
@@ -82,12 +61,9 @@ module rvlab_ddr3_tlul_tb;
   ///////////////////
 
   rvlab_tlul_ddr DUT (
-    .clk_i                (sysclk),
-    .rst_ni               (rstn),
-    .clk_100mhz_buffered_i(clk100),
-    .clk_200mhz_i         (clk200),
-    .clk_400mhz_i         (clk400),
-    .clk_400mhz_90deg_i   (clk400_90),
+    .clk_i       (sysclk),
+    .rst_ni      (rstn),
+    .clk_100mhz_i(clk100),
 
     .tl_i     (tl_host_h2d),
     .tl_o     (tl_host_d2h),
@@ -106,7 +82,6 @@ module rvlab_ddr3_tlul_tb;
     .ddr3_ck_p   (ddr3_ck_p),
     .ddr3_ck_n   (ddr3_ck_n),
     .ddr3_cke    (ddr3_cke),
-    .ddr3_cs_n   (ddr3_cs_n),
     .ddr3_dm     (ddr3_dm),
     .ddr3_odt    (ddr3_odt)
   );
@@ -116,7 +91,7 @@ module rvlab_ddr3_tlul_tb;
       .ck     (ddr3_ck_p),
       .ck_n   (ddr3_ck_n),
       .cke    (ddr3_cke),
-      .cs_n   (ddr3_cs_n),
+      .cs_n   ('0),
       .ras_n  (ddr3_ras_n),
       .cas_n  (ddr3_cas_n),
       .we_n   (ddr3_we_n),
@@ -155,8 +130,8 @@ module rvlab_ddr3_tlul_tb;
 
     bus.put_word(32'h10000000, 32'hbeefcafe);
 
-    bus.contiguous_write(32'h00000000, 16384);
-    bus.contiguous_read(32'h00000000, 16384);
+    bus.contiguous_write(32'h00000000, 16448);
+    bus.contiguous_read(32'h00000000, 16448);
 
     bus.get_word(32'h10000000, rdata);
     bus.get_word(32'h00000000, rdata);

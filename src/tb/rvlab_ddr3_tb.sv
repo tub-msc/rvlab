@@ -11,7 +11,7 @@ module rvlab_ddr3_tb;
   ////////////
 
   // sysclk = 50mhz
-  logic sysclk, clk100, clk200, clk400;
+  logic sysclk, clk100, clk200, clk400, clk400_90;
   logic rstn;
 
   /* System Clock */
@@ -46,6 +46,15 @@ module rvlab_ddr3_tb;
     #1250;
   end
 
+  /* 400MHz 90° Clock */
+  always begin
+    #625;
+    clk400_90 = '1;
+    #1250;
+    clk400_90 = '0;
+    #625;
+  end
+
   ///////////////////////
   // DDR instantiation //
   ///////////////////////
@@ -78,8 +87,8 @@ module rvlab_ddr3_tb;
   logic         ddr3if_stall;
   logic         ddr3if_ack;
   logic [127:0] ddr3if_rdata;
-  logic [  6:0] ddr3if_req_aux;
-  logic [  6:0] ddr3if_rsp_aux;
+  logic [ 14:0] ddr3if_req_aux;
+  logic [ 14:0] ddr3if_rsp_aux;
 
   ///////////////////
   //               //
@@ -127,9 +136,9 @@ module rvlab_ddr3_tb;
     .COL_BITS(10), //width of column address
     .BA_BITS(3), //width of bank address
     .BYTE_LANES(2), //number of byte lanes of DDR3 RAM
-    .AUX_WIDTH(7), //width of aux line (must be >= 4) 
+    .AUX_WIDTH(15), //width of aux line (must be >= 4)
     .MICRON_SIM(1), //enable faster simulation for micron ddr3 model (shorten POWER_ON_RESET_HIGH and INITIAL_CKE_LOW)
-    .ODELAY_SUPPORTED(1), //set to 1 if ODELAYE2 is supported
+    .ODELAY_SUPPORTED(0), //set to 1 if ODELAYE2 is supported
     .SECOND_WISHBONE(0), //set to 1 if 2nd wishbone for debugging is needed 
     .ECC_ENABLE(0), // set to 1 or 2 to add ECC (1 = Side-band ECC per burst, 2 = Side-band ECC per 8 bursts , 3 = Inline ECC ) 
     .WB_ERROR(0) // set to 1 to support Wishbone error (asserts at ECC double bit error)
@@ -138,7 +147,7 @@ module rvlab_ddr3_tb;
     .i_controller_clk(clk100),
     .i_ddr3_clk(clk400), //i_controller_clk has period of CONTROLLER_CLK_PERIOD, i_ddr3_clk has period of DDR3_CLK_PERIOD 
     .i_ref_clk(clk200), // usually set to 200 MHz 
-    .i_ddr3_clk_90(), //90 degree phase shifted version i_ddr3_clk (required only when ODELAY_SUPPORTED is zero)
+    .i_ddr3_clk_90(clk400_90), //90 degree phase shifted version i_ddr3_clk (required only when ODELAY_SUPPORTED is zero)
     .i_rst_n(rstn),
     //
     // Wishbone inputs

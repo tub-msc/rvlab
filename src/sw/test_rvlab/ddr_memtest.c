@@ -39,7 +39,7 @@ int memtest(void *start, size_t length) {
                 printf("\rReading address 0x%08x...", addr);
             }
         } else {
-            printf("\rERROR: Incorrect read data at 0x%08x.\n", addr);
+            printf("\rERROR: Incorrect read data at 0x%08x. Expected 0x%08x, got 0x%08x.\n", addr, lfsr, REG32(addr));
             retval = 1;
         }
         lfsr_next(&lfsr);
