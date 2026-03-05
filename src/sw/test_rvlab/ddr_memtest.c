@@ -22,27 +22,27 @@ int memtest(void *start, size_t length) {
 
     lfsr_init(&lfsr);
     uint32_t addr;
-    for(addr=(uint32_t) start;addr<(uint32_t) start+length;addr+=4) {
-        REG32(addr) = lfsr;
-
-        if((addr & 0xfffff) == 0) {
-            printf("\rWriting address 0x%08x...", addr);
+    for (addr = (uint32_t)start; addr < (uint32_t)start+length;) {
+        for (uint32_t i = 0; i < 0x40000; i++) {
+            REG32(addr) = lfsr;
+            lfsr_next(&lfsr);
+            addr += 4;
         }
-        lfsr_next(&lfsr);
+        printf("\rWriting address 0x%08x...", addr);
     }
     printf("\nWrite completed.\n");
     
     lfsr_init(&lfsr);
-    for(addr=(uint32_t) start;addr<(uint32_t) start+length;addr+=4) {
-        if(REG32(addr) == lfsr) {
-            if((addr & 0xfffff) == 0) {
-                printf("\rReading address 0x%08x...", addr);
+    for(addr = (uint32_t)start; addr < (uint32_t)start+length;) {
+        for (uint32_t i = 0; i < 0x40000; i++) {
+            if(REG32(addr) != lfsr) {
+                printf("\rERROR: Incorrect read data at 0x%08x.\n", addr);
+                retval = 1;
             }
-        } else {
-            printf("\rERROR: Incorrect read data at 0x%08x. Expected 0x%08x, got 0x%08x.\n", addr, lfsr, REG32(addr));
-            retval = 1;
+            lfsr_next(&lfsr);
+            addr += 4;
         }
-        lfsr_next(&lfsr);
+        printf("\rReading address 0x%08x...", addr);
     }
     if(retval) {
         printf("\nMemtest completed with errors.\n\n");
