@@ -109,24 +109,36 @@ module rvlab_ddr3_tlul_tb;
   // Testing //
   /////////////
 
-  /*
-   * Performance
-   *
-   * Purely functional...................542860ns
-   * Reordering + pipelining requests....475560ns (12.4% faster)
-  */
-
   tlul_test_host bus (
     .clk_i (sysclk),
-    .rst_no(rstn),
+    .rst_no(),
     .tl_i  (tl_host_d2h),
     .tl_o  (tl_host_h2d)
   );
 
+  tlul_test_host bus_ctrl (
+    .clk_i (sysclk),
+    .rst_no(rstn),
+    .tl_i  (tl_ctrl_d2h),
+    .tl_o  (tl_ctrl_h2d)
+  );
+
   logic [31:0] rdata;
+  logic        calib_complete;
+  assign calib_complete = rdata[1];
 
   initial begin
-    bus.reset();
+    bus_ctrl.reset();
+
+    bus_ctrl.put_word(32'h1f001004, 32'h1); // deassert reset
+
+    rdata <= '0;
+    #1;
+    while (!calib_complete) begin
+      bus_ctrl.get_word(32'h1f001000, rdata);
+    end
+
+    $display("DDR3 calibration complete!");
 
     bus.put_word(32'h10000000, 32'hbeefcafe);
 

@@ -36,11 +36,16 @@ module rvlab_ddr_block_cache #(
   import rvlab_ddr_pkg::*;
   import tlul_pkg::*;
 
+
+  /* Memory */
+
   localparam int SETS = 2**IDX_BITS;
 
   (* ram_style = "block" *)       reg [       255:0]     data_mem [SETS-1:0];
-  (* ram_style = "block" *)       reg [TAG_BITS-1:0]      tag_mem [SETS-1:0];
+                                  reg [TAG_BITS-1:0]      tag_mem [SETS-1:0];
   (* ram_style = "distributed" *) logic              modified_mem [SETS-1:0];
+
+  /* Address decomposition */
 
   logic [  DDR_AW-1:0] access_addr;
   logic [IDX_BITS-1:0] access_idx, access_idx_q;
@@ -55,19 +60,11 @@ module rvlab_ddr_block_cache #(
   logic [ 31:0] access_mask_q;
   logic [255:0] access_data_q;
 
-  reg [       255:0] data_rdata;
-  reg [TAG_BITS-1:0]  tag_rdata;
-  logic              modified_rdata;
-
   logic stall, stall_d;
   reg   stall_q;
 
   logic  access, access_q;
   assign access = fe_req_i.a_valid;
-
-  wire   hit, miss;
-  assign hit  = tag_rdata == access_tag_q && access_q && ~stall;
-  assign miss = tag_rdata != access_tag_q && access_q;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if(~rst_ni) begin
@@ -94,44 +91,50 @@ module rvlab_ddr_block_cache #(
     end
   end
 
-  always_comb begin
-    stall   = stall_q || miss;
-    stall_d = stall;
+  wire   hit, miss;
 
-    // Don't accept responses from the backend unless they contain data
-    // (don't resume normal activity while evicting)
-    if (be_rsp_i.d_valid && be_req_o.d_ready && be_rsp_i.d_opcode == AccessAckData) stall_d = '0;
-  end
+  // Begin stalling once we miss
+  // End stalling once we receive the new (fetched) block's data
+  assign stall = stall_q || miss;
+  assign stall_d = stall && !(be_rsp_i.d_valid && be_req_o.d_ready && be_rsp_i.d_opcode == AccessAckData);
 
-  /* Memory inference templates */
+  /* Memory access / inference templates */
+
+  logic [       255:0] data_rdata_raw; // Output of Data memory
+  logic [       255:0]     data_rdata; // data_rdata_raw but updated if read address was written to (write-first)
+  logic [TAG_BITS-1:0]      tag_rdata;
+  logic                modified_rdata;
+
+  assign hit  = tag_rdata == access_tag_q && access_q && ~stall;
+  assign miss = tag_rdata != access_tag_q && access_q;
 
   /* Data memory */
 
-  wire use_be_port;
-  assign use_be_port = be_rsp_i.d_valid && be_req_o.d_ready;
+  wire use_be_port; // write from backend port (Get response)
+  assign use_be_port = be_rsp_i.d_valid && be_req_o.d_ready; // TileLink beat exchange
 
-  wire data_wen;
-  reg  data_wen_q;
+  logic data_wen, data_wen_q;
   assign data_wen = use_be_port || (hit && access_type_q inside {PutFullData, PutPartialData});
 
-  wire [31:0] data_wmask;
-  reg  [31:0] data_wmask_q;
+  logic [31:0] data_wmask, data_wmask_q;
   assign data_wmask = use_be_port ? '1 : access_mask_q;
 
-  wire [255:0] data_wdata;
-  reg  [255:0] data_wdata_q;
+  logic [255:0] data_wdata, data_wdata_q;
   assign data_wdata = use_be_port ? be_rsp_i.d_data : access_data_q;
 
-  reg [255:0] data_rdata_raw;
-
   always_ff @(posedge clk_i) begin
-    if (data_wen) begin
-      for (int i = 0; i < 32; i++) begin
-        if (data_wmask[i]) begin
-          data_mem[access_idx_q][8*i+:8] <= data_wdata[8*i+:8];
-        end
+    for (int i = 0; i < 32; i++) begin
+      if (data_wmask[i] & data_wen) begin
+        data_mem[access_idx_q][8*i+:8] <= data_wdata[8*i+:8];
       end
     end
+    // We want to read from the currently addressed index in most cases,
+    // so that we can issue a response in the next cycle.
+    // If there is an inbound response from the backend (use_be_port = 1),
+    // then we potentially want to resume normal operation after this
+    // cycle, i.e. complete the request that caused the miss. This however
+    // requires reading from the stored index (request that caused the stall)
+    // instead of the one from the current address.
     data_rdata_raw <= data_mem[use_be_port ? access_idx_q : access_idx];
   end
 
@@ -141,6 +144,9 @@ module rvlab_ddr_block_cache #(
     data_wen_q   <= data_wen;
   end
 
+  // Adjust data_rdata to reflect writes that happened last cycle.
+  // (There is no write-first byte-wide write-enable RAM inference template
+  // as of writing)
   generate
     for (genvar i = 0; i < 32; i++) begin
       assign data_rdata[8*i+:8] = data_wen_q && data_wmask_q[i]

@@ -30,11 +30,53 @@ module rvlab_tlul_ddr (
 );
 
   import rvlab_ddr_pkg::*;
+  import ddr_ctrl_reg_pkg::*;
 
-  tlul_short_circuit ctrl_short_i (
-    .tl_i(tl_ctrl_i),
-    .tl_o(tl_ctrl_o)
+  /*
+    Control Interface Registers:
+      - DDR Status:
+        - Present
+        - Calibration complete
+        - Calibration status
+      - Control:
+        - Self refresh
+        - Reset
+      - Tags / cache interface?
+        -> Tag/Modified mem support
+           additional read ports
+  */
+
+  //////////////////////////////
+  //                          //
+  // CONTROL+STATUS REGISTERS //
+  //                          //
+  //////////////////////////////
+
+  logic       ctrl_ddr_present;
+  logic       ctrl_calib_complete;
+  logic [4:0] ctrl_calib_status;
+  logic       ctrl_ddr_self_refresh;
+  logic       ctrl_ddr_rst_n;
+
+  ddr_ctrl_reg2hw_t reg2hw;
+  ddr_ctrl_hw2reg_t hw2reg;
+
+  ddr_ctrl_reg_top reg_top_i (
+    .clk_i,
+    .rst_ni,
+    .tl_i     (tl_ctrl_i),
+    .tl_o     (tl_ctrl_o),
+    .reg2hw,
+    .hw2reg,
+    .devmode_i('0)
   );
+
+  assign hw2reg.status.present.d = ctrl_ddr_present;
+  assign hw2reg.status.calib_complete.d = ctrl_calib_complete;
+  assign hw2reg.status.calib_status.d = ctrl_calib_status;
+
+  assign ctrl_ddr_self_refresh = reg2hw.ctrl.self_refresh.q;
+  assign ctrl_ddr_rst_n = reg2hw.ctrl.rst_n.q;
 
 `ifdef WITH_EXT_DRAM
 
@@ -66,7 +108,7 @@ module rvlab_tlul_ddr (
   logic clk_fast;
   logic clk_fast90;
 
-  logic ddr_rstn;
+  logic ddr_rstn, ddr_locked;
 
   rvlab_ddr_clkmgr clkmgr_i (
     .clk_100mhz_i,
@@ -74,7 +116,7 @@ module rvlab_tlul_ddr (
     .clk_ref_o   (clk_ref),
     .clk_fast_o  (clk_fast),
     .clk_fast90_o(clk_fast90),
-    .locked_o    (ddr_rstn)
+    .locked_o    (ddr_locked)
   );
 
   /* LLC */
@@ -133,9 +175,11 @@ module rvlab_tlul_ddr (
   );
 
   logic ddr3_self_refresh;
-  assign ddr3_self_refresh = '0;
-
   logic ddr3_calib_complete;
+
+  logic [31:0] ddr3_debug_out;
+  logic [ 4:0] ddr3_calib_status;
+  assign ddr3_calib_status = ddr3_debug_out[4:0];
 
   /* DDR3 Controller */
   /*
@@ -212,12 +256,59 @@ module rvlab_tlul_ddr (
     .o_ddr3_dm(ddr3_dm), // width = BYTE_LANES
     .o_ddr3_odt(ddr3_odt),
     // CSR interface
-    .o_debug1(),
+    .o_debug1(ddr3_debug_out),
     .o_calib_complete(ddr3_calib_complete),
     .i_user_self_refresh(ddr3_self_refresh),
     // UART
     .uart_tx()
   );
+
+  assign ctrl_ddr_present = '1;
+
+  //////////////
+  // CTRL CDC //
+  //////////////
+
+  /* CTRL clock -> SYS clock domain */
+
+  prim_flop_2sync #(
+    .Width(1)
+  ) sync_calib_complete_i (
+    .clk_i,
+    .rst_ni,
+    .d     (ddr3_calib_complete),
+    .q     (ctrl_calib_complete)
+  );
+
+  prim_flop_2sync #(
+    .Width(5)
+  ) sync_calib_status_i (
+    .clk_i,
+    .rst_ni,
+    .d     (ddr3_calib_status),
+    .q     (ctrl_calib_status)
+  );
+
+  /* SYS clock -> CTRL clock domain */
+
+  prim_flop_2sync #(
+    .Width(1)
+  ) sync_self_refresh_i (
+    .clk_i (clk_ctrl),
+    .rst_ni(ddr_rstn),
+    .d     (ctrl_ddr_self_refresh),
+    .q     (ddr3_self_refresh)
+  );
+
+  prim_flop_2sync #(
+    .Width(1)
+  ) sync_ddr_reset_i (
+    .clk_i (clk_ctrl),
+    .rst_ni(ddr_locked),
+    .d     (ctrl_ddr_rst_n),
+    .q     (ddr_rstn)
+  );
+
 
 `else
 
@@ -236,6 +327,10 @@ module rvlab_tlul_ddr (
   assign ddr3_cke     = '0;
 
   assign ddr3_dm      = '0;
+
+  assign ctrl_ddr_present = '0;
+  assign ctrl_calib_complete = '0;
+  assign ctrl_calib_status = '0;
 
   tlul_short_circuit ddr_short_i (
     .tl_i,

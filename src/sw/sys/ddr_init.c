@@ -7,12 +7,13 @@
 #include <rvlab.h>
 
 int ddr_init(void) {
-    return 0;
     if(!(REG32(DDR_CTRL_STATUS(0)) & (1<<DDR_CTRL_STATUS_PRESENT_LSB))) {
         printf("Error: DDR not present.\n");
         return 1;
     }
-    REG32(DDR_CTRL_CTRL(0)) |= (1<<DDR_CTRL_CTRL_MIG_RST_N_LSB); // deassert reset
+    REG32(DDR_CTRL_CTRL(0)) |= (1<<DDR_CTRL_CTRL_RST_N_LSB); // deassert reset
+
+    printf("DDR3 calibrating...\n");
 
     // wait for calibration to complete:
     while(!(REG32(DDR_CTRL_STATUS(0)) & (1<<DDR_CTRL_STATUS_CALIB_COMPLETE_LSB))); 
