@@ -7,6 +7,7 @@ create_generated_clock -name ddr_ref [get_pin tlul_ddr_i/clkmgr_i/mmcm_i/CLKOUT1
 create_generated_clock -name ddr_fast [get_pin tlul_ddr_i/clkmgr_i/mmcm_i/CLKOUT2]
 create_generated_clock -name ddr_fast90 [get_pin tlul_ddr_i/clkmgr_i/mmcm_i/CLKOUT3]
 create_generated_clock -name ddr_ctrl [get_pin tlul_ddr_i/clkmgr_i/mmcm_i/CLKOUT4]
+set_clock_groups -group [get_clocks ddr_ctrl] -asynchronous
 
 # RAM Pins
 # --------

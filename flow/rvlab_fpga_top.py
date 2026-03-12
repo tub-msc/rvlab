@@ -165,7 +165,7 @@ class RvlabFpgaTop(Block):
                         name="project_worst_paths"
                     )
 
-                    for clock_name in ["sys_clk", "clk_100mhz", "ddr_ctrl"]:
+                    for clock_name in ["sys_clk", "ddr_ctrl"]:
 
                         clk = t.get_clocks(clock_name)
 

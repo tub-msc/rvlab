@@ -41,9 +41,9 @@ module rvlab_ddr_block_cache #(
 
   localparam int SETS = 2**IDX_BITS;
 
-  (* ram_style = "block" *)       reg [       255:0]     data_mem [SETS-1:0];
-                                  reg [TAG_BITS-1:0]      tag_mem [SETS-1:0];
-  (* ram_style = "distributed" *) logic              modified_mem [SETS-1:0];
+  (* ram_style = "block" *)       reg [       255:0]  data_mem [SETS-1:0];
+                                  reg [TAG_BITS-1:0]   tag_mem [SETS-1:0];
+  (* ram_style = "distributed" *) logic              dirty_mem [SETS-1:0];
 
   /* Address decomposition */
 
@@ -103,7 +103,7 @@ module rvlab_ddr_block_cache #(
   logic [       255:0] data_rdata_raw; // Output of Data memory
   logic [       255:0]     data_rdata; // data_rdata_raw but updated if read address was written to (write-first)
   logic [TAG_BITS-1:0]      tag_rdata;
-  logic                modified_rdata;
+  logic                   dirty_rdata;
 
   assign hit  = tag_rdata == access_tag_q && access_q && ~stall;
   assign miss = tag_rdata != access_tag_q && access_q;
@@ -170,20 +170,20 @@ module rvlab_ddr_block_cache #(
   assign fe_modify_req = hit && access_type_q inside {PutFullData, PutPartialData};
 
   wire modify_clear; // clear M flag when a cache line is evicted
-  assign modify_clear = miss && modified_rdata && be_req_o.a_valid && be_rsp_i.a_ready;
+  assign modify_clear = miss && dirty_rdata && be_req_o.a_valid && be_rsp_i.a_ready;
 
   always_ff @(posedge clk_i) begin
     if (fe_modify_req || modify_clear) begin
-      modified_mem[access_idx_q] <= ~modify_clear;
-      modified_rdata <= ~modify_clear;
-    end else modified_rdata <= modified_mem[access_idx];
+      dirty_mem[access_idx_q] <= ~modify_clear;
+      dirty_rdata <= ~modify_clear;
+    end else dirty_rdata <= dirty_mem[access_idx];
   end
 
   // Populate cache initially
   initial begin
     for (int i = 0; i < SETS; i++) begin
       tag_mem[i] <= '0;
-      modified_mem[i] <= '0;
+      dirty_mem[i] <= '0;
     end
   end
 
@@ -199,9 +199,9 @@ module rvlab_ddr_block_cache #(
     be_req_o = '{
       d_ready: '1,
       a_valid: miss,
-      a_opcode: modified_rdata ? PutFullData : Get,
+      a_opcode: dirty_rdata ? PutFullData : Get,
       a_mask: 32'hFFFFFFFF,
-      a_address: {modified_rdata ? tag_rdata : access_tag_q, access_idx_q},
+      a_address: {dirty_rdata ? tag_rdata : access_tag_q, access_idx_q},
       a_data: data_rdata_raw,
       a_anc: ancillary_q
     };

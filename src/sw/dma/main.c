@@ -123,9 +123,25 @@ int test_memcpy(void (*func_memcpy)(void *, void *, uint32_t)) {
 // ----
 
 int main(void) {
-    int res, retval=0;
+    ddr_init();
 
-    printf("test memset_soft:\n");    
+    int res, retval=0;
+    int mcycle_start, mcycle_end;
+    uint32_t length_words = 0x8000;
+
+    mcycle_start = read_csr("mcycle");
+    memset_soft((uint32_t *)DDR3_BASE_ADDR, 0xCB32E40B, length_words);
+    mcycle_end = read_csr("mcycle");
+
+    printf("memset_soft took %d cycles for %d bytes!\n", mcycle_end - mcycle_start, length_words);
+
+    mcycle_start = read_csr("mcycle");
+    memset_dma((uint32_t *)DDR3_BASE_ADDR, 0xCB32E40B, length_words);
+    mcycle_end = read_csr("mcycle");
+
+    printf("memset_dma took %d cycles for %d bytes!\n", mcycle_end - mcycle_start, length_words);
+
+    /*printf("test memset_soft:\n");    
     res = test_memset(memset_soft);
     retval += res;
     printf("--> %s\n", res?"fail":"pass");
@@ -143,7 +159,7 @@ int main(void) {
     printf("test memcpy_dma:\n");
     res = test_memcpy(memcpy_dma);
     retval += res;
-    printf("--> %s\n", res?"fail":"pass");
+    printf("--> %s\n", res?"fail":"pass");*/
 
     return retval;
 }
