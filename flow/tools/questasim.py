@@ -68,8 +68,7 @@ def simulate(
         timescale: str="1ps/1fs",
         plusargs: dict[str,str]={},
         netlist_sim=None,
-        libs: list=[],
-        hide_mig_timingcheck_msg:bool=False,
+        libs: list=[]
         ):
     """
     Args:
@@ -158,9 +157,6 @@ def compile(
 
     # ** Warning: [...]/glbl.v(6): (vlog-2605) empty port name in port list.
     vlog_opts += ['-suppress', '2605']
-
-    # ** Warning: [...]/mig_7series_v4_2_rank_cntrl.v(327): (vlog-2573) Unconditional generate blocks are not permitted in Verilog 1364-2005.
-    #vlog_opts += ['-suppress', '2573']
 
     # ** Error (suppressible): [...]/4096Mb_ddr3_parameters.vh(481): (vlog-12003) Variable 'TZQCS' written by continuous and procedural assignments.
     vlog_opts += ['-suppress', '12003']

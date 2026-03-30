@@ -1,3 +1,6 @@
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 RVLab Contributors
+
 [0] CV32E40P with Xilinx MIG:
     - Software memset (memset_soft):      98321 cyc / 32768   B; 12.00 cyc/word
     - DMA memset      (memset_dma ):      56605 cyc / 32768   B;  6.91 cyc/word

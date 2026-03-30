@@ -60,8 +60,6 @@ class RvlabFpgaTop(Block):
         t.get_methodology_checks(disable_methodology_checks).set_property('IS_ENABLED', 'FALSE')
         t.get_drc_checks(disable_drc_checks).set_property('IS_ENABLED', 'FALSE')
 
-       # t.create_waiver(strings="tlul_ddr_i/mig_i", id="LUTAR-1", description="In Xilinx IP")
-       # t.create_waiver(strings="tlul_ddr_i/mig_i", id="REQP-1709", description="In Xilinx IP")
         t.create_waiver(strings="tdo_flop_i", id="TIMING-14", description="Needed for TDO")
 
         r.report_utilization = cwd / f"{self.name}.utilization.txt"

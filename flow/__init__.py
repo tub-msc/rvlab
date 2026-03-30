@@ -55,7 +55,6 @@ flow['rvlab_fpga_top'] = RvlabFpgaTop(dependency_map={'srcs':'srcs'})
 module_tbs = [
     "student_rlight_tb",
     "student_tlul_mux_tb",
-    "rvlab_ddr3_tb",
     "rvlab_ddr3_tlul_tb"
 ]
 
