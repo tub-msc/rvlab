@@ -42,7 +42,7 @@ module rvlab_tlul_ddr (
         - Self refresh
         - Reset
       - Tags / cache interface?
-        -> Tag/Modified mem support
+        -> Tag/Dirty mem support
            additional read ports
   */
 

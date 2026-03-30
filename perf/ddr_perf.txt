@@ -19,5 +19,14 @@
 - Full write      (test_rvlab ): 1547605512 cyc /   512 MiB; 11.53 cyc/word (  +0.69% vs. [0])
 - Full read       (test_rvlab ): 2166345459 cyc /   512 MiB; 16.14 cyc/word (  +0.81% vs. [0])
 
+[3] CV32E40P with UberDDR3 + Cache + Resource-Optimized Prefetch Buffer:
+(Only meaningful tests shown)
+- DMA memset      (memset_dma ):      15087 cyc / 32768   B;  1.84 cyc/word (  -0.04% vs. [2])
+- DMA memset 2    (memset_dma ):  176538537 cyc /   512 MiB;  1.32 cyc/word (  -1.08% vs. [2])
+
+Due to DDR refresh cycles (presumably), tests on the entire memory produce statistical variation:
+- Full write      (test_rvlab): mean 1.545.194.645 cyc; std. deviation: ~554.784 cyc [n=10]
+- Full read       (test_rvlab): mean 2.166.349.500 cyc; std. deviation:   ~2.609 cyc [n=10]
+
 
 (speedup = lambda old, new: 100 * (old / new - 1))

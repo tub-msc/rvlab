@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: SHL-2.1
+// SPDX-FileCopyrightText: 2026 RVLab Contributors
+
 module rvlab_ddr_prefetch #(
     parameter int SIZE = 4 // >= 2
 ) (
@@ -29,11 +32,10 @@ module rvlab_ddr_prefetch #(
      * coming request once the result is registered and valid in the table. All entries with
      * addresses less or equal to the just acknowledged one are invalidated.
      *     When a new PUT request arrives from the front-end side, a similar address comparison
-     * is carried out. If there is a match, the corresponding entry's data is updated with the
-     * written data. The PUT is always acknowledged instantly (contingent upon the acknowledge-
-     * ment from the backend, to whom a request is issued in the same CC); the prefetcher assumes
-     * that all such requests are Valid and thus discards incoming AccessAckData messages from
-     * the backend.
+     * is carried out. If there is a match, the corresponding entry's data is invalidated. The PUT
+     * is always acknowledged instantly (contingent upon the acknowledgement from the backend,
+     * to whom a request is issued in the same CC); the prefetcher assumes that all such requests
+     * are Valid and thus discards incoming AccessAck messages from the backend.
      *
      * All requests are acknowledged in the same cycle as the corresponding response exchange.
     */
@@ -60,6 +62,7 @@ module rvlab_ddr_prefetch #(
 
     generate
         for (genvar i = 0; i < SIZE; i++) begin
+            // Address memory is used as CAM and thus can't be inferred as RAM resources
             assign addr_match_mask[i]  = entry_addrs[i] == fe_req_i.a_address;
             assign addr_le_mask[i]     = entry_addrs[i] <= fe_req_i.a_address;
             assign valid_mask[i]       = addr_match_mask[i] && entry_states[i] == Valid;
@@ -117,6 +120,7 @@ module rvlab_ddr_prefetch #(
         if (~rst_ni) begin
             for (int i = 0; i < SIZE; i++) begin
                 entry_states[i] <= Invalid;
+                entry_addrs[i] <= '0;
             end
         end else begin
             // PREFETCH REQUEST
@@ -138,24 +142,13 @@ module rvlab_ddr_prefetch #(
             if (be_rsp_xchg && be_rsp_i.d_opcode == AccessAckData) begin
                 // If state is currently pending, set to valid, if stale, set to invalid
                 entry_states[be_rsp_i.d_anc] <= entry_states[be_rsp_i.d_anc] == Stale ? Invalid : Valid;
-                if (entry_states[be_rsp_i.d_anc] != Valid) begin
-                    // Valid check: if there is a put request to an address matching an outstanding read
-                    // request, the prefetch buffer will validate the corresponding entry and write its
-                    // data. The backend response should then, logically, not overwrite with stale data.
-
-                    // TODO: apply mask for PutPartialData
-                    entry_data[be_rsp_i.d_anc] <= be_rsp_i.d_data;
-                end
             end
 
             // FRONTEND PUT REQUEST
             if (fe_req_xchg && fe_req_i.a_opcode != Get) begin
-                // Update matching entries with written data
                 for (int i = 0; i < SIZE; i++) begin
                     if (addr_match_mask[i] && (pending_mask[i] || valid_mask[i])) begin
-                        // TODO: apply mask for PutPartialData
-                        entry_data[i] <= fe_req_i.a_data;
-                        entry_states[i] <= Valid;
+                        entry_states[i] <= (pending_mask[i] ? Stale : Invalid);
                     end
                 end
             end
@@ -169,6 +162,34 @@ module rvlab_ddr_prefetch #(
             end
         end
     end
+
+    /* Entry data memory interface */
+
+    logic [ADRW-1:0] valid_id;
+
+    always_comb begin
+        valid_id = '0;
+        for (int i = 0; i < SIZE; i++) begin
+            if (valid_mask[i]) valid_id = i;
+        end
+    end
+
+    always_ff @(posedge clk_i) begin
+        if (be_rsp_xchg && be_rsp_i.d_opcode == AccessAckData && entry_states[be_rsp_i.d_anc] != Valid) begin
+            // Valid check: if there is a put request to an address matching an outstanding read
+            // request, the prefetch buffer will validate the corresponding entry and write its
+            // data. The backend response should then, logically, not overwrite with stale data.
+
+            entry_data[be_rsp_i.d_anc] <= be_rsp_i.d_data;
+        end
+    end
+
+    initial begin
+        for (int i = 0; i < SIZE; i++) entry_data[i] = '0;
+    end
+
+
+    /* Output generation */
 
     always_comb begin
         fe_rsp_o = '{
@@ -185,10 +206,10 @@ module rvlab_ddr_prefetch #(
                     if (valid_mask[i]) begin
                         fe_rsp_o.d_opcode = AccessAckData;
                         fe_rsp_o.d_valid = '1;
-                        fe_rsp_o.d_data = entry_data[i];
                         fe_rsp_o.a_ready = fe_req_i.d_ready;
                     end
                 end
+                fe_rsp_o.d_data = entry_data[valid_id]; // allow single read port
             end else begin
                 // Put request
                 // We forward the request to the backend, and respond once the backend accepts
