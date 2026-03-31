@@ -48,7 +48,7 @@ module rvlab_ddr_block_cache #(
   /* Address decomposition */
 
   logic [  DDR_AW-1:0] access_addr;
-  logic [IDX_BITS-1:0] access_idx, access_idx_q;
+  logic [IDX_BITS-1:0] access_idx, access_idx_q, access_idx_q_q;
   logic [TAG_BITS-1:0] access_tag, access_tag_q;
   assign access_addr = fe_req_i.a_address;
   assign access_idx  = fe_req_i.a_address[IDX_BITS-1:0];
@@ -70,6 +70,7 @@ module rvlab_ddr_block_cache #(
     if(~rst_ni) begin
       access_q <= '0;
       access_idx_q <= '0;
+      access_idx_q_q <= '0;
       access_tag_q <= '0;
       access_type_q <= Get;
       access_mask_q <= '0;
@@ -87,6 +88,7 @@ module rvlab_ddr_block_cache #(
         ancillary_q   <= fe_req_i.a_anc;
       end
 
+      access_idx_q_q <= access_idx_q;
       stall_q <= stall_d;
     end
   end
@@ -149,7 +151,9 @@ module rvlab_ddr_block_cache #(
   // as of writing)
   generate
     for (genvar i = 0; i < 32; i++) begin : gen_bwwe
-      assign data_rdata[8*i+:8] = data_wen_q && data_wmask_q[i]
+      // the access_idx checking is to ensure the address we wrote to is the address we're trying
+      // to read from
+      assign data_rdata[8*i+:8] = data_wen_q && data_wmask_q[i] && access_idx_q == access_idx_q_q
                                 ? data_wdata_q[8*i+:8]
                                 : data_rdata_raw[8*i+:8];
     end : gen_bwwe
@@ -182,8 +186,9 @@ module rvlab_ddr_block_cache #(
   // Populate cache initially
   initial begin
     for (int i = 0; i < SETS; i++) begin
-      tag_mem[i] <= '0;
-      dirty_mem[i] <= '0;
+      tag_mem[i] = '0;
+      dirty_mem[i] = '0;
+      data_mem[i] = '0;
     end
   end
 

@@ -45,15 +45,15 @@ FPGA Implementation (Synthesis, Place and Route)
 ------------------------------------------------
 
 **Check design before implementation:** Before you synthesize your design, please make sure that you only use synthesizable code as described in the SystemVerilog crash course.
-Make sure that no warnings occur during compilation or design loading when you run system simulation with :code:`flow systb_student sim_rtl_questa`.
-Furthermore, it is recommended to run :code:`flow srcs lint` to detect some common SystemVerilog design mistakes.
+Make sure that no warnings occur during compilation or design loading when you run system simulation with :code:`flow systb_student.sim_rtl_questa`.
+Furthermore, it is recommended to run :code:`flow srcs.lint` to detect some common SystemVerilog design mistakes.
 It is much easier to debug hardware problems in the early RTL design stage than later in netlist simulation or in hardware!
 
 Before you go ahead with FPGA implementation, delete any previous implementation results::
 
     flow rvlab_fpga_top --clean
 
-To start synthesis, run the following commond::
+To start synthesis, run the following command::
 
     flow rvlab_fpga_top.syn
 
@@ -163,5 +163,4 @@ This list outlines the Python sources located in the */flow* directory:
 - **/flow/sources.py** -- defines Sources block
 - **/flow/module_tb.py** -- defines the ModuleTb block used for module testbench simulations
 - **/flow/system_tb.py** -- defines the SystemTb Block used for system testbench simulations
-- **/flow/rvlab_mig.py** -- defines the RvlabMig Block used for generating the Xilinx Memory Interface generator (MIG) IP block
 - **/flow/simlibs_questa.py** -- defines the SimlibsQuesta Block to build Xilinx simulation libraries for QuestaSim

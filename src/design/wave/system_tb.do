@@ -684,10 +684,12 @@ add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/data_rdata_
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/data_rdata
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/ancillary_q
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/tag_rdata
-add wave -noupdate -expand /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/tl_i
-add wave -noupdate -expand /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/tl_o
-add wave -noupdate -expand /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/block_rsp_i
-add wave -noupdate -expand /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/block_req_o
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/fe_rsp_o
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/fe_req_i
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/tl_o
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/tl_i
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/block_rsp_i
+add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/block_req_o
 add wave -noupdate -divider Prefetcher
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/prefetcher_i/valid_mask
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/prefetcher_i/SIZE
@@ -836,7 +838,7 @@ add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/accept_t_rsp
 add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/tl_t_p
 add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/hfifo_reqready
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2101801959311 fs} 0}
+WaveRestoreCursors {{Cursor 1} {839470783344 fs} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 421
 configure wave -valuecolwidth 288
@@ -852,4 +854,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2101787980971 fs} {2101819840341 fs}
+WaveRestoreZoom {839449214122 fs} {839555930219 fs}

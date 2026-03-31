@@ -27,7 +27,7 @@ module rvlab_ddr_cache #(
   always_comb begin
     blk_cache_req = '{
       a_valid  : tl_i.a_valid,
-      a_opcode : tl_i.a_opcode,
+      a_opcode : tl_i.a_opcode == tlul_pkg::Get ? tlul_pkg::Get : tlul_pkg::PutPartialData, // Never PutFullData
       a_address: tl_i.a_address[5+:DDR_AW],
       a_anc    : {tl_i.a_source, blk_wordsel},
       d_ready  : tl_i.d_ready,
