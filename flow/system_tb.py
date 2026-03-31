@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 RVLab Contributors
 
 from pydesignflow import Block, task, Result
-from .tools import questasim, xsim, vivado
+from .tools import questasim, xsim, vivado, verilator
 import shutil
 
 class SystemTb(Block):
@@ -13,7 +13,7 @@ class SystemTb(Block):
         self.src_dir = self.flow.base_dir / "src"
         self.design_dir = self.src_dir / "design"
 
-    def simulate(self, simulator, cwd, srcs, sw, libs=[], netlist=None, sdf={}, batch=False):
+    def simulate(self, simulator, cwd, srcs, sw, libs=[], netlist=None, sdf={}, batch=False, unisims_dir=None):
         """Generic function that is called by all sim_... tasks."""
 
         plusargs = {"jtag_prog_mem":sw.deltafile}
@@ -36,6 +36,12 @@ class SystemTb(Block):
         elif simulator == 'xsim':
             sim = xsim.simulate
             wave_do = self.design_dir / f"wave/{self.name}.xsim.wcfg"
+        elif simulator == 'verilator':
+            sim = verilator.simulate
+            wave_do = None  # Verilator doesn't use wave_do files
+            if unisims_dir is None:
+                raise ValueError("unisims_dir must be provided for Verilator simulation")
+            kwargs['unisims_dir'] = unisims_dir
         else:
             raise ValueError(f"Unknown simulator '{simulator}'")
         
@@ -45,9 +51,9 @@ class SystemTb(Block):
             cwd / 'design.txt'
         )
 
-        sim(
+        sim(  # type: ignore
             verilog_srcs,
-            top_modules,
+            top_modules,  # type: ignore
             cwd=cwd,
             include_dirs=srcs.include_dirs,
             defines=srcs.defines,
@@ -55,7 +61,7 @@ class SystemTb(Block):
             libs=libs,
             batch_mode=batch,
             sdf=sdf,
-            wave_do=wave_do,
+            wave_do=wave_do,  # type: ignore
             **kwargs
             )
 
@@ -166,3 +172,25 @@ class SystemTb(Block):
             libs=['simprims_ver', 'secureip'], # Xilinx XSim has this as builtin library.
             netlist=pnr.verilog_timesim,
             sdf={'system_tb/board/DUT':pnr.sdf})
+
+    # Verilator tasks
+    # ---------------
+
+    @task(requires={
+        'srcs':'srcs.srcs_noddr_verilator',
+        'sw':'sw.delta',
+        })
+    def sim_rtl_verilator(self, cwd, srcs, sw):
+        """RTL simulation with Verilator"""
+        self.simulate('verilator', cwd, srcs, sw,
+            unisims_dir=srcs.unisims_dir)
+
+    @task(requires={
+        'srcs':'srcs.srcs_noddr_verilator',
+        'sw':'sw.delta',
+        }, hidden=True)
+    def sim_rtl_verilator_batch(self, cwd, srcs, sw):
+        """RTL simulation with Verilator (batch mode)"""
+        self.simulate('verilator', cwd, srcs, sw,
+            unisims_dir=srcs.unisims_dir,
+            batch=True)

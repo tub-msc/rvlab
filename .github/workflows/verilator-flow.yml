@@ -1,0 +1,145 @@
+# SPDX-FileCopyrightText: 2026 RVLab Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: Verilator Flow Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verilator-flow:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install Verilator
+      uses: kreijstal/install-verilator-action@main
+        
+    - name: Install RISC-V GCC multilib toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          gcc-riscv64-unknown-elf \
+          make \
+          git \
+          perl
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Initialize XilinxUnisimLibrary submodule
+      run: |
+        git submodule update --init --recursive vendor/XilinxUnisimLibrary
+
+    - name: Install oss-cad-suite (prebuilt)
+      run: |
+        ASSET_META=$(python3 - <<'PY'
+        import json
+        import urllib.request
+        url = "https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/latest"
+        data = json.load(urllib.request.urlopen(url))
+        for asset in data.get("assets", []):
+            name = asset.get("name", "")
+            if name.startswith("oss-cad-suite-linux-x64-") and (name.endswith(".tgz") or name.endswith(".tar.xz")):
+                print(f"{name} {asset['browser_download_url']}")
+                break
+        else:
+            raise SystemExit("oss-cad-suite linux-x64 asset not found")
+        PY
+        )
+        ASSET_NAME=${ASSET_META%% *}
+        ASSET_URL=${ASSET_META#* }
+        curl -L "$ASSET_URL" -o "$ASSET_NAME"
+        mkdir -p oss-cad-suite
+        case "$ASSET_NAME" in
+          *.tar.xz) tar -xJf "$ASSET_NAME" -C oss-cad-suite --strip-components=1 ;;
+          *.tgz|*.tar.gz) tar -xzf "$ASSET_NAME" -C oss-cad-suite --strip-components=1 ;;
+          *) echo "Unknown oss-cad-suite archive: $ASSET_NAME" >&2; exit 1 ;;
+        esac
+        echo "OSS_CAD_BIN=$(pwd)/oss-cad-suite/bin" >> "$GITHUB_ENV"
+
+    - name: Run Verilator module testbench
+      run: |
+        flow student_rlight_tb.sim_rtl_verilator
+        test -f build/student_rlight_tb/sim_rtl_verilator/trace.vcd
+        
+    - name: Run Verilator system testbench
+      run: |
+        flow systb_minimal.sim_rtl_verilator
+        test -f build/systb_minimal/sim_rtl_verilator/trace.vcd
+        
+    - name: Archive VCD files
+      uses: actions/upload-artifact@v4
+      with:
+        name: verilator-vcd-files
+        path: build/**/*.vcd
+        retention-days: 7
+
+  windows-build:
+    strategy:
+      matrix:
+        sys: [MINGW64, UCRT64, CLANG64]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: recursive
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.sys }}
+        update: true
+        install: base-devel git
+        pacboy: >-
+          cc:p
+          python-pip:p
+          python-sphinx:p
+          python-sphinx_rtd_theme:p
+          python-hjson:p
+          python-mako:p
+          python-pyelftools:p
+          python-lxml:p
+          riscv32-unknown-elf-gcc:p
+          verilator:p
+
+    - name: Install Python HDL packages
+      shell: msys2 {0}
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pydesignflow notcl
+
+    - name: Initialize XilinxUnisimLibrary submodule
+      shell: msys2 {0}
+      run: |
+        git submodule update --init --recursive vendor/XilinxUnisimLibrary
+
+    - name: Run Verilator module testbench
+      shell: msys2 {0}
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
+      run: |
+        flow student_rlight_tb.sim_rtl_verilator
+
+    - name: Run Verilator system testbench
+      shell: msys2 {0}
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
+      run: |
+        flow systb_minimal.sim_rtl_verilator

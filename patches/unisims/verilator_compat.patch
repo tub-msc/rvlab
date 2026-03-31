@@ -1,0 +1,103 @@
+# SPDX-FileCopyrightText: 2026 RVLab Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+diff --git a/verilog/src/unisims/FDRE.v b/verilog/src/unisims/FDRE.v
+index 6f3fb7f..c16ec60 100644
+--- a/verilog/src/unisims/FDRE.v
++++ b/verilog/src/unisims/FDRE.v
+@@ -68,14 +68,14 @@ module FDRE #(
+ // begin behavioral model
+ 
+   reg Q_out;
++  wire Q_gsr = glblGSR ? INIT : Q_out;
+ 
+-  assign #100 Q = Q_out;
++  assign #100 Q = Q_gsr;
+ 
++    // Note: deprecated assign/deassign; model GSR explicitly.
+     always @(glblGSR)
+-      if (glblGSR) 
+-        assign Q_out = INIT;
+-      else
+-        deassign Q_out;
++      if (glblGSR)
++        Q_out <= INIT;
+ 
+ `ifdef XIL_TIMING
+ generate
+diff --git a/verilog/src/unisims/MMCME2_ADV.v b/verilog/src/unisims/MMCME2_ADV.v
+index 7b08f56..8555b13 100644
+--- a/verilog/src/unisims/MMCME2_ADV.v
++++ b/verilog/src/unisims/MMCME2_ADV.v
+@@ -1404,19 +1404,19 @@ end
+   reg [5:0] clkfbout_dly_cnt;
+   reg [7:0] clkfbout_cnt;
+   reg [7:0] clk0_cnt;
+-  reg [7:0] clk1_cnt, clk1_div;
+-  reg [7:0] clk2_cnt, clk2_div;
+-  reg [7:0] clk3_cnt, clk3_div;
+-  reg [7:0] clk4_cnt, clk4_div;
+-  reg [7:0] clk5_cnt, clk5_div;
+-  reg [7:0] clk6_cnt, clk6_div;
++  reg [7:0] clk1_cnt; real clk1_div;
++  reg [7:0] clk2_cnt; real clk2_div;
++  reg [7:0] clk3_cnt; real clk3_div;
++  reg [7:0] clk4_cnt; real clk4_div;
++  reg [7:0] clk5_cnt; real clk5_div;
++  reg [7:0] clk6_cnt; real clk6_div;
+   integer divclk_cnt_max, clkfbout_cnt_max;
+   integer clk0_cnt_max, clk1_cnt_max, clk2_cnt_max, clk3_cnt_max;
+   integer clk4_cnt_max, clk5_cnt_max, clk6_cnt_max;
+   integer divclk_cnt_ht, clkfbout_cnt_ht;
+   integer clk0_cnt_ht, clk1_cnt_ht, clk2_cnt_ht, clk3_cnt_ht;
+   integer clk4_cnt_ht, clk5_cnt_ht, clk6_cnt_ht;
+-  reg [7:0]  divclk_div=8'b1, divclk_cnt=8'b0;
++  reg [7:0] divclk_cnt=8'b0; real divclk_div=1.0;
+   reg       divclk_out, divclk_out_tmp;
+   reg [3:0] pll_cp, pll_res;
+   reg [1:0] pll_lfhf;
+@@ -3855,7 +3855,7 @@ endtask
+ task upper_mix_drp;
+     output reg [2:0] pm_f;
+     output reg       wf_f;
+-    output reg [1:0] mx;
++    output reg [2:0] mx;
+     output reg       e;
+     output reg       nc;
+     output reg [5:0] dt;
+@@ -3874,7 +3874,7 @@ task upper_frac_drp;
+     output reg [2:0] frac;
+     output reg       frac_en;
+     output reg       wf_r;
+-    output reg [1:0] mx;
++    output reg [2:0] mx;
+     output reg       e;
+     output reg       nc;
+     output reg [5:0] dt;
+@@ -3891,7 +3891,7 @@ end
+ endtask 
+ 
+ task upper_drp;
+-    output reg [1:0] mx;
++    output reg [2:0] mx;
+     output reg       e;
+     output reg       nc;
+     output reg [5:0] dt;
+@@ -3966,7 +3966,7 @@ task attr_to_mc;
+     output reg [2:0] frac;
+     output reg       frac_en;
+     output reg       wf_r;
+-    output reg [1:0] mx;
++    output reg [2:0] mx;
+     output reg       e;
+     output reg       nc;
+     output reg [5:0] dt;
+@@ -4509,7 +4509,7 @@ endfunction
+     $width (posedge PWRDWN, 0:0:0, 0, notifier);
+     $width (posedge RST, 0:0:0, 0, notifier);
+ `endif
+-    specparam PATHPULSE$ = 0;
++    specparam PATHPULSE_ = 0;
+   endspecify
+ `endif
+ endmodule
