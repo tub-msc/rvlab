@@ -49,8 +49,6 @@ int main(void) {
 
     bool ddr_available = !ddr_init();
 
-    printf("Running RVLab System Test! [%s]\n", ddr_available ? "DDR Detected" : "DDR Not Found");
-
     test_report(&s, "regdemo_test", regdemo_test());
     test_report(&s, "rv_timer_test", rv_timer_test());
     test_report(&s, "test_csrs", test_csrs());

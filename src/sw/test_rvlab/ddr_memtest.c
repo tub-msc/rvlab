@@ -22,6 +22,11 @@ int memtest(void *start, size_t length) {
 
     uint32_t cycle_start, cycle_duration, cycles_per_byte_x100;
 
+
+    /////////////////
+    // Write Phase //
+    /////////////////
+
     lfsr_init(&lfsr);
     uint32_t addr;
     cycle_start = read_csr("mcycle");
@@ -35,6 +40,9 @@ int memtest(void *start, size_t length) {
     }
     printf("\nWrite completed.\n");
 
+
+    // Write: Performance Evaluation
+
     cycle_duration = read_csr("mcycle") - cycle_start;
     cycles_per_byte_x100 = cycle_duration / (length / 100);
     printf("Write: %d KB in %u cycles (%u.%u cycles/byte)\n",
@@ -42,6 +50,10 @@ int memtest(void *start, size_t length) {
         cycles_per_byte_x100/100, cycles_per_byte_x100 % 100
     );
 
+
+    ////////////////
+    // Read Phase //
+    ////////////////
 
     lfsr_init(&lfsr);
     cycle_start = read_csr("mcycle");
@@ -57,12 +69,18 @@ int memtest(void *start, size_t length) {
         printf("\rReading address 0x%08x...", addr);
     }
 
+
+    // Read: Performance Evaluation
+
     cycle_duration = read_csr("mcycle") - cycle_start;
     cycles_per_byte_x100 = cycle_duration / (length / 100);
     printf("\nRead: %d KB in %u cycles (%u.%u cycles/byte)\n",
         length/1024, cycle_duration,
         cycles_per_byte_x100/100, cycles_per_byte_x100 % 100
     );
+
+
+    // Finalizing
 
     if(retval) {
         printf("\nMemtest completed with errors.\n\n");

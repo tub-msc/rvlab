@@ -30,9 +30,6 @@ class Vsim(TclTool):
         # ** Error (suppressible): (vsim-SDF-3262) [...]/rvlab_fpga_top.sdf(257181): Failed to find matching specify timing constraint.
         self.vsim_opts += ['-suppress', '3262']
 
-        # ** Error (suppressible): (vsim-12003) Variable '/rvlab_ddr3_tb/ddr3_model_i/TZQCS' written by continuous and procedural assignments.
-        self.vsim_opts += ['-suppress', '12003']
-
         # ** Warning: (vsim-3015) [PCDPC] - Port size (1) does not match connection size (32) [in UberDDR3]
         self.vsim_opts += ['-suppress', '3015']
 
@@ -157,9 +154,6 @@ def compile(
 
     # ** Warning: [...]/glbl.v(6): (vlog-2605) empty port name in port list.
     vlog_opts += ['-suppress', '2605']
-
-    # ** Error (suppressible): [...]/4096Mb_ddr3_parameters.vh(481): (vlog-12003) Variable 'TZQCS' written by continuous and procedural assignments.
-    vlog_opts += ['-suppress', '12003']
 
 
 

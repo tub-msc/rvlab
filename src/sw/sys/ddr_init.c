@@ -13,8 +13,6 @@ int ddr_init(void) {
     }
     REG32(DDR_CTRL_CTRL(0)) |= (1<<DDR_CTRL_CTRL_RST_N_LSB); // deassert reset
 
-    printf("DDR3 calibrating...\n");
-
     // wait for calibration to complete:
     while(!(REG32(DDR_CTRL_STATUS(0)) & (1<<DDR_CTRL_STATUS_CALIB_COMPLETE_LSB))); 
 
