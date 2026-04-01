@@ -220,8 +220,6 @@ module system_tb;
   initial begin
     string sw_mem_filename;
 
-    $timeformat(-9, 0, "ns", 0);
-
     tests.test_idcode();
     tests.test_dtmcs();
 
