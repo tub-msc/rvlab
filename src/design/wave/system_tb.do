@@ -659,6 +659,8 @@ add wave -noupdate -divider {Clock & Reset}
 add wave -noupdate /system_tb/board/DUT/sys_clk
 add wave -noupdate /system_tb/board/DUT/dbg_rst_n
 add wave -noupdate /system_tb/board/DUT/sys_rst_n
+add wave -noupdate /system_tb/board/DUT/core_i/cpu_i/debug_req_i
+add wave -noupdate -expand /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/cs_registers_i/mhpmcounter_q
 add wave -noupdate -divider {DDR LLC}
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/data_mem
 add wave -noupdate /system_tb/board/DUT/tlul_ddr_i/ddr_llc_i/cache_i/tag_mem
@@ -838,7 +840,7 @@ add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/accept_t_rsp
 add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/tl_t_p
 add wave -noupdate /system_tb/board/DUT/core_i/xbar_peri_i/u_s1n_6/hfifo_reqready
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {839470783344 fs} 0}
+WaveRestoreCursors {{Cursor 1} {1419760000000 fs} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 421
 configure wave -valuecolwidth 288
@@ -854,4 +856,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {839449214122 fs} {839555930219 fs}
+WaveRestoreZoom {0 fs} {2023302642306 fs}

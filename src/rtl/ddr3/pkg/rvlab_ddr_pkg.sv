@@ -23,7 +23,7 @@ package rvlab_ddr_pkg;
    *   - Full TL-UL source field width, for TL-UL adapters
   */
 
-  localparam int DDR_AW = 24; // 29 bit = byte-addressable 512MiB, block = 2^5 bytes
+  localparam int DDR_AW = 24; // 29 bit = byte-addressable 512 MB, block = 2^5 bytes
   localparam int DDR_ANCW = 3 + top_pkg::TL_AIW; // Width of ancillary data (bits)
 
   typedef struct packed {

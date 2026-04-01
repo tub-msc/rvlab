@@ -37,7 +37,7 @@ int memtest(void *start, size_t length) {
 
     cycle_duration = read_csr("mcycle") - cycle_start;
     cycles_per_byte_x100 = cycle_duration / (length / 100);
-    printf("Write: %dKiB in %u cycles (%u.%u cycles/byte)\n",
+    printf("Write: %d KB in %u cycles (%u.%u cycles/byte)\n",
         length/1024, cycle_duration,
         cycles_per_byte_x100/100, cycles_per_byte_x100 % 100
     );
@@ -59,7 +59,7 @@ int memtest(void *start, size_t length) {
 
     cycle_duration = read_csr("mcycle") - cycle_start;
     cycles_per_byte_x100 = cycle_duration / (length / 100);
-    printf("\nRead: %dKiB in %u cycles (%u.%u cycles/byte)\n",
+    printf("\nRead: %d KB in %u cycles (%u.%u cycles/byte)\n",
         length/1024, cycle_duration,
         cycles_per_byte_x100/100, cycles_per_byte_x100 % 100
     );

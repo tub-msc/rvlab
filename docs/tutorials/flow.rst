@@ -90,10 +90,11 @@ To run post-implementation netlist simulation with the student software running 
 Adding module-level testbenches
 -------------------------------
 
-With *rlight_tb*, only a single module-level testbench is predefined. To add an additional module-level testbench, place the SystemVerilog testbench code in */src/tb* and register the new testbench in the *module_tbs* list defined in  */flow/__init__.py*, for example::
+With *rlight_tb* and *student_tlul_mux_tb*, two single module-level testbenches are predefined. To add an additional module-level testbench, place the SystemVerilog testbench code in */src/tb* and register the new testbench in the *module_tbs* list defined in  */flow/__init__.py*, for example::
 
     module_tbs = [
         "rlight_tb",
+        "student_tlul_mux_tb",
         "mynewmodule_tb",
     ]
 

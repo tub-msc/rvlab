@@ -7,7 +7,7 @@
  * - Direct-Mapped
  * - 256-bit wide access
  * - Mapped to Block RAM resources
- * - Minimum 16KiB size (configurable)
+ * - Minimum 16 KB size (configurable)
  *
  * Notes:
  * - Assumed to be used as an LLC (Last-Level Cache).
