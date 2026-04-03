@@ -21,7 +21,7 @@ Bitstream loading initializes the synchronization flip-flops in the system clock
 Multi-FF Synchronizers
 ----------------------
 
-Synchronizer flip-flops at clock domain crossings should be marked with :code:`(* ASYNC_REG = "TRUE" *)` in Verilog. This causes them to be treated differently during synthesis and simulation. Most importantly, timing violations at flip-flops marked as *ASYNC_REG* do not lead to X values in simulation. Vivado does this by setting the XON parameter of the flip-flop (e.g. FDCE) to FALSE. No additional XDC constations are needed. Details are described in UG912 (see :ref:`resources`).
+Synchronizer flip-flops at clock domain crossings should be marked with :code:`(* ASYNC_REG = "TRUE" *)` in Verilog. This causes them to be treated differently during synthesis and simulation. Most importantly, timing violations at flip-flops marked as *ASYNC_REG* do not lead to X values in simulation. Vivado does this by setting the XON parameter of the flip-flop (e.g. FDCE) to FALSE. No additional XDC constraints are needed. Details are described in UG912 (see :ref:`resources`).
 
 The setup/hold violations are still printed by the simulator, even though they do not result in X values.
 

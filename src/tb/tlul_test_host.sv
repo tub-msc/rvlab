@@ -48,7 +48,7 @@ module tlul_test_host (
     //tl_o <= TlIdle;  // a_valid <= '0;
     while (!tl_i.d_valid) begin
       @(posedge clk_i);
-      $display("Waiting for response to be d_valid = 1");
+      //$display("Waiting for response to be d_valid = 1");
     end
     if (tl_i.d_error) begin
       $display("Warning: response d_error was %p.", tl_i.d_error);
@@ -56,8 +56,8 @@ module tlul_test_host (
     if (tl_i.d_size != tl_o.a_size) begin
       $display("Warning: response d_size was %p, expected %p.", tl_i.d_size, tl_o.a_size);
     end
-    if (tl_i.d_sink != tl_o.a_source) begin
-      $display("Warning: response d_sink was %p, expected %p.", tl_i.d_sink, tl_o.a_source);
+    if (tl_i.d_source != tl_o.a_source) begin
+      $display("Warning: response d_source was %p, expected %p.", tl_i.d_source, tl_o.a_source);
     end
   endtask
 

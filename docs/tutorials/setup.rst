@@ -58,7 +58,7 @@ As RISC-V tool chain, we recommend to use precompiled gcc binaries from riscv-no
 
 .. _riscv-none-elf-gcc-xpack: https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/
 
-If you wan to use the linter, we recommend to use precompiled gcc binaries from verible_. To make the binaries accessible, unpack the archive somewhere and add the *bin/* sub directory to the *PATH* environment variable.
+If you want to use the linter, we recommend to use precompiled gcc binaries from verible_. To make the binaries accessible, unpack the archive somewhere and add the *bin/* sub directory to the *PATH* environment variable.
 
 .. _verible: https://github.com/chipsalliance/verible/releases
 
@@ -66,7 +66,7 @@ If you wan to use the linter, we recommend to use precompiled gcc binaries from 
 Install Xilinx Vivado (proprietary)
 -----------------------------------
 
-Install Xilinx Vivado ML Edition 2022.2 Standard (Free Version) from the `Xilinx Download Center <https://www.xilinx.com/support/download.html>`_. You need to create a free Xilinx account for downloading and during installation, but no license is required. (The free version sends some metadata to Xilinx during usage.) I recommend the web-based installer instead of the full download (80+ GB). Instructions for the installer:
+Install Xilinx Vivado ML Edition 2022.2 Standard (Free Version) from the `Xilinx Download Center <https://www.xilinx.com/support/download.html>`_. You need to create a free Xilinx account for downloading and during installation, but no license is required. (The free version sends some metadata to Xilinx during usage.) We recommend the web-based installer instead of the full download (80+ GB). Instructions for the installer:
 
 1. *"Select Product to Install"* → Vivado
 2. *"Select Edition to Install"* → Vivado ML Standard
@@ -76,7 +76,7 @@ Install Xilinx Vivado ML Edition 2022.2 Standard (Free Version) from the `Xilinx
    - "Design Tools → DocNav", and
    - "Devices → Production Devices → 7 Series".
 
-During installation Vivado generates an installation dependent script settings64.sh which needs to be sourced. For the flow to find the FPGA library sources and binaries the XILINX_VIVADO and PATH variables need to be set, respectively:
+During installation, Vivado generates an installation-dependent script named settings64.sh, which needs to be sourced. For the flow to find the FPGA library sources and binaries, the XILINX_VIVADO and PATH variables need to be set, respectively:
 
 .. code-block:: bash
 
@@ -128,5 +128,3 @@ In a new shell execute::
     . ~/bin/rvlab.sh
 
 to setup the rvlab environment.
-
-

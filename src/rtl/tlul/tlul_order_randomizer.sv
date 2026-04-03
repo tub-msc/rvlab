@@ -102,7 +102,7 @@ module tlul_order_randomizer #(
 	// Update storage
 	genvar i;
 	generate
-		for (i = 1; i < MAX_SIZE; i++) begin
+		for (i = 1; i < MAX_SIZE; i++) begin : gen_lru
 			always_ff @(posedge clk_i or negedge rst_ni) begin
 				if(~rst_ni) begin
 					lru_storage[i] <= MAX_SIZE-i-1;
@@ -114,7 +114,7 @@ module tlul_order_randomizer #(
 					end // lru_use_valid
 				end // if ~rst_ni
 			end // always_ff
-		end // generate for
+		end : gen_lru
 	endgenerate
 
 	// Promotion queue head (promoted item)
@@ -129,9 +129,7 @@ module tlul_order_randomizer #(
 	end
 
 	// Connect LRU with LFSR
-	always_comb begin
-		lru_use_sel <= lfsr_o[queue_addr_len-1:0];
-	end
+	assign lru_use_sel = lfsr_o[queue_addr_len-1:0];
 
 	///////////
 	// QUEUE //

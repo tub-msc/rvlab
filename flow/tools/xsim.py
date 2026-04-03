@@ -105,18 +105,19 @@ def split_sources(src_files):
     return src_files_xvlog, src_files_xsc
 
 def xvlog(src_files_xvlog, defines, include_dirs, cwd):
-    # During MIG debugging, I thought that sepating V and SV files might help (it did not).
-    #v_sources = []
-    #sv_sources = []
-    #for f in src_files_xvlog:
-    #    if str(f).endswith('.v'):
-    #        v_sources.append(f)
-    #    else:
-    #        sv_sources.append(f)
-    #
-    xvlog_opts = []
+    # xvlog throws mysterious errors if it encounters a SystemVerilog file after already
+    # having processed Verilog files, so we must pass all SV files first and then the V files
+    v_sources = []
+    sv_sources = []
+    for f in src_files_xvlog:
+        if str(f).endswith('.v'):
+            v_sources.append(f)
+        else:
+            sv_sources.append(f)
+    src_files_xvlog = sv_sources + v_sources
 
-    xvlog_opts += ['-sv']
+
+    xvlog_opts = ['-sv']
 
     for i in include_dirs:
         xvlog_opts += ["-i", i]

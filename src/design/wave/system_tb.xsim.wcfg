@@ -81,10 +81,6 @@
       <obj_property name="ElementShortName">dbg_rst_n</obj_property>
       <obj_property name="ObjectShortName">dbg_rst_n</obj_property>
    </wvobject>
-   <wvobject type="group" fp_name="group80">
-      <obj_property name="label">mig-ddr</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-   </wvobject>
    <wvobject type="group" fp_name="group97">
       <obj_property name="label">DDR3</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -140,14 +136,6 @@
       <wvobject type="array" fp_name="/system_tb/ddr3_dm">
          <obj_property name="ElementShortName">ddr3_dm[1:0]</obj_property>
          <obj_property name="ObjectShortName">ddr3_dm[1:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/system_tb/board/DUT/tlul_ddr_i/mig2core">
-         <obj_property name="ElementShortName">mig2core</obj_property>
-         <obj_property name="ObjectShortName">mig2core</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/system_tb/board/DUT/tlul_ddr_i/core2mig">
-         <obj_property name="ElementShortName">core2mig</obj_property>
-         <obj_property name="ObjectShortName">core2mig</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/system_tb/board/DUT/tlul_ddr_i/ctrl_hw2reg">
          <obj_property name="ElementShortName">ctrl_hw2reg</obj_property>

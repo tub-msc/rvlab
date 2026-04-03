@@ -11,7 +11,7 @@ int ddr_init(void) {
         printf("Error: DDR not present.\n");
         return 1;
     }
-    REG32(DDR_CTRL_CTRL(0)) |= (1<<DDR_CTRL_CTRL_MIG_RST_N_LSB); // deassert reset
+    REG32(DDR_CTRL_CTRL(0)) |= (1<<DDR_CTRL_CTRL_RST_N_LSB); // deassert reset
 
     // wait for calibration to complete:
     while(!(REG32(DDR_CTRL_STATUS(0)) & (1<<DDR_CTRL_STATUS_CALIB_COMPLETE_LSB))); 

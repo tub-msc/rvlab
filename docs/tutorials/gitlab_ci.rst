@@ -46,7 +46,6 @@ A :code:`.gitlab-ci.yml` file must be created in the root directory of your rvla
         - flow rvlab_fpga_top.bitstream
       artifacts:
         paths:
-          - build/rvlab_mig/generate/vivado.log 
           - build/rvlab_fpga_top/**/*.log 
           - build/rvlab_fpga_top/**/*.txt 
           - build/rvlab_fpga_top/bitstream/rvlab_fpga_top.bit 

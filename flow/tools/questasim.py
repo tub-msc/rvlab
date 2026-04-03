@@ -28,7 +28,10 @@ class Vsim(TclTool):
         self.vsim_opts += ['-suppress', '14408'] 
         
         # ** Error (suppressible): (vsim-SDF-3262) [...]/rvlab_fpga_top.sdf(257181): Failed to find matching specify timing constraint.
-        self.vsim_opts += ['-suppress', '3262'] 
+        self.vsim_opts += ['-suppress', '3262']
+
+        # ** Warning: (vsim-3015) [PCDPC] - Port size (1) does not match connection size (32) [in UberDDR3]
+        self.vsim_opts += ['-suppress', '3015']
 
 
         for l in libs:
@@ -62,8 +65,7 @@ def simulate(
         timescale: str="1ps/1fs",
         plusargs: dict[str,str]={},
         netlist_sim=None,
-        libs: list=[],
-        hide_mig_timingcheck_msg:bool=False,
+        libs: list=[]
         ):
     """
     Args:
@@ -113,13 +115,6 @@ def simulate(
         if saif_out:
             vsim("power add -in -inout -internal -out /*")
 
-        if hide_mig_timingcheck_msg:
-            # Suppresses messages (at start of simulation), but keeps X generation.
-            vsim('tcheck_set /board/DUT/tlul_ddr_i/mig_i -r "(PERIOD)" OFF ON')
-            vsim('tcheck_set /board/DUT/tlul_ddr_i/mig_i -r "(HOLD)" OFF ON')
-            vsim('tcheck_set /board/DUT/tlul_ddr_i/mig_i -r "(SETUP)" OFF ON')
-            vsim('tcheck_set /board/DUT/tlul_ddr_i/mig_i -r "(WIDTH)" OFF ON')
-
         if run_on_start or batch_mode:
             vsim('run -a')
 
@@ -159,9 +154,6 @@ def compile(
 
     # ** Warning: [...]/glbl.v(6): (vlog-2605) empty port name in port list.
     vlog_opts += ['-suppress', '2605']
-
-    # ** Warning: [...]/mig_7series_v4_2_rank_cntrl.v(327): (vlog-2573) Unconditional generate blocks are not permitted in Verilog 1364-2005.
-    vlog_opts += ['-suppress', '2573']
 
 
 

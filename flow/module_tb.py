@@ -50,6 +50,12 @@ class ModuleTb(Block):
         self.simulate('questasim', cwd, srcs,
             libs=[unisims.lib])
 
+    @task(requires={'srcs':'srcs.srcs', 'unisims':'simlibs_questa.unisims', 'secureip':'simlibs_questa.secureip'})
+    def sim_rtl_questa_ddr(self, cwd, srcs, unisims, secureip):
+        """RTL simulation with QuestaSim, including libraries required for simulating the DDR3 model"""
+        self.simulate('questasim', cwd, srcs,
+            libs=[unisims.lib, secureip.lib])
+
     @task(requires={'srcs':'srcs.srcs_noddr', 'unisims':'simlibs_questa.unisims'}, hidden=True)
     def sim_rtl_questa_batch(self, cwd, srcs, unisims):
         """RTL simulation with QuestaSim (batch mode)"""

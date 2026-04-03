@@ -18,7 +18,10 @@ class RvlabFpgaTop(Block):
     def setup(self):
         self.src_dir = self.flow.base_dir / "src"
         self.design_dir = self.src_dir / "design"
-        self.xdc_in = self.design_dir / "xdc" / f"{self.name}.xdc"
+        self.xdc_in = [
+            self.design_dir / "xdc" / "rvlab_fpga_top.xdc",
+            self.design_dir / "xdc" / "rvlab_ddr.xdc"
+        ]
 
     @task(requires={'srcs':'srcs.srcs'}, hidden=True)
     def rtl_elaborate(self, cwd, srcs):
@@ -27,7 +30,8 @@ class RvlabFpgaTop(Block):
             t.read_verilog(srcs.design_srcs)
             for xci in srcs.xcis:
                 t.import_ip(xci)
-            t.read_xdc(self.xdc_in)
+            for xdc in self.xdc_in:
+                t.read_xdc(xdc)
             defines = []
             for k, v in srcs.defines.items():
                 defines += ['-verilog_define', f"{k}={v}"]
@@ -56,8 +60,6 @@ class RvlabFpgaTop(Block):
         t.get_methodology_checks(disable_methodology_checks).set_property('IS_ENABLED', 'FALSE')
         t.get_drc_checks(disable_drc_checks).set_property('IS_ENABLED', 'FALSE')
 
-        t.create_waiver(strings="tlul_ddr_i/mig_i", id="LUTAR-1", description="In Xilinx IP")
-        t.create_waiver(strings="tlul_ddr_i/mig_i", id="REQP-1709", description="In Xilinx IP")
         t.create_waiver(strings="tdo_flop_i", id="TIMING-14", description="Needed for TDO")
 
         r.report_utilization = cwd / f"{self.name}.utilization.txt"
@@ -86,7 +88,8 @@ class RvlabFpgaTop(Block):
             t.read_verilog(srcs.design_srcs)
             for xci in srcs.xcis:
                 t.import_ip(xci)
-            t.read_xdc(self.xdc_in)
+            for xdc in self.xdc_in:
+                t.read_xdc(xdc)
             defines = []
             for k, v in srcs.defines.items():
                 defines += ['-verilog_define', f"{k}={v}"]
@@ -129,6 +132,70 @@ class RvlabFpgaTop(Block):
             self.vivado_generate_reports(cwd, r, t)
 
         return r
+
+    @task(requires={'pnr': '.pnr'})
+    def slack_analysis(self, cwd, pnr):
+            "Slack histogram to inspect timing using Vivado GUI"
+
+            NUM_CRITICAL_PATHS = 10
+            NUM_HISTOGRAM_BINS = 20
+
+            with Vivado(cwd=cwd, interact=True) as t:
+                    t.read_checkpoint(pnr.dcp)
+                    t.link_design(name=self.name)
+
+                    t.start_gui()
+
+                    # Global histogram
+                    t.create_slack_histogram(
+                        num_bins=NUM_HISTOGRAM_BINS,
+                        slack_less_than=2.5,
+                        significant_digits=3,
+                        name="project_wns_hist"
+                    )
+
+                    # Global worst paths
+                    t.report_timing(
+                        delay_type="max",
+                        input_pins=True,
+                        routable_nets=True,
+                        max_paths=NUM_CRITICAL_PATHS,
+                        name="project_worst_paths"
+                    )
+
+                    for clock_name in ["sys_clk", "ddr_ctrl"]:
+
+                        clk = t.get_clocks(clock_name)
+
+                        # worst paths
+                        worst_paths = t.get_timing_paths(
+                            max_paths=NUM_CRITICAL_PATHS,
+                            delay_type="max",
+                            sort_by="slack",
+                            to=clk
+                        )
+                        if str(worst_paths) != "":
+                            print(worst_paths)
+                            # we need endpoints instead of paths
+                            worst_endpoints = t.get_property("ENDPOINT_PIN", worst_paths)
+
+                            t.report_timing(
+                                to=worst_endpoints,
+                                delay_type="max",
+                                input_pins=True,
+                                routable_nets=True,
+                                max_paths=NUM_CRITICAL_PATHS,
+                                name=clock_name + "_worst_paths"
+                            )
+
+                            # histogram
+                            t.create_slack_histogram(
+                                num_bins=NUM_HISTOGRAM_BINS,
+                                slack_less_than=2.5,
+                                significant_digits=3,
+                                name=clock_name + "_wns_hist",
+                                to=clk
+                            )
 
     @task(requires={'pnr':'.pnr'})
     def bitstream(self, cwd, pnr):

@@ -181,7 +181,7 @@ module rvlab_board (
 
 `ifdef WITH_EXT_DRAM
 
-  ddr3_model ddr3_model_i (
+  ddr3 ddr3_model_i (
     .rst_n  (ddr3_reset_n),
     .ck     (ddr3_ck_p),
     .ck_n   (ddr3_ck_n),

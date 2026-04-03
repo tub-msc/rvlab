@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: SHL-2.1
 // SPDX-FileCopyrightText: 2024 RVLab Contributors
 
+// Cache hit rates?
+// Other config? -> Prefetch buffer etc
+
 {
   name: "ddr_ctrl"
   clock_primary: "sys_clk"
@@ -8,24 +11,15 @@
   regwidth: "32"
   registers: [
     {
-      name: "temp"
-      desc: "ADC temperature"
-      swaccess: "ro"
-      hwaccess: "hwo"
-      hwext: "true"
-      fields: [
-        {bits: '11:0', name: 'rdata', desc: 'value'}
-      ]
-    }
-    {
       name: "status"
-      desc: "DDR MIG status"
+      desc: "DDR status"
       swaccess: "ro"
       hwaccess: "hwo"
       hwext: "true"
       fields: [
-        {bits: "0", name: "present", desc: "DDR / MIG present"}
+        {bits: "0", name: "present", desc: "DDR Controller present"}
         {bits: "1", name: "calib_complete", desc: "DDR initial calibration complete"}
+        {bits: "6:2", name: "calib_status", desc: "DDR internal calibration state"}
       ]
     }  
     {
@@ -34,7 +28,8 @@
       swaccess: "rw"
       hwaccess: "hro"
       fields: [
-        {bits: "0", name: "mig_rst_n", resval: "0", desc: "MIG reset (active low)"}
+        {bits: "0", name: "rst_n", resval: "0", desc: "UberDDR3 reset (active low)"}
+        {bits: "1", name: "self_refresh", resval: "0", desc: "DDR3 Self Refresh Enable"}
       ]
     },
   ]

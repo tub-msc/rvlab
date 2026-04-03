@@ -16,7 +16,7 @@ The system clock and reset are provided to rvlab_core as **clk_i** and **rst_ni*
 
 Components:
 
-- **rvlab_cpu** -- contains the Ibex CPU implementing the RV32IMC instruction set
+- **rvlab_cpu** -- contains the CV32E40P CPU implementing the RV32IMC instruction set
 - **xbar_main** -- main crossbar switch (fast accesses)
 - **xbar_peri** -- periphery crossbar switch (slower accesses)
 - **student** -- module for exercises and project implementation
@@ -27,15 +27,12 @@ Components:
 
 The tl_ddr_i/tl_ddr_o and tl_ddr_ctrl_i/tl_ddr_ctrl_o ports connect to a DDR3 memory controller instantiated outside of rvlab_core.
 
-The Ibex core used in the RISC-V Lab stems from commit `183ae4ad4f346336040cdd78b11cb3c08b54a167 <https://github.com/lowRisc/Ibex/commit/183ae4ad4f346336040cdd78b11cb3c08b54a167>`_ (Jan 28, 2020) of the lowRISC/Ibex Git repository. More recent versions of Ibex have been found less suitable for the lab, as a significant amount of complexity has been added that is not of use for this lab.
-The corresponding OpenTitan commit is approximately `19f8eca67e8b4213838ee05546ab439cbf5f8930 <https://github.com/lowRISC/opentitan/commit/19f8eca67e8b4213838ee05546ab439cbf5f8930>`_ (Feb 4, 2020).
-
-To obtain the most accurate documentation of Ibex and OpenTitan for the purposes of the RISC-V Lab, please checkout the aforementioned commits of Ibex and OpenTitan. The latest online documentation of Ibex and OpenTitan differs substantially in some aspects.
+To obtain the most accurate documentation of CV32E40P and OpenTitan for the purposes of the RISC-V Lab, please checkout the commits of CV32E40P and OpenTitan mentioned at :ref:`source_projects`. The latest online documentation of CV32E40P and OpenTitan may differ substantially from the used versions.
 
 Student module
 --------------
 
-The student module is euqipped with following inputs / outputs:
+The student module is equipped with the following inputs / outputs:
 
 - **tl_device_peri_i/tl_device_peri_o** -- TL-UL device port connected to xbar_peri
 - **tl_device_fast_i/tl_device_fast_o** -- TL-UL device port connected to xbar_main

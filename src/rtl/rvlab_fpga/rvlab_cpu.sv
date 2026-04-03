@@ -170,7 +170,7 @@ module rvlab_cpu #(
   );
   
   generate
-    if (RANDOMIZE_I) begin
+    if (RANDOMIZE_I) begin : gen_randomizer_i
       tlul_order_randomizer #(
         .LFSR_SEED  (16'h67CD),
         .WAIT_CYCLES(4)
@@ -183,7 +183,7 @@ module rvlab_cpu #(
         .device_i(tl_i_i),
         .device_o(tl_i_o)
       );
-    end else begin
+    end else begin : gen_no_rnd_i
       assign tl_i_o = i_fifo_h2d;
       assign i_fifo_d2h = tl_i_i;
     end
@@ -230,7 +230,7 @@ module rvlab_cpu #(
   );
 
   generate
-    if (RANDOMIZE_D) begin
+    if (RANDOMIZE_D) begin : gen_randomizer_d
       tlul_order_randomizer #(
         .LFSR_SEED  (16'h4545),
         .WAIT_CYCLES(4)
@@ -243,7 +243,7 @@ module rvlab_cpu #(
         .device_i(tl_d_i),
         .device_o(tl_d_o)
       );
-    end else begin
+    end else begin : gen_no_rnd_d
       assign tl_d_o = d_fifo_h2d;
       assign d_fifo_d2h = tl_d_i;
     end

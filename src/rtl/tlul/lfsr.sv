@@ -4,7 +4,7 @@
 /* 16-bit Linear Feedback Shift Register */
 
 module lfsr #(
-	SEED = 16'hCAFE
+	parameter logic [15:0] SEED = 16'hCAFE
 ) (
 	input logic clk_i,
 	input logic rst_ni,

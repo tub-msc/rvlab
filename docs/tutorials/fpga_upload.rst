@@ -6,9 +6,9 @@ FPGA Upload
     .. note::
         1. absolutely **no probing** (oscilloscope, voltmeter, logic analyzer) on the FPGA board ! Connect measurement equipment only to PMOD connectors!
         2. **never connect any supply or ground** to an (PMOD) FPGA IO! If you need a fixed logic level connect a supply pin of the PMOD connector **via a resistor** (e.g. 4.7k) to the IO !
-        3. Every hardware connected to the board must be cleared by the tutor - especially self build PCBs !
+        3. Every piece of hardware connected to the board must be cleared by the tutor - especially self-built PCBs !
  
-*Mechanical pressure over time creates micro interruptions (in solder pads and internal layers). If you want to probe any FPGA IO (e.g. to to an on board device) mirror the FPGA IO in your design to a second FPGA IO of a PMOD connector. For the same reason the push buttons may not be used.*
+*Mechanical pressure over time creates micro interruptions (in solder pads and internal layers). If you want to probe any FPGA IO (e.g. to to an on-board device), mirror the FPGA IO in your design to a second FPGA IO of a PMOD connector. For the same reason, the push buttons may not be used.*
 
 *A power supply is very low ohmic - connecting it to a wrong place (e.g. output) even briefly will kill the FPGA.*
 
@@ -20,8 +20,6 @@ Make sure the FPGA board power is connected, the POWER switch on the board is tu
 To flash the bitstream to the FPGA, use the following command::
 
     flow rvlab_fpga_top.program
-
-Sometimes, this command fails on the first attempt. It should work on the second attempt.
 
 Run software
 ------------
@@ -43,7 +41,7 @@ Debug via GDB
 
 **This step is not mandatory!**
 
-After starting the *student* program with :code:`flow sw_student run`, you can also attach the GNU Debugger (GDB) to your running hardware for in-system debugging including single-stepping and full memory access. To do this, run :code:`riscv-none-embed-gdb build/sw_student/build/sw.elf` and establish the connection to OpenOCD with :code:`target extended-remote :3333` (command can also be abbreviated as :code:`tar ext :3333`).
+After starting the *student* program with :code:`flow sw_student.run`, you can also attach the GNU Debugger (GDB) to your running hardware for in-system debugging including single-stepping and full memory access. To do this, run :code:`riscv-none-embed-gdb build/sw_student/build/sw.elf` and establish the connection to OpenOCD with :code:`target extended-remote :3333` (command can also be abbreviated as :code:`tar ext :3333`).
 
 The program is not stopped by default. Use :code:`step` for single stepping, :code:`break cmd_sw` to set a breakpoint on the *cmd_sw* function, :code:`continue` to resume execution etc.
 

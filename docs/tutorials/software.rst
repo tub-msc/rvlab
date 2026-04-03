@@ -9,7 +9,7 @@ Multiple programs are defined and can be built from the rvlab codebase:
 - **dma** -- student program for exercise 4
 - **project** -- student program for project work (and exercise 5?)
 - **minimal** -- minimal example program, can be used as template when adding programs
-- **monitor** -- simple shell-like interface for interactive reading / writing of main memory
+- **monitor** -- simple shell-like interface for interactive reading / writing of SoC memory locations
 - **test_rvlab** -- tests various system components (simulation and FPGA). If the DDR3 memory controller is found, a time-intensive DDR3 memory test (infeasible for simulation) is performed.
 - **test_sim_ddr** -- minimal test of DDR3 memory functionality, intended for RTL simulation with included DDR3 memory controller 
 

@@ -72,7 +72,6 @@ module tlul_rob #(
 	
 	typedef struct packed {
 		logic       [31:0] 	data;
-		logic       [31:0] 	address;
 		tl_d_op_e	device_op;
 		logic		[TL_AIW-1:0] host_src;
 		logic 		[TL_SZW-1:0] device_size;
@@ -97,7 +96,6 @@ module tlul_rob #(
 			for (i = 0; i < DEPTH; i = i + 1) begin
 			  	entries[i] <= '{
 			  		data: '0,
-			  		address: '0,
 			  		host_src: '0,
 			  		device_size: '0,
 			  		device_op: AccessAck,
@@ -113,7 +111,6 @@ module tlul_rob #(
 				if (~rob_full) begin
 					// populate next entry in ROB (Update to pending)
 					entries[rob_head].state 	<= Pending;
-					entries[rob_head].address 	<= host_i.a_address;
 					entries[rob_head].host_src 	<= host_i.a_source;
 					// shift head pointer
 					rob_head <= rob_head + 1;

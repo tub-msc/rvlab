@@ -23,10 +23,11 @@ class Sources(Block):
 
         design_srcs_pkg = []
         design_srcs_pkg += [self.src_dir / "rtl/inc/prim_assert.sv"]
-        for d in ["rvlab_fpga", "prim", "prim2", "cv32e40p", "tlul", "rv_dm"]:
+        for d in ["rvlab_fpga", "prim", "cv32e40p", "tlul", "rv_dm", "ddr3"]:
             design_srcs_pkg += [x for x in self.src_dir.glob(f"rtl/{d}/pkg/*.sv")]
         design_srcs = []
-        design_srcs += [x for x in self.src_dir.glob("rtl/*/*.sv")]    
+        design_srcs += [x for x in self.src_dir.glob("rtl/*/*.sv")]
+        design_srcs += [x for x in self.src_dir.glob("rtl/*/*.v")]
 
         r.tb_srcs = [x for x in self.src_dir.glob("tb/*.sv")]
         r.tb_srcs += [vivado.vivado_dir() / "data/verilog/src/glbl.v"]
@@ -48,16 +49,22 @@ class Sources(Block):
 
     @task(requires={
         'noddr':'.srcs_noddr',
-        'mig':'mig.generate',
         }, always_rebuild=True, hidden=True)
-    def srcs(self, cwd, noddr, mig):
+    def srcs(self, cwd, noddr):
         """RTL + verification sources including DDR3"""
         r = Result()
+
         r.design_srcs = noddr.design_srcs
+
         r.defines = noddr.defines | {'WITH_EXT_DRAM':'1'}
-        r.include_dirs = noddr.include_dirs + mig.include_dirs
-        r.tb_srcs = noddr.tb_srcs + mig.sim_verilog
-        r.xcis = noddr.xcis + [mig.xci]
+
+        r.include_dirs = noddr.include_dirs
+
+        r.tb_srcs = noddr.tb_srcs
+        r.tb_srcs += [x for x in self.src_dir.glob("tb/ddr3_model/*.sv")]
+
+        r.xcis = noddr.xcis
+
         return r
 
     @task(requires={"srcs":".srcs_noddr"})
