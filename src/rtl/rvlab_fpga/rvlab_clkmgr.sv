@@ -26,7 +26,7 @@ module rvlab_clkmgr (
     .CLKFBOUT_MULT_F   (12.0),         // fVCO = 12 * 100 MHz = 1200 MHz 
     .CLKFBOUT_PHASE    (0.0),          // Phase offset in degrees of CLKFB (-360.000-360.000).
     .CLKIN1_PERIOD     (10.0),         // 100 MHz input clock = 10 ns clock period
-    .CLKOUT0_DIVIDE_F  (20.0),         // freq(CLKOUT0) = fVCO / 24 = 50 MHz
+    .CLKOUT0_DIVIDE_F  (24.0),         // freq(CLKOUT0) = fVCO / 24 = 50 MHz
     .CLKOUT1_DIVIDE    (20),           // not used
     .CLKOUT2_DIVIDE    (20),           // not used
     .CLKOUT3_DIVIDE    (20),           // not used
