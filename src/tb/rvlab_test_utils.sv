@@ -318,7 +318,7 @@ module rvlab_test_utils(
 
     full_output = {full_output, char_str};
     if (char == "\n") begin
-      $display("hostio: %s", rx_line_buf);
+      $display("hostio @ %t: %s", $time, rx_line_buf);
       rx_line_buf = "";
     end else begin
       rx_line_buf = {rx_line_buf, char_str};
