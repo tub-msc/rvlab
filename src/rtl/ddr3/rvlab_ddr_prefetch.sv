@@ -51,7 +51,7 @@ module rvlab_ddr_prefetch #(
 
     entry_state_e      entry_states [SIZE-1:0];
     logic [DDR_AW-1:0] entry_addrs  [SIZE-1:0];
-    logic [     255:0] entry_data   [SIZE-1:0];
+    logic [     255:0] entry_data   [SIZE-1:0] = '{default: '0};
 
     logic [SIZE-1:0] addr_match_mask;
     logic [SIZE-1:0] addr_le_mask; // Addr <= FE.addr (-> invalidate on response)
@@ -183,11 +183,6 @@ module rvlab_ddr_prefetch #(
             entry_data[be_rsp_i.d_anc] <= be_rsp_i.d_data;
         end
     end
-
-    initial begin
-        for (int i = 0; i < SIZE; i++) entry_data[i] = '0;
-    end
-
 
     /* Output generation */
 

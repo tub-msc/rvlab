@@ -49,8 +49,9 @@ class Sources(Block):
 
     @task(requires={
         'noddr':'.srcs_noddr',
+        'ddr3_model':'ddr3_model.generate',
         }, always_rebuild=True, hidden=True)
-    def srcs(self, cwd, noddr):
+    def srcs(self, cwd, noddr, ddr3_model):
         """RTL + verification sources including DDR3"""
         r = Result()
 
@@ -58,10 +59,8 @@ class Sources(Block):
 
         r.defines = noddr.defines | {'WITH_EXT_DRAM':'1'}
 
-        r.include_dirs = noddr.include_dirs
-
-        r.tb_srcs = noddr.tb_srcs
-        r.tb_srcs += [x for x in self.src_dir.glob("tb/ddr3_model/*.sv")]
+        r.include_dirs = noddr.include_dirs + ddr3_model.include_dirs
+        r.tb_srcs = noddr.tb_srcs + ddr3_model.tb_srcs
 
         r.xcis = noddr.xcis
 

@@ -41,9 +41,9 @@ module rvlab_ddr_block_cache #(
 
   localparam int SETS = 2**IDX_BITS;
 
-  (* ram_style = "block" *)       reg [       255:0]  data_mem [SETS-1:0];
-                                  reg [TAG_BITS-1:0]   tag_mem [SETS-1:0];
-  (* ram_style = "distributed" *) logic              dirty_mem [SETS-1:0];
+  (* ram_style = "block" *)       reg [       255:0]  data_mem [SETS-1:0] = '{default: '0};
+                                  reg [TAG_BITS-1:0]   tag_mem [SETS-1:0] = '{default: '0};
+  (* ram_style = "distributed" *) logic              dirty_mem [SETS-1:0] = '{default: '0};
 
   /* Address decomposition */
 
@@ -181,15 +181,6 @@ module rvlab_ddr_block_cache #(
       dirty_mem[access_idx_q] <= ~modify_clear;
       dirty_rdata <= ~modify_clear;
     end else dirty_rdata <= dirty_mem[access_idx];
-  end
-
-  // Populate cache initially
-  initial begin
-    for (int i = 0; i < SETS; i++) begin
-      tag_mem[i] = '0;
-      dirty_mem[i] = '0;
-      data_mem[i] = '0;
-    end
   end
 
   always_comb begin
