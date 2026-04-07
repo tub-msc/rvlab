@@ -5,12 +5,17 @@
    <db_ref_list>
       <db_ref path="simk.wdb" id="1">
          <top_modules>
+            <top_module name="cv32e40p_apu_core_pkg" />
+            <top_module name="cv32e40p_fpu_pkg" />
+            <top_module name="cv32e40p_pkg" />
             <top_module name="ddr_ctrl_reg_pkg" />
             <top_module name="dm" />
             <top_module name="glbl" />
-            <top_module name="ibex_pkg" />
             <top_module name="regdemo_reg_pkg" />
+            <top_module name="rv_timer_reg_pkg" />
+            <top_module name="rvlab_ddr_pkg" />
             <top_module name="rvlab_tap_pkg" />
+            <top_module name="student_dma_reg_pkg" />
             <top_module name="system_tb" />
             <top_module name="tl_main_pkg" />
             <top_module name="tl_peri_pkg" />
@@ -21,129 +26,615 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000000000 us"></ZoomStartTime>
-      <ZoomEndTime time="4,105.853163393 us"></ZoomEndTime>
-      <Cursor1Time time="4.435713937 us"></Cursor1Time>
+      <ZoomEndTime time="153.080000001 us"></ZoomEndTime>
+      <Cursor1Time time="153.080000000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="276"></NameColumnWidth>
-      <ValueColumnWidth column_width="88"></ValueColumnWidth>
+      <ValueColumnWidth column_width="80"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="15" />
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/clk_100mhz_i">
-      <obj_property name="ElementShortName">clk_100mhz_i</obj_property>
-      <obj_property name="ObjectShortName">clk_100mhz_i</obj_property>
+   <WVObjectSize size="31" />
+   <wvobject fp_name="divider35" type="divider">
+      <obj_property name="label">Input / Output Signals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#00FFFF</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/jtag_tck_i">
-      <obj_property name="ElementShortName">jtag_tck_i</obj_property>
-      <obj_property name="ObjectShortName">jtag_tck_i</obj_property>
+   <wvobject type="group" fp_name="group36">
+      <obj_property name="label">JTAG</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_tck_i">
+         <obj_property name="ElementShortName">jtag_tck_i</obj_property>
+         <obj_property name="ObjectShortName">jtag_tck_i</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_tdi_i">
+         <obj_property name="ElementShortName">jtag_tdi_i</obj_property>
+         <obj_property name="ObjectShortName">jtag_tdi_i</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_tdo_o">
+         <obj_property name="ElementShortName">jtag_tdo_o</obj_property>
+         <obj_property name="ObjectShortName">jtag_tdo_o</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_tms_i">
+         <obj_property name="ElementShortName">jtag_tms_i</obj_property>
+         <obj_property name="ObjectShortName">jtag_tms_i</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_trst_ni">
+         <obj_property name="ElementShortName">jtag_trst_ni</obj_property>
+         <obj_property name="ObjectShortName">jtag_trst_ni</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/jtag_srst_ni">
+         <obj_property name="ElementShortName">jtag_srst_ni</obj_property>
+         <obj_property name="ObjectShortName">jtag_srst_ni</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/jtag_tdi_i">
-      <obj_property name="ElementShortName">jtag_tdi_i</obj_property>
-      <obj_property name="ObjectShortName">jtag_tdi_i</obj_property>
+   <wvobject type="group" fp_name="group45">
+      <obj_property name="label">DDR3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_dq">
+         <obj_property name="ElementShortName">ddr3_dq[15:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_dq[15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_dqs_n">
+         <obj_property name="ElementShortName">ddr3_dqs_n[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_dqs_n[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_dqs_p">
+         <obj_property name="ElementShortName">ddr3_dqs_p[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_dqs_p[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_addr">
+         <obj_property name="ElementShortName">ddr3_addr[14:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_addr[14:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_ba">
+         <obj_property name="ElementShortName">ddr3_ba[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_ba[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ddr3_ras_n">
+         <obj_property name="ElementShortName">ddr3_ras_n</obj_property>
+         <obj_property name="ObjectShortName">ddr3_ras_n</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ddr3_cas_n">
+         <obj_property name="ElementShortName">ddr3_cas_n</obj_property>
+         <obj_property name="ObjectShortName">ddr3_cas_n</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ddr3_we_n">
+         <obj_property name="ElementShortName">ddr3_we_n</obj_property>
+         <obj_property name="ObjectShortName">ddr3_we_n</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ddr3_reset_n">
+         <obj_property name="ElementShortName">ddr3_reset_n</obj_property>
+         <obj_property name="ObjectShortName">ddr3_reset_n</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_ck_p">
+         <obj_property name="ElementShortName">ddr3_ck_p[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_ck_p[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_ck_n">
+         <obj_property name="ElementShortName">ddr3_ck_n[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_ck_n[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_cke">
+         <obj_property name="ElementShortName">ddr3_cke[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_cke[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_dm">
+         <obj_property name="ElementShortName">ddr3_dm[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_dm[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/ddr3_odt">
+         <obj_property name="ElementShortName">ddr3_odt[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ddr3_odt[0:0]</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/jtag_tdo_o">
-      <obj_property name="ElementShortName">jtag_tdo_o</obj_property>
-      <obj_property name="ObjectShortName">jtag_tdo_o</obj_property>
+   <wvobject type="group" fp_name="group46">
+      <obj_property name="label">User I/O</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/switch_i">
+         <obj_property name="ElementShortName">switch_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">switch_i[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/uart_rx_out">
+         <obj_property name="ElementShortName">uart_rx_out</obj_property>
+         <obj_property name="ObjectShortName">uart_rx_out</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/uart_tx_in">
+         <obj_property name="ElementShortName">uart_tx_in</obj_property>
+         <obj_property name="ObjectShortName">uart_tx_in</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ps2_clk">
+         <obj_property name="ElementShortName">ps2_clk</obj_property>
+         <obj_property name="ObjectShortName">ps2_clk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ps2_data">
+         <obj_property name="ElementShortName">ps2_data</obj_property>
+         <obj_property name="ObjectShortName">ps2_data</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/scl">
+         <obj_property name="ElementShortName">scl</obj_property>
+         <obj_property name="ObjectShortName">scl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sda">
+         <obj_property name="ElementShortName">sda</obj_property>
+         <obj_property name="ObjectShortName">sda</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_sdin">
+         <obj_property name="ElementShortName">oled_sdin</obj_property>
+         <obj_property name="ObjectShortName">oled_sdin</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_sclk">
+         <obj_property name="ElementShortName">oled_sclk</obj_property>
+         <obj_property name="ObjectShortName">oled_sclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_dc">
+         <obj_property name="ElementShortName">oled_dc</obj_property>
+         <obj_property name="ObjectShortName">oled_dc</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_res">
+         <obj_property name="ElementShortName">oled_res</obj_property>
+         <obj_property name="ObjectShortName">oled_res</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_vbat">
+         <obj_property name="ElementShortName">oled_vbat</obj_property>
+         <obj_property name="ObjectShortName">oled_vbat</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/oled_vdd">
+         <obj_property name="ElementShortName">oled_vdd</obj_property>
+         <obj_property name="ObjectShortName">oled_vdd</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ac_dac_sdata">
+         <obj_property name="ElementShortName">ac_dac_sdata</obj_property>
+         <obj_property name="ObjectShortName">ac_dac_sdata</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ac_bclk">
+         <obj_property name="ElementShortName">ac_bclk</obj_property>
+         <obj_property name="ObjectShortName">ac_bclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ac_lrclk">
+         <obj_property name="ElementShortName">ac_lrclk</obj_property>
+         <obj_property name="ObjectShortName">ac_lrclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ac_mclk">
+         <obj_property name="ElementShortName">ac_mclk</obj_property>
+         <obj_property name="ObjectShortName">ac_mclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/ac_adc_sdata">
+         <obj_property name="ElementShortName">ac_adc_sdata</obj_property>
+         <obj_property name="ObjectShortName">ac_adc_sdata</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_sck">
+         <obj_property name="ElementShortName">sd_sck</obj_property>
+         <obj_property name="ObjectShortName">sd_sck</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_mosi">
+         <obj_property name="ElementShortName">sd_mosi</obj_property>
+         <obj_property name="ObjectShortName">sd_mosi</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_cs">
+         <obj_property name="ElementShortName">sd_cs</obj_property>
+         <obj_property name="ObjectShortName">sd_cs</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_reset">
+         <obj_property name="ElementShortName">sd_reset</obj_property>
+         <obj_property name="ObjectShortName">sd_reset</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_cd">
+         <obj_property name="ElementShortName">sd_cd</obj_property>
+         <obj_property name="ObjectShortName">sd_cd</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/sd_miso">
+         <obj_property name="ElementShortName">sd_miso</obj_property>
+         <obj_property name="ObjectShortName">sd_miso</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_clk_n">
+         <obj_property name="ElementShortName">hdmi_rx_clk_n</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_clk_n</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_clk_p">
+         <obj_property name="ElementShortName">hdmi_rx_clk_p</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_clk_p</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/hdmi_rx_n">
+         <obj_property name="ElementShortName">hdmi_rx_n[2:0]</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_n[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/hdmi_rx_p">
+         <obj_property name="ElementShortName">hdmi_rx_p[2:0]</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_p[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_cec">
+         <obj_property name="ElementShortName">hdmi_rx_cec</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_cec</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_scl">
+         <obj_property name="ElementShortName">hdmi_rx_scl</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_scl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_sda">
+         <obj_property name="ElementShortName">hdmi_rx_sda</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_sda</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_hpa">
+         <obj_property name="ElementShortName">hdmi_rx_hpa</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_hpa</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_rx_txen">
+         <obj_property name="ElementShortName">hdmi_rx_txen</obj_property>
+         <obj_property name="ObjectShortName">hdmi_rx_txen</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_clk_n">
+         <obj_property name="ElementShortName">hdmi_tx_clk_n</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_clk_n</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_clk_p">
+         <obj_property name="ElementShortName">hdmi_tx_clk_p</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_clk_p</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/hdmi_tx_n">
+         <obj_property name="ElementShortName">hdmi_tx_n[2:0]</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_n[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/hdmi_tx_p">
+         <obj_property name="ElementShortName">hdmi_tx_p[2:0]</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_p[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_cec">
+         <obj_property name="ElementShortName">hdmi_tx_cec</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_cec</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_rscl">
+         <obj_property name="ElementShortName">hdmi_tx_rscl</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_rscl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_rsda">
+         <obj_property name="ElementShortName">hdmi_tx_rsda</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_rsda</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/hdmi_tx_hpd">
+         <obj_property name="ElementShortName">hdmi_tx_hpd</obj_property>
+         <obj_property name="ObjectShortName">hdmi_tx_hpd</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/eth_rxd">
+         <obj_property name="ElementShortName">eth_rxd[3:0]</obj_property>
+         <obj_property name="ObjectShortName">eth_rxd[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_rxctl">
+         <obj_property name="ElementShortName">eth_rxctl</obj_property>
+         <obj_property name="ObjectShortName">eth_rxctl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_rxck">
+         <obj_property name="ElementShortName">eth_rxck</obj_property>
+         <obj_property name="ObjectShortName">eth_rxck</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/eth_txd">
+         <obj_property name="ElementShortName">eth_txd[3:0]</obj_property>
+         <obj_property name="ObjectShortName">eth_txd[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_txctl">
+         <obj_property name="ElementShortName">eth_txctl</obj_property>
+         <obj_property name="ObjectShortName">eth_txctl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_txck">
+         <obj_property name="ElementShortName">eth_txck</obj_property>
+         <obj_property name="ObjectShortName">eth_txck</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_mdio">
+         <obj_property name="ElementShortName">eth_mdio</obj_property>
+         <obj_property name="ObjectShortName">eth_mdio</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_mdc">
+         <obj_property name="ElementShortName">eth_mdc</obj_property>
+         <obj_property name="ObjectShortName">eth_mdc</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_int_b">
+         <obj_property name="ElementShortName">eth_int_b</obj_property>
+         <obj_property name="ObjectShortName">eth_int_b</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_pme_b">
+         <obj_property name="ElementShortName">eth_pme_b</obj_property>
+         <obj_property name="ObjectShortName">eth_pme_b</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/system_tb/board/eth_rst_b">
+         <obj_property name="ElementShortName">eth_rst_b</obj_property>
+         <obj_property name="ObjectShortName">eth_rst_b</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/jtag_tms_i">
-      <obj_property name="ElementShortName">jtag_tms_i</obj_property>
-      <obj_property name="ObjectShortName">jtag_tms_i</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/system_tb/board/DUT/led_o">
+   <wvobject type="array" fp_name="/system_tb/board/led_o">
       <obj_property name="ElementShortName">led_o[7:0]</obj_property>
       <obj_property name="ObjectShortName">led_o[7:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/system_tb/board/DUT/button_i">
-      <obj_property name="ElementShortName">button_i[4:0]</obj_property>
-      <obj_property name="ObjectShortName">button_i[4:0]</obj_property>
+   <wvobject fp_name="divider34" type="divider">
+      <obj_property name="label">Clock &amp; Reset</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#00FFFF</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/system_tb/board/DUT/switch_i">
-      <obj_property name="ElementShortName">switch_i[7:0]</obj_property>
-      <obj_property name="ObjectShortName">switch_i[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/sys_rst_n">
-      <obj_property name="ElementShortName">sys_rst_n</obj_property>
-      <obj_property name="ObjectShortName">sys_rst_n</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/ndmreset">
-      <obj_property name="ElementShortName">ndmreset</obj_property>
-      <obj_property name="ObjectShortName">ndmreset</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/system_tb/board/DUT/sys_rst_n">
-      <obj_property name="ElementShortName">sys_rst_n</obj_property>
-      <obj_property name="ObjectShortName">sys_rst_n</obj_property>
+   <wvobject type="logic" fp_name="/system_tb/board/DUT/sys_clk">
+      <obj_property name="ElementShortName">sys_clk</obj_property>
+      <obj_property name="ObjectShortName">sys_clk</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/system_tb/board/DUT/dbg_rst_n">
       <obj_property name="ElementShortName">dbg_rst_n</obj_property>
       <obj_property name="ObjectShortName">dbg_rst_n</obj_property>
    </wvobject>
-   <wvobject type="group" fp_name="group97">
-      <obj_property name="label">DDR3</obj_property>
+   <wvobject type="logic" fp_name="/system_tb/board/DUT/sys_rst_n">
+      <obj_property name="ElementShortName">sys_rst_n</obj_property>
+      <obj_property name="ObjectShortName">sys_rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider117" type="divider">
+      <obj_property name="label">CPU</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-      <wvobject type="array" fp_name="/system_tb/ddr3_dq">
-         <obj_property name="ElementShortName">ddr3_dq[15:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_dq[15:0]</obj_property>
+      <obj_property name="BkColor">#00FFFF</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group118">
+      <obj_property name="label">CPU Registers</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[1]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[1][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+         <obj_property name="label">ra (x1)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_dqs_n">
-         <obj_property name="ElementShortName">ddr3_dqs_n[1:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_dqs_n[1:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[2]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[2][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
+         <obj_property name="label">sp (x2)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_dqs_p">
-         <obj_property name="ElementShortName">ddr3_dqs_p[1:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_dqs_p[1:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[3]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[3][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
+         <obj_property name="label">gp (x3)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_addr">
-         <obj_property name="ElementShortName">ddr3_addr[14:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_addr[14:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[4]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[4][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[4][31:0]</obj_property>
+         <obj_property name="label">tp (x4)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_ba">
-         <obj_property name="ElementShortName">ddr3_ba[2:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_ba[2:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[5]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[5][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[5][31:0]</obj_property>
+         <obj_property name="label">t0 (x5)</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/system_tb/ddr3_ras_n">
-         <obj_property name="ElementShortName">ddr3_ras_n</obj_property>
-         <obj_property name="ObjectShortName">ddr3_ras_n</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[6]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[6][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[6][31:0]</obj_property>
+         <obj_property name="label">t1 (x6)</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/system_tb/ddr3_cas_n">
-         <obj_property name="ElementShortName">ddr3_cas_n</obj_property>
-         <obj_property name="ObjectShortName">ddr3_cas_n</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[7]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[7][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[7][31:0]</obj_property>
+         <obj_property name="label">t2 (x7)</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/system_tb/ddr3_we_n">
-         <obj_property name="ElementShortName">ddr3_we_n</obj_property>
-         <obj_property name="ObjectShortName">ddr3_we_n</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[8]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[8][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[8][31:0]</obj_property>
+         <obj_property name="label">s0 (x8)</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/system_tb/ddr3_reset_n">
-         <obj_property name="ElementShortName">ddr3_reset_n</obj_property>
-         <obj_property name="ObjectShortName">ddr3_reset_n</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[9]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[9][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[9][31:0]</obj_property>
+         <obj_property name="label">s1 (x9)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_ck_p">
-         <obj_property name="ElementShortName">ddr3_ck_p[0:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_ck_p[0:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[10]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[10][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[10][31:0]</obj_property>
+         <obj_property name="label">a0 (x10)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_ck_n">
-         <obj_property name="ElementShortName">ddr3_ck_n[0:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_ck_n[0:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[11]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[11][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[11][31:0]</obj_property>
+         <obj_property name="label">a1 (x11)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_cke">
-         <obj_property name="ElementShortName">ddr3_cke[0:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_cke[0:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[12]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[12][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[12][31:0]</obj_property>
+         <obj_property name="label">a2 (x12)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/ddr3_dm">
-         <obj_property name="ElementShortName">ddr3_dm[1:0]</obj_property>
-         <obj_property name="ObjectShortName">ddr3_dm[1:0]</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[13]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[13][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[13][31:0]</obj_property>
+         <obj_property name="label">a3 (x13)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/board/DUT/tlul_ddr_i/ctrl_hw2reg">
-         <obj_property name="ElementShortName">ctrl_hw2reg</obj_property>
-         <obj_property name="ObjectShortName">ctrl_hw2reg</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[14]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[14][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[14][31:0]</obj_property>
+         <obj_property name="label">a4 (x14)</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/system_tb/board/DUT/tlul_ddr_i/ctrl_reg2hw">
-         <obj_property name="ElementShortName">ctrl_reg2hw</obj_property>
-         <obj_property name="ObjectShortName">ctrl_reg2hw</obj_property>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[15]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[15][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[15][31:0]</obj_property>
+         <obj_property name="label">a5 (x15)</obj_property>
       </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[16]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[16][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[16][31:0]</obj_property>
+         <obj_property name="label">a6 (x16)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[17]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[17][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[17][31:0]</obj_property>
+         <obj_property name="label">a7 (x17)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[18]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[18][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[18][31:0]</obj_property>
+         <obj_property name="label">s2 (x18)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[19]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[19][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[19][31:0]</obj_property>
+         <obj_property name="label">s3 (x19)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[20]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[20][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[20][31:0]</obj_property>
+         <obj_property name="label">s4 (x20)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[21]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[21][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[21][31:0]</obj_property>
+         <obj_property name="label">s5 (x21)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[22]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[22][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[22][31:0]</obj_property>
+         <obj_property name="label">s6 (x22)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[23]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[23][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[23][31:0]</obj_property>
+         <obj_property name="label">s7 (x23)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[24]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[24][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[24][31:0]</obj_property>
+         <obj_property name="label">s8 (x24)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[25]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[25][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[25][31:0]</obj_property>
+         <obj_property name="label">s9 (x25)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[26]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[26][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[26][31:0]</obj_property>
+         <obj_property name="label">s10 (x26)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[27]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[27][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[27][31:0]</obj_property>
+         <obj_property name="label">s11 (x27)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[28]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[28][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[28][31:0]</obj_property>
+         <obj_property name="label">t3 (x28)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[29]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[29][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[29][31:0]</obj_property>
+         <obj_property name="label">t4 (x29)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[30]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[30][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[30][31:0]</obj_property>
+         <obj_property name="label">t5 (x30)</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[31]">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[31][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[31][31:0]</obj_property>
+         <obj_property name="label">t6 (x31)</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/pc_id_i">
+      <obj_property name="ElementShortName">pc_id_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_id_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/instr_rdata_i">
+      <obj_property name="ElementShortName">instr_rdata_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instr_rdata_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider695" type="divider">
+      <obj_property name="label">TL-UL</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#00FFFF</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_cpui_h2d">
+      <obj_property name="ElementShortName">tl_cpui_h2d</obj_property>
+      <obj_property name="ObjectShortName">tl_cpui_h2d</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_cpui_d2h">
+      <obj_property name="ElementShortName">tl_cpui_d2h</obj_property>
+      <obj_property name="ObjectShortName">tl_cpui_d2h</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_cpud_h2d">
+      <obj_property name="ElementShortName">tl_cpud_h2d</obj_property>
+      <obj_property name="ObjectShortName">tl_cpud_h2d</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_cpud_d2h">
+      <obj_property name="ElementShortName">tl_cpud_d2h</obj_property>
+      <obj_property name="ObjectShortName">tl_cpud_d2h</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_bram_main_h2d">
+      <obj_property name="ElementShortName">tl_bram_main_h2d</obj_property>
+      <obj_property name="ObjectShortName">tl_bram_main_h2d</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/tl_bram_main_d2h">
+      <obj_property name="ElementShortName">tl_bram_main_d2h</obj_property>
+      <obj_property name="ObjectShortName">tl_bram_main_d2h</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider702" type="divider">
+      <obj_property name="label">Running Light</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FFD700</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/led_o">
+      <obj_property name="ElementShortName">led_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">led_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/regA">
+      <obj_property name="ElementShortName">regA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">regA[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/regB">
+      <obj_property name="ElementShortName">regB[7:0]</obj_property>
+      <obj_property name="ObjectShortName">regB[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/state">
+      <obj_property name="ElementShortName">state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/cnt">
+      <obj_property name="ElementShortName">cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/addr">
+      <obj_property name="ElementShortName">addr[3:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/rdata">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/re">
+      <obj_property name="ElementShortName">re</obj_property>
+      <obj_property name="ObjectShortName">re</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/wdata">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/system_tb/board/DUT/core_i/student_i/rlight_i/we">
+      <obj_property name="ElementShortName">we</obj_property>
+      <obj_property name="ObjectShortName">we</obj_property>
    </wvobject>
 </wave_config>
