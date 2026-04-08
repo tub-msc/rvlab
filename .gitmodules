@@ -1,0 +1,3 @@
+[submodule "vendor/XilinxUnisimLibrary"]
+	path = vendor/XilinxUnisimLibrary
+	url = https://github.com/Xilinx/XilinxUnisimLibrary.git
