@@ -174,6 +174,15 @@ module dm_csrs #(
   logic [63:0]        sbdata_d, sbdata_q;
 
   logic [NrHarts-1:0] havereset_d, havereset_q;
+  // Halt-on-reset support (RISC-V Debug Spec): sticky per-hart bit set via
+  // dmcontrol.setresethaltreq / cleared via clrresethaltreq. Survives ndmreset;
+  // cleared only by !dmactive and PoR.
+  logic [NrHarts-1:0] resethaltreq_d, resethaltreq_q;
+  // Per-hart "post-reset window" latch: set when ndmreset_o is asserted, cleared
+  // once the hart reports halted_i. Used to gate resethaltreq_q into haltreq_o
+  // so the OR drops away after the hart has acknowledged debug entry, allowing
+  // a normal resume to run without re-halting.
+  logic [NrHarts-1:0] post_reset_d, post_reset_q;
   // program buffer
   logic [dm::ProgBufSize-1:0][31:0] progbuf_d, progbuf_q;
   logic [dm::DataCount-1:0][31:0] data_d, data_q;
@@ -223,8 +232,8 @@ module dm_csrs #(
     dmstatus.version = dm::DbgVersion013;
     // no authentication implemented
     dmstatus.authenticated = 1'b1;
-    // we do not support halt-on-reset sequence
-    dmstatus.hasresethaltreq = 1'b0;
+    // halt-on-reset is supported via setresethaltreq/clrresethaltreq
+    dmstatus.hasresethaltreq = 1'b1;
     // TODO(zarubaf) things need to change here if we implement the array mask
     dmstatus.allhavereset = havereset_q_aligned[selected_hart];
     dmstatus.anyhavereset = havereset_q_aligned[selected_hart];
@@ -261,6 +270,8 @@ module dm_csrs #(
 
     // default assignments
     havereset_d_aligned = NrHartsAligned'(havereset_q);
+    resethaltreq_d      = resethaltreq_q;
+    post_reset_d        = post_reset_q;
     dmcontrol_d         = dmcontrol_q;
     cmderr_d            = cmderr_q;
     command_d           = command_q;
@@ -377,6 +388,13 @@ module dm_csrs #(
           if (dmcontrol.ackhavereset) begin
             havereset_d_aligned[selected_hart] = 1'b0;
           end
+          // sticky halt-on-reset request: set wins, clear wins if both
+          if (dmcontrol.setresethaltreq) begin
+            resethaltreq_d[selected_hart] = 1'b1;
+          end
+          if (dmcontrol.clrresethaltreq) begin
+            resethaltreq_d[selected_hart] = 1'b0;
+          end
           dmcontrol_d = dmi_req_i.data;
         end
         dm::DMStatus:; // write are ignored to R/O register
@@ -489,6 +507,12 @@ module dm_csrs #(
     // set the havereset flag when we did a ndmreset
     if (ndmreset_o) begin
       havereset_d_aligned[NrHarts-1:0] = '1;
+      // open the post-reset window for halt-on-reset gating
+      post_reset_d = '1;
+    end
+    // close the post-reset window once the hart has acknowledged debug entry
+    for (int unsigned h = 0; h < NrHarts; h++) begin
+      if (halted_i[h]) post_reset_d[h] = 1'b0;
     end
     // -------------
     // System Bus
@@ -534,12 +558,15 @@ module dm_csrs #(
   // output multiplexer
   always_comb begin : p_outmux
     selected_hart = hartsel_o[HartSelLen-1:0];
-    // default assignment
-    haltreq_o = '0;
+    // default assignment: per-hart halt-on-reset contribution, gated by the
+    // post-reset window so the OR drops away once the hart is halted.
+    for (int unsigned h = 0; h < NrHarts; h++) begin
+      haltreq_o[h] = resethaltreq_q[h] & post_reset_q[h];
+    end
     resumereq_o = '0;
     if (selected_hart < (HartSelLen+1)'(NrHarts)) begin
-      haltreq_o[selected_hart]   = dmcontrol_q.haltreq;
-      resumereq_o[selected_hart] = dmcontrol_q.resumereq;
+      haltreq_o[selected_hart]   |= dmcontrol_q.haltreq;
+      resumereq_o[selected_hart]  = dmcontrol_q.resumereq;
     end
   end
 
@@ -586,10 +613,17 @@ module dm_csrs #(
       sbaddr_q       <= '0;
       sbdata_q       <= '0;
       havereset_q    <= '1;
+      resethaltreq_q <= '0;
+      post_reset_q   <= '0;
     end else begin
       havereset_q    <= SelectableHarts & havereset_d;
+      resethaltreq_q <= resethaltreq_d;
+      post_reset_q   <= post_reset_d;
       // synchronous re-set of debug module, active-low, except for dmactive
       if (!dmcontrol_q.dmactive) begin
+        // DM reset: per spec, only dmactive survives. Drop halt-on-reset state.
+        resethaltreq_q               <= '0;
+        post_reset_q                 <= '0;
         dmcontrol_q.haltreq          <= '0;
         dmcontrol_q.resumereq        <= '0;
         dmcontrol_q.hartreset        <= '0;
