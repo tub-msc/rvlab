@@ -95,7 +95,7 @@ volatile ee_s32 seed5_volatile = 0;
 #define CM_STATIC_SYSCLK_PRESCALER 24
 #define CM_STATIC_SYSCLK_MHZ (VCO_MHZ / CM_STATIC_SYSCLK_PRESCALER)
 // ticks per second
-#define CM_STATIC_TPS ((VCO_MHz * 1000000) / CM_STATIC_SYSCLK_PRESCALER)
+#define CM_STATIC_TPS ((VCO_MHZ * 1000000) / CM_STATIC_SYSCLK_PRESCALER)
 
 static inline uint32_t get_sysclk_mhz() {
     return CM_STATIC_SYSCLK_MHZ;
