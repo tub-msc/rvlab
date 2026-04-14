@@ -72,6 +72,10 @@ To run place-and route::
 After place-and-route, check the new reports generated in */build/rvlab_fpga_top/pnr*.
 If the reports look good, continue with :ref:`netlist_sim`.
 
+To load the design into Vivado and open the slack histograms (optional)::
+
+    flow rvlab_fpga_top.slack_analysis
+
 To generate a bitstream from the place and route result, run::
 
     flow rvlab_fpga_top.bitstream

@@ -47,5 +47,4 @@ The program is not stopped by default. Use :code:`step` for single stepping, :co
 
 Further reading:
 
-- `GDB tutorial <https://people.astro.umass.edu/~weinberg/a732/gdbtut.html>`_
 - `GDB documentation <https://sourceware.org/gdb/current/onlinedocs/gdb.html/>`_
