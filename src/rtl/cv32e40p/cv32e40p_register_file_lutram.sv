@@ -110,12 +110,14 @@ module cv32e40p_register_file #(
 		assign lvt_mem[0] = '0;
 	endgenerate
 
-	// Virtual memory for testbenches
-	logic [DATA_WIDTH-1:0] virt_regs [NUM_TOT_WORDS-1:0];
-	generate
-		for (genvar vidx = 0; vidx < NUM_TOT_WORDS; vidx++) begin
-			assign virt_regs[vidx] = lvt_mem[vidx] ? bank_b[vidx] : bank_a[vidx];
-		end
-	endgenerate
+	`ifndef SYNTHESIS
+		// Virtual memory for testbenches
+		logic [DATA_WIDTH-1:0] virt_regs [NUM_TOT_WORDS-1:0];
+		generate
+			for (genvar vidx = 0; vidx < NUM_TOT_WORDS; vidx++) begin
+				assign virt_regs[vidx] = lvt_mem[vidx] ? bank_b[vidx] : bank_a[vidx];
+			end
+		endgenerate
+	`endif
 
 endmodule
