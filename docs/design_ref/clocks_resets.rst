@@ -3,7 +3,7 @@
 Clocks and Resets
 =================
 
-The following diagram gives an overview over the clocks that resets that are present in the system.
+The following diagram gives an overview over the clocks and resets that are present in the system.
 
 .. figure:: clocks_resets.svg
    :width: 90%

@@ -1,3 +1,5 @@
+.. _`source_projects`:
+
 Source Projects
 ===============
 

@@ -11,6 +11,7 @@ Directory Structure
   - **/src/rtl** -- FPGA register-transfer-level (RTL) design sources (SystemVerilog) 
 
     - **/src/rtl/rvlab_fpga** -- rvlab main sources
+    - **/src/rtl/ddr3** -- sources for DDR3 interface
     - **/src/rtl/student** -- Student directory for exercise and project code
     - **/src/rtl/ibex** -- `Ibex <https://github.com/lowRISC/ibex>`_ CPU code
     - **/src/rtl/inc** -- SystemVerilog globally available includes
