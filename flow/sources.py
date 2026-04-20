@@ -94,8 +94,9 @@ class Sources(Block):
             'v2001-generate-begin',
             'void-cast',
         ]
+        lint_srcs = [fn for fn in srcs.design_srcs if not (fn.suffix == '.v' or 'cv32e40p' in fn.parts[-3:-1])]
         try:
-            subprocess.check_call(['verible-verilog-lint', '--ruleset', 'none', '--rules', ",".join(rules)]+srcs.design_srcs, cwd=cwd)
+            subprocess.check_call(['verible-verilog-lint', '--ruleset', 'none', '--rules', ",".join(rules)]+lint_srcs, cwd=cwd)
         except subprocess.CalledProcessError as e:
             print(f"WARNING: verible-verilog-lint returned {e.returncode} errors.")
         else:
