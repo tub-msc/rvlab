@@ -25,14 +25,9 @@
             addr_range: [{base_addr: "0x1f000000", size_byte: "0x00001000"}]
         }
         {
-            name: "ddr_ctrl"
-            type: "device"
-            addr_range: [{base_addr: "0x1f001000", size_byte: "0x00001000"}]
-        }
-        {
             name: "regdemo"
             type: "device"
-            addr_range: [{base_addr: "0x1f002000", size_byte: "0x00001000"}]
+            addr_range: [{base_addr: "0x1f001000", size_byte: "0x00001000"}]
         }
         {
             name: "student_device_peri"
@@ -41,6 +36,6 @@
         }
     ]
     connections: {
-        main:  ["dbgmem", "timer", "ddr_ctrl", "regdemo", "student_device_peri"]
+        main:  ["dbgmem", "timer", "regdemo", "student_device_peri"]
     },
 }
