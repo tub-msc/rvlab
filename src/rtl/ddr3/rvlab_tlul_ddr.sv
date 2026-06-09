@@ -81,47 +81,18 @@ module rvlab_tlul_ddr (
   ddr3_h2d_t blockmgr_req, llc_req, prefetch_req;
   ddr3_d2h_t blockmgr_rsp, llc_rsp, prefetch_rsp;
 
-  tlul_pkg::tl_h2d_t cache_req, err_resp_req;
-  tlul_pkg::tl_d2h_t cache_rsp, err_resp_rsp;
-
   rvlab_ddr_cache #(
     .IDX_BITS(9)
   ) ddr_llc_i (
     .clk_i,
     .rst_ni,
 
-    .tl_i(cache_req),
-    .tl_o(cache_rsp),
+    .tl_i,
+    .tl_o,
 
     .block_req_o(llc_req),
     .block_rsp_i(llc_rsp)
   );
-
-  // The tl_i/tl_o interface has an additional
-  // check for whether the DDR system is
-  // currently not calibrated. If it isn't,
-  // requests are answered with an error.
-
-  logic sys_calib_complete;
-
-  tlul_err_resp ddr_err_i (
-    .clk_i,
-    .rst_ni,
-    .tl_h_i(err_resp_req),
-    .tl_h_o(err_resp_rsp)
-  );
-
-  always_comb begin
-    tl_o = cache_rsp;
-    cache_req = tl_i;
-    err_resp_req = '{a_opcode: tlul_pkg::Get, default: '0};
-
-    if (!sys_calib_complete) begin
-      err_resp_req = tl_i;
-      cache_req.a_valid = '0;
-      tl_o = err_resp_rsp;
-    end
-  end
 
   /* Prefetcher */
 
@@ -252,17 +223,10 @@ module rvlab_tlul_ddr (
     .o_ddr3_odt(ddr3_odt),
     // CSR interface
     .o_debug1(),
-    .o_calib_complete(ddr3_calib_complete),
+    .o_calib_complete(),
     .i_user_self_refresh('0),
     // UART
     .uart_tx()
-  );
-
-  prim_flop_2sync calib_complete_sync_i (
-    .clk_i (clk_ctrl),
-    .rst_ni(ddr_rstn),
-    .d     (ddr3_calib_complete),
-    .q     (sys_calib_complete)
   );
 
 `else

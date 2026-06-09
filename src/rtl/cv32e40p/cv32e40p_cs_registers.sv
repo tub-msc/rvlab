@@ -104,10 +104,12 @@ module cv32e40p_cs_registers
     input logic [31:0] pc_if_i,
     input logic [31:0] pc_id_i,
     input logic [31:0] pc_ex_i,
+    input logic [31:0] pc_wb_i,
 
     input logic csr_save_if_i,
     input logic csr_save_id_i,
     input logic csr_save_ex_i,
+    input logic csr_save_wb_i,
 
     input logic csr_restore_mret_i,
     input logic csr_restore_uret_i,
@@ -784,6 +786,7 @@ module cv32e40p_cs_registers
             csr_save_if_i: exception_pc = pc_if_i;
             csr_save_id_i: exception_pc = pc_id_i;
             csr_save_ex_i: exception_pc = pc_ex_i;
+            csr_save_wb_i: exception_pc = pc_wb_i;
             default: ;
           endcase
 
@@ -1046,6 +1049,7 @@ module cv32e40p_cs_registers
             csr_save_if_i: exception_pc = pc_if_i;
             csr_save_id_i: exception_pc = pc_id_i;
             csr_save_ex_i: exception_pc = pc_ex_i;
+            csr_save_wb_i: exception_pc = pc_wb_i;
             default: ;
           endcase
 

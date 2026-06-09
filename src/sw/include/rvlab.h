@@ -5,13 +5,15 @@
 #ifndef _RVLAB_H
 #define _RVLAB_H
 
+#include <stdbool.h>
+
 #define IRQ_TIMER 7
 #define IRQ_EXTERNAL 11
 
 #define DDR3_BASE_ADDR ((void *) 0x80000000)
 #define DDR3_SIZE      ((size_t) 0x20000000)
 
-int ddr_init(void);
+bool ddr_available();
 
 #include <regaccess.h>
 

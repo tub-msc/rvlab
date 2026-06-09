@@ -32,10 +32,10 @@ module cv32e40p_load_store_unit #(
 
     // output to data memory
     output logic data_req_o,
-    input logic data_gnt_i,
-    input logic data_rvalid_i,
-    input  logic         data_err_i,           // External bus error (validity defined by data_rvalid_i) (not used yet)
-    input logic data_err_pmp_i,  // PMP error (validity defined by data_gnt_i)
+    input  logic data_gnt_i,
+    input  logic data_rvalid_i,
+    input  logic data_err_i,      // External bus error (validity defined by data_rvalid_i)
+    input  logic data_err_pmp_i,  // PMP error (validity defined by data_gnt_i)
 
     output logic [31:0] data_addr_o,
     output logic        data_we_o,
@@ -73,7 +73,7 @@ module cv32e40p_load_store_unit #(
     output logic busy_o
 );
 
-  localparam DEPTH = 2;  // Maximum number of outstanding transactions
+  localparam DEPTH = 1;  // Maximum number of outstanding transactions
 
   // Transaction request (to cv32e40p_obi_interface)
   logic trans_valid;

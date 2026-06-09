@@ -167,6 +167,7 @@ module cv32e40p_id_stage
     output logic              csr_save_if_o,
     output logic              csr_save_id_o,
     output logic              csr_save_ex_o,
+    output logic              csr_save_wb_o,
     output logic              csr_restore_mret_id_o,
     output logic              csr_restore_uret_id_o,
     output logic              csr_restore_dret_id_o,
@@ -186,6 +187,8 @@ module cv32e40p_id_stage
     output logic [1:0] data_sign_ext_ex_o,
     output logic [1:0] data_reg_offset_ex_o,
     output logic       data_load_event_ex_o,
+
+    input  logic data_we_wb_i,
 
     output logic data_misaligned_ex_o,
 
@@ -403,6 +406,7 @@ module cv32e40p_id_stage
   logic [1:0] data_sign_ext_id;
   logic [1:0] data_reg_offset_id;
   logic data_req_id;
+  logic data_req_flush;
   logic data_load_event_id;
 
   // Atomic memory instruction
@@ -1174,7 +1178,9 @@ module cv32e40p_id_stage
 
       // LSU
       .data_req_ex_i    (data_req_ex_o),
+      .data_req_flush_o (data_req_flush),
       .data_we_ex_i     (data_we_ex_o),
+      .data_we_wb_i     (data_we_wb_i),
       .data_misaligned_i(data_misaligned_i),
       .data_load_event_i(data_load_event_id),
       .data_err_i       (data_err_i),
@@ -1229,6 +1235,7 @@ module cv32e40p_id_stage
       .csr_save_if_o        (csr_save_if_o),
       .csr_save_id_o        (csr_save_id_o),
       .csr_save_ex_o        (csr_save_ex_o),
+      .csr_save_wb_o        (csr_save_wb_o),
       .csr_restore_mret_id_o(csr_restore_mret_id_o),
       .csr_restore_uret_id_o(csr_restore_uret_id_o),
 
@@ -1578,8 +1585,8 @@ module cv32e40p_id_stage
         csr_access_ex_o      <= csr_access;
         csr_op_ex_o          <= csr_op;
 
-        data_req_ex_o        <= data_req_id;
-        if (data_req_id) begin  // only needed for LSU when there is an active request
+        data_req_ex_o        <= data_req_id & ~data_req_flush;
+        if (data_req_id & ~data_req_flush) begin  // only needed for LSU when there is an active request
           data_we_ex_o         <= data_we_id;
           data_type_ex_o       <= data_type_id;
           data_sign_ext_ex_o   <= data_sign_ext_id;
@@ -1629,6 +1636,8 @@ module cv32e40p_id_stage
         //Not doing it can overwrite the RF file with the currennt CSR value rather than the old one
         regfile_alu_we_ex_o <= 1'b0;
       end
+
+      if (data_req_flush) data_req_ex_o <= '0;
     end
   end
 
@@ -1658,8 +1667,8 @@ module cv32e40p_id_stage
       id_valid_q <= id_valid_o;
       // ID stage counts
       mhpmevent_minstret_o <= minstret;
-      mhpmevent_load_o <= minstret && data_req_id && !data_we_id;
-      mhpmevent_store_o <= minstret && data_req_id && data_we_id;
+      mhpmevent_load_o <= minstret && data_req_id && ~data_req_flush && !data_we_id;
+      mhpmevent_store_o <= minstret && data_req_id && ~data_req_flush && data_we_id;
       mhpmevent_jump_o           <= minstret && ((ctrl_transfer_insn_in_id == BRANCH_JAL) || (ctrl_transfer_insn_in_id == BRANCH_JALR));
       mhpmevent_branch_o <= minstret && (ctrl_transfer_insn_in_id == BRANCH_COND);
       mhpmevent_compressed_o <= minstret && is_compressed_i;

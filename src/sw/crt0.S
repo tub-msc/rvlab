@@ -108,7 +108,82 @@ end_loop:
     j end_loop
 
 irq_error:
-    jal rvlab_irq_error
+    // swap main thread sp with irq sp
+    csrrw sp,mscratch,sp
+
+    // save registers to irq stack
+    addi sp,sp,-0x80
+    //  x0 == zero
+    sw  x1,  0x00(sp)
+    //  x2 == sp
+    sw  x3,  0x04(sp)
+    sw  x4,  0x08(sp)
+    sw  x5,  0x0c(sp)
+    sw  x6,  0x10(sp)
+    sw  x7,  0x14(sp)
+    sw  x8,  0x18(sp)
+    sw  x9,  0x1c(sp)
+    sw  x10, 0x20(sp)
+    sw  x11, 0x24(sp)
+    sw  x12, 0x28(sp)
+    sw  x13, 0x2c(sp)
+    sw  x14, 0x30(sp)
+    sw  x15, 0x34(sp)
+    sw  x16, 0x38(sp)
+    sw  x17, 0x3c(sp)
+    sw  x18, 0x40(sp)
+    sw  x19, 0x44(sp)
+    sw  x20, 0x48(sp)
+    sw  x21, 0x4c(sp)
+    sw  x22, 0x50(sp)
+    sw  x23, 0x54(sp)
+    sw  x24, 0x58(sp)
+    sw  x25, 0x5c(sp)
+    sw  x26, 0x60(sp)
+    sw  x27, 0x64(sp)
+    sw  x28, 0x68(sp)
+    sw  x29, 0x6c(sp)
+    sw  x30, 0x70(sp)
+    sw  x31, 0x74(sp)
+    jal rvlab_trap
+    // restore registers from irq stack
+    //  x0 == zero
+    lw  x1,  0x00(sp)
+    //  x2 == sp
+    lw  x3,  0x04(sp)
+    lw  x4,  0x08(sp)
+    lw  x5,  0x0c(sp)
+    lw  x6,  0x10(sp)
+    lw  x7,  0x14(sp)
+    lw  x8,  0x18(sp)
+    lw  x9,  0x1c(sp)
+    lw  x10, 0x20(sp)
+    lw  x11, 0x24(sp)
+    lw  x12, 0x28(sp)
+    lw  x13, 0x2c(sp)
+    lw  x14, 0x30(sp)
+    lw  x15, 0x34(sp)
+    lw  x16, 0x38(sp)
+    lw  x17, 0x3c(sp)
+    lw  x18, 0x40(sp)
+    lw  x19, 0x44(sp)
+    lw  x20, 0x48(sp)
+    lw  x21, 0x4c(sp)
+    lw  x22, 0x50(sp)
+    lw  x23, 0x54(sp)
+    lw  x24, 0x58(sp)
+    lw  x25, 0x5c(sp)
+    lw  x26, 0x60(sp)
+    lw  x27, 0x64(sp)
+    lw  x28, 0x68(sp)
+    lw  x29, 0x6c(sp)
+    lw  x30, 0x70(sp)
+    lw  x31, 0x74(sp)
+    addi sp,sp, 0x80
+
+    // swap main thread sp with irq sp
+    csrrw sp,mscratch,sp
+
     j _exit
 
 

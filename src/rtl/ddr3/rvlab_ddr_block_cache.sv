@@ -180,7 +180,7 @@ module rvlab_ddr_block_cache #(
     if (fe_modify_req || modify_clear) begin
       dirty_mem[access_idx_q] <= ~modify_clear;
       dirty_rdata <= ~modify_clear;
-    end else dirty_rdata <= dirty_mem[access_idx];
+    end else dirty_rdata <= dirty_mem[stall ? access_idx_q : access_idx];
   end
 
   always_comb begin
