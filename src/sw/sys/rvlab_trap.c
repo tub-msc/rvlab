@@ -43,6 +43,9 @@ int trap_handler_default() {
 	if (is_exception) {
 		printf("Encountered internal exception, MEPC: 0x%08x, MCAUSE: %s\n",
 			mepc, mcause_to_string(mcause));
+		if (mcause == EXC_CAUSE_LOAD_FAULT || mcause == EXC_CAUSE_STORE_FAULT) {
+			printf("Invalid access to address 0x%08x\n", read_csr("mtval"));
+		}
 		return -2;
 	}
 

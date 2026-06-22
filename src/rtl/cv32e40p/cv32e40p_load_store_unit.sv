@@ -70,7 +70,9 @@ module cv32e40p_load_store_unit #(
     output logic lsu_ready_ex_o,  // LSU ready for new data in EX stage
     output logic lsu_ready_wb_o,  // LSU ready for new data in WB stage
 
-    output logic busy_o
+    output logic busy_o,
+
+    output logic [31:0] csr_save_adr_o
 );
 
   localparam DEPTH = 1;  // Maximum number of outstanding transactions
@@ -443,8 +445,12 @@ module cv32e40p_load_store_unit #(
   always_ff @(posedge clk, negedge rst_n) begin
     if (rst_n == 1'b0) begin
       cnt_q <= '0;
+      csr_save_adr_o <= '0;
     end else begin
       cnt_q <= next_cnt;
+      if (ctrl_update) begin
+        csr_save_adr_o <= trans_addr;
+      end
     end
   end
 

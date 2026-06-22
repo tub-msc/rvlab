@@ -306,6 +306,7 @@ module cv32e40p_core
   logic                           csr_save_id;
   logic                           csr_save_ex;
   logic                           csr_save_wb;
+  logic [             31:0]       csr_save_adr;
   logic [              5:0]       csr_cause;
   logic                           csr_restore_mret_id;
   logic                           csr_restore_uret_id;
@@ -945,7 +946,9 @@ module cv32e40p_core
       .lsu_ready_ex_o(lsu_ready_ex),
       .lsu_ready_wb_o(lsu_ready_wb),
 
-      .busy_o(lsu_busy)
+      .busy_o(lsu_busy),
+
+      .csr_save_adr_o(csr_save_adr)
   );
 
   // Tracer signal
@@ -1044,6 +1047,7 @@ module cv32e40p_core
 
       .csr_cause_i     (csr_cause),
       .csr_save_cause_i(csr_save_cause),
+      .csr_save_adr_i  (csr_save_adr),
 
       // from hwloop registers
       .hwlp_start_i(hwlp_start),
