@@ -247,6 +247,8 @@ module rvlab_tlul_ddr (
 
   assign ddr3_dm      = '0;
 
+  assign ddr3_odt     = '0;
+
   tlul_err_resp ddr_err_i (
     .clk_i,
     .rst_ni,
