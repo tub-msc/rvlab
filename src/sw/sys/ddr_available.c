@@ -26,8 +26,9 @@ int load_fault_handler(void) {
 			write_csr("mepc", mepc + 2);
 		}
 
-		return_from_trap();
-	} else return trap_handler_default();
+		return 0;
+	}
+	return trap_handler_default();
 }
 
 bool ddr_available() {

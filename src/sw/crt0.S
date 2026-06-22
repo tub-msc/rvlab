@@ -6,18 +6,18 @@
     .option norvc
     .org 0
 
-    j irq_error     //  0: Exceptions (illegal instruction, ecall, instruction access fault, ...)
+    j trap_entry    //  0: Exceptions (illegal instruction, ecall, instruction access fault, ...)
     nop             //  1
     nop             //  2
     nop             //  3
     nop             //  4
     nop             //  5
-    j irq_error     //  6
-    j irq_entry     //  7: Machine timer interrupt (irq_timer_i)
+    j trap_entry    //  6
+    j timer_irq     //  7: Machine timer interrupt (irq_timer_i)
     nop             //  8
     nop             //  9
-    j irq_error     // 10
-    j irq_entry     // 11: Machine external interrupt (irq_external_i)
+    j trap_entry    // 10
+    j external_irq  // 11: Machine external interrupt (irq_external_i)
     nop             // 12
     nop             // 13
     nop             // 14
@@ -37,7 +37,7 @@
     nop             // 28
     nop             // 29
     nop             // 30
-    j irq_error     // 31
+    j trap_entry    // 31
     j _start        // 32: Reset vector / global entry point
 
     .option pop
@@ -107,7 +107,7 @@ _exit:
 end_loop:
     j end_loop
 
-irq_error:
+trap_entry:
     // swap main thread sp with irq sp
     csrrw sp,mscratch,sp
 
@@ -145,7 +145,16 @@ irq_error:
     sw  x29, 0x6c(sp)
     sw  x30, 0x70(sp)
     sw  x31, 0x74(sp)
+
     jal rvlab_trap
+
+    // rvlab_trap may return nonzero to indicate an unrecoverable fault,
+    // in which case the next mret should be directed to _exit (via mepc)
+    beqz a0, return_from_trap
+    la t0, _exit
+    csrrw t0, mepc, t0
+
+return_from_trap:
     // restore registers from irq stack
     //  x0 == zero
     lw  x1,  0x00(sp)
@@ -184,10 +193,12 @@ irq_error:
     // swap main thread sp with irq sp
     csrrw sp,mscratch,sp
 
-    j _exit
+    mret
 
 
-irq_entry:
+// By default, timer & external IRQ both point to the same handler
+timer_irq:
+external_irq:
     // swap main thread sp with irq sp
     csrrw sp,mscratch,sp
 
