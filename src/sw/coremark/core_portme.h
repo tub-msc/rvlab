@@ -31,7 +31,7 @@ Modified by RVLab Contributors.
 /* Data types and settings */
 /************************/
 
-#define ITERATIONS 1000
+#define ITERATIONS 3000
 #define STANDALONE 1
 // #define VALIDATION_RUN 1
 #define PERFORMANCE_RUN 1

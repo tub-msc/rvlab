@@ -25,6 +25,7 @@ Modified by RVLab Contributors.
 #include "core_portme.h"
 
 #include "regaccess.h"
+#include "clocking.h"
 
 #include <stdint.h>
 #include <inttypes.h>
@@ -91,23 +92,17 @@ volatile ee_s32 seed5_volatile = 0;
 /* Clock- and timing-related utilities */
 #define VCO_MHZ 1200
 
- // Synchronize with clkmgr's sysclk clock divisor
-#define CM_STATIC_SYSCLK_PRESCALER 24
-#define CM_STATIC_SYSCLK_MHZ (VCO_MHZ / CM_STATIC_SYSCLK_PRESCALER)
-// ticks per second
-#define CM_STATIC_TPS ((VCO_MHZ * 1000000) / CM_STATIC_SYSCLK_PRESCALER)
-
 static inline uint32_t get_sysclk_mhz() {
-    return CM_STATIC_SYSCLK_MHZ;
+    return VCO_MHZ / rvlab_get_sysclock();
 }
 
 static inline uint32_t get_sysclk_khz() {
-    return (1000 * VCO_MHZ) / CM_STATIC_SYSCLK_PRESCALER;
+    return (1000 * VCO_MHZ) / rvlab_get_sysclock();
 }
 
 static inline uint32_t get_ticks_per_second() {
     // 1 tick = 1 cycle, i.e. return clock speed in Hz
-    return CM_STATIC_TPS;
+    return (VCO_MHZ * 1000000) / rvlab_get_sysclock();
 }
 
 
@@ -222,6 +217,8 @@ portable_init(core_portable *p, int *argc, char *argv[])
 
     p->portable_id = 1;
     
+    rvlab_set_sysclock(9);
+
     /* Set up Performance Counters */
 	SETUP_MHPMCOUNTER(LD_STALL);
 	SETUP_MHPMCOUNTER(JMP_STALL);
@@ -250,7 +247,6 @@ portable_fini(core_portable *p)
 	write_csr("mcountinhibit", ~5); // keep mcycle + minstret active
 	
     p->portable_id = 0;
-
 
     /* Determine CPI */
 

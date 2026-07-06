@@ -47,6 +47,8 @@ int main(void) {
     s.n_tests = 0;
     s.n_pass = 0;
 
+    rvlab_set_sysclock(9);
+
     bool ddr_available = !ddr_init();
 
     test_report(&s, "regdemo_test", regdemo_test());

@@ -113,7 +113,6 @@ module rvlab_fpga_top (
     .clk_100mhz_i         (clk_100mhz_i),
     .clk_100mhz_buffered_o(clk_100mhz_buffered),
     .sys_clk_o            (sys_clk),
-    .clk_200mhz_o         (clk_200mhz),
     .locked_o             (locked),
     
     .sys_rst_no           (recovery_reset),

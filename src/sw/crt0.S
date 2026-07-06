@@ -99,8 +99,6 @@ _start:
 
     jal main
 
-_exit:
-
     csrc mstatus, 0x8 // global interrupt disable
 
 _exit:

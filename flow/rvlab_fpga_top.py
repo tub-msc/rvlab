@@ -122,7 +122,8 @@ class RvlabFpgaTop(Block):
             t.link_design(name=self.name)
             
             t.place_design()
-            t.route_design()
+            t.route_design(directive="MoreGlobalIterations")
+            t.phys_opt_design()
 
             t.write_checkpoint(r.dcp)
             t.write_verilog(r.verilog_funcsim, mode="funcsim")
