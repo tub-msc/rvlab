@@ -17,10 +17,7 @@ module rvlab_core (
   output top_pkg::userio_fpga2board_t userio_o,
 
   output tlul_pkg::tl_h2d_t tl_ddr_o,
-  input  tlul_pkg::tl_d2h_t tl_ddr_i,
-  output tlul_pkg::tl_h2d_t tl_ddr_ctrl_o,
-  input  tlul_pkg::tl_d2h_t tl_ddr_ctrl_i
-
+  input  tlul_pkg::tl_d2h_t tl_ddr_i
 );
 
   import tlul_pkg::*;
@@ -79,8 +76,6 @@ module rvlab_core (
     .tl_dbgmem_i             (tl_dbgmem_d2h),
     .tl_timer_o              (tl_timer_h2d),
     .tl_timer_i              (tl_timer_d2h),
-    .tl_ddr_ctrl_o,
-    .tl_ddr_ctrl_i,
     .tl_regdemo_o            (tl_regdemo_h2d),
     .tl_regdemo_i            (tl_regdemo_d2h),
     .tl_student_device_peri_o(tl_student_device_peri_h2d),
