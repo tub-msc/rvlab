@@ -13,6 +13,7 @@ Design Reference
    directory_structure
    memory_map
    reggen
+   reggen_format
    clocks_resets
    ddr3_memory
    flow_reference
