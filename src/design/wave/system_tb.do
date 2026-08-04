@@ -660,37 +660,37 @@ add wave -noupdate /system_tb/board/DUT/sys_clk
 add wave -noupdate /system_tb/board/DUT/dbg_rst_n
 add wave -noupdate /system_tb/board/DUT/sys_rst_n
 add wave -noupdate -divider CPU
-add wave -noupdate -group {CPU Registers} -label {ra (x1)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[1]}
-add wave -noupdate -group {CPU Registers} -label {sp (x2)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[2]}
-add wave -noupdate -group {CPU Registers} -label {gp (x3)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[3]}
-add wave -noupdate -group {CPU Registers} -label {tp (x4)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[4]}
-add wave -noupdate -group {CPU Registers} -label {t0 (x5)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[5]}
-add wave -noupdate -group {CPU Registers} -label {t1 (x6)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[6]}
-add wave -noupdate -group {CPU Registers} -label {t2 (x7)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[7]}
-add wave -noupdate -group {CPU Registers} -label {s0 (x8)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[8]}
-add wave -noupdate -group {CPU Registers} -label {s1 (x9)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[9]}
-add wave -noupdate -group {CPU Registers} -label {a0 (x10)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[10]}
-add wave -noupdate -group {CPU Registers} -label {a1 (x11)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[11]}
-add wave -noupdate -group {CPU Registers} -label {a2 (x12)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[12]}
-add wave -noupdate -group {CPU Registers} -label {a3 (x13)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[13]}
-add wave -noupdate -group {CPU Registers} -label {a4 (x14)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[14]}
-add wave -noupdate -group {CPU Registers} -label {a5 (x15)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[15]}
-add wave -noupdate -group {CPU Registers} -label {a6 (x16)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[16]}
-add wave -noupdate -group {CPU Registers} -label {a7 (x17)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[17]}
-add wave -noupdate -group {CPU Registers} -label {s2 (x18)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[18]}
-add wave -noupdate -group {CPU Registers} -label {s3 (x19)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[19]}
-add wave -noupdate -group {CPU Registers} -label {s4 (x20)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[20]}
-add wave -noupdate -group {CPU Registers} -label {s5 (x21)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[21]}
-add wave -noupdate -group {CPU Registers} -label {s6 (x22)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[22]}
-add wave -noupdate -group {CPU Registers} -label {s7 (x23)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[23]}
-add wave -noupdate -group {CPU Registers} -label {s8 (x24)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[24]}
-add wave -noupdate -group {CPU Registers} -label {s9 (x25)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[25]}
-add wave -noupdate -group {CPU Registers} -label {s10 (x26)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[26]}
-add wave -noupdate -group {CPU Registers} -label {s11 (x27)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[27]}
-add wave -noupdate -group {CPU Registers} -label {t3 (x28)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[28]}
-add wave -noupdate -group {CPU Registers} -label {t4 (x29)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[29]}
-add wave -noupdate -group {CPU Registers} -label {t5 (x30)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[30]}
-add wave -noupdate -group {CPU Registers} -label {t6 (x31)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[31]}
+add wave -noupdate -group {CPU Registers} -label {x1 (ra)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[1]}
+add wave -noupdate -group {CPU Registers} -label {x2 (sp)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[2]}
+add wave -noupdate -group {CPU Registers} -label {x3 (gp)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[3]}
+add wave -noupdate -group {CPU Registers} -label {x4 (tp)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[4]}
+add wave -noupdate -group {CPU Registers} -label {x5 (t0)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[5]}
+add wave -noupdate -group {CPU Registers} -label {x6 (t1)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[6]}
+add wave -noupdate -group {CPU Registers} -label {x7 (t2)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[7]}
+add wave -noupdate -group {CPU Registers} -label {x8 (s0/fp)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[8]}
+add wave -noupdate -group {CPU Registers} -label {x9 (s1)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[9]}
+add wave -noupdate -group {CPU Registers} -label {x10 (a0)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[10]}
+add wave -noupdate -group {CPU Registers} -label {x11 (a1)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[11]}
+add wave -noupdate -group {CPU Registers} -label {x12 (a2)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[12]}
+add wave -noupdate -group {CPU Registers} -label {x13 (a3)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[13]}
+add wave -noupdate -group {CPU Registers} -label {x14 (a4)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[14]}
+add wave -noupdate -group {CPU Registers} -label {x15 (a5)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[15]}
+add wave -noupdate -group {CPU Registers} -label {x16 (a6)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[16]}
+add wave -noupdate -group {CPU Registers} -label {x17 (a7)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[17]}
+add wave -noupdate -group {CPU Registers} -label {x18 (s2)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[18]}
+add wave -noupdate -group {CPU Registers} -label {x19 (s3)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[19]}
+add wave -noupdate -group {CPU Registers} -label {x20 (s4)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[20]}
+add wave -noupdate -group {CPU Registers} -label {x21 (s5)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[21]}
+add wave -noupdate -group {CPU Registers} -label {x22 (s6)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[22]}
+add wave -noupdate -group {CPU Registers} -label {x23 (s7)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[23]}
+add wave -noupdate -group {CPU Registers} -label {x24 (s8)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[24]}
+add wave -noupdate -group {CPU Registers} -label {x25 (s9)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[25]}
+add wave -noupdate -group {CPU Registers} -label {x26 (s10)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[26]}
+add wave -noupdate -group {CPU Registers} -label {x27 (s11)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[27]}
+add wave -noupdate -group {CPU Registers} -label {x28 (t3)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[28]}
+add wave -noupdate -group {CPU Registers} -label {x29 (t4)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[29]}
+add wave -noupdate -group {CPU Registers} -label {x30 (t5)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[30]}
+add wave -noupdate -group {CPU Registers} -label {x31 (t6)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/virt_regs[31]}
 add wave -noupdate /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/pc_id_i
 add wave -noupdate /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/instr_rdata_i
 add wave -noupdate -divider TL-UL
