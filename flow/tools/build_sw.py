@@ -14,14 +14,36 @@ cfg_arch = "rv32imc_zicsr"
 cfg_abi  = "ilp32"
 
 def find_toolchain_prefix():
-    prefixes_with_ziczr_compat = [
-        ("riscv-none-elf-", True),
-        ("riscv32-unknown-elf-", True),
-        ("riscv-none-embed-", False),
+    # List of (prefix, zicsr_compat, needs_multilib_test)
+    # riscv32 toolchains don't need multilib test - they're already 32-bit
+    # riscv64 needs test to verify rv32 multilib support
+    prefixes = [
+        ("riscv32-unknown-elf-", True, False),
+        ("riscv-none-elf-", True, False),
+        ("riscv64-unknown-elf-", True, True),  # needs multilib test
+        ("riscv-none-embed-", False, False),
     ]
-    for prefix, zicsr_compat in prefixes_with_ziczr_compat:
-        if shutil.which(f"{prefix}gcc"):
+
+    for prefix, zicsr_compat, needs_test in prefixes:
+        if not shutil.which(f"{prefix}gcc"):
+            continue
+
+        # For riscv32 toolchains, no need to test - they support rv32 by definition
+        if not needs_test:
             return prefix, zicsr_compat
+
+        # For riscv64, check if rv32 multilib is available via -print-multi-lib
+        try:
+            result = subprocess.run(
+                [f"{prefix}gcc", "-print-multi-lib"],
+                capture_output=True, text=True
+            )
+            if result.returncode == 0 and "rv32" in result.stdout:
+                return prefix, zicsr_compat
+        except Exception as e:
+            print(f"Warning: Could not check multilib for {prefix}: {e}")
+            continue
+
     raise Exception("Could not find RISC-V GCC toolchain.")
 
 
@@ -30,7 +52,6 @@ def get_cflags(abi, arch, funciton_sections=True):
         "-Wall",
         "-ffreestanding",
         "-fno-builtin",
-        "--specs=nosys.specs",
         "-nostdlib",
         "-g",
         #"-msave-restore",
@@ -39,7 +60,11 @@ def get_cflags(abi, arch, funciton_sections=True):
         "-Os",
         f"-mabi={abi}",
         f"-march={arch}",
+        "-DNO_UNISTD_H",  # Prevent inclusion of unistd.h in baselibc
     ]
+    
+    # Try to add --specs=nosys.specs if available, but don't fail if it's not
+    # This flag is optional and some toolchains don't have it
     #if funciton_sections:
     #    o+=["-ffunction-sections"]
     return o

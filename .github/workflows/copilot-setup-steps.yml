@@ -1,0 +1,88 @@
+# SPDX-FileCopyrightText: 2026 RVLab Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Verilator
+        uses: kreijstal/install-verilator-action@main
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-riscv64-unknown-elf \
+            make \
+            git \
+            perl
+
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Initialize XilinxUnisimLibrary submodule
+        run: |
+          git submodule update --init --recursive vendor/XilinxUnisimLibrary
+
+      - name: Apply Verilator compatibility patches
+        run: |
+          cd vendor/XilinxUnisimLibrary
+          patch -p1 < ../../patches/unisims/verilator_compat.patch
+
+      - name: Install oss-cad-suite (prebuilt)
+        run: |
+          ASSET_META=$(python3 - <<'PY'
+          import json
+          import urllib.request
+          url = "https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/latest"
+          data = json.load(urllib.request.urlopen(url))
+          for asset in data.get("assets", []):
+              name = asset.get("name", "")
+              if name.startswith("oss-cad-suite-linux-x64-") and (name.endswith(".tgz") or name.endswith(".tar.xz")):
+                  print(f"{name} {asset['browser_download_url']}")
+                  break
+          else:
+              raise SystemExit("oss-cad-suite linux-x64 asset not found")
+          PY
+          )
+          ASSET_NAME=${ASSET_META%% *}
+          ASSET_URL=${ASSET_META#* }
+          curl -L "$ASSET_URL" -o "$ASSET_NAME"
+          mkdir -p oss-cad-suite
+          case "$ASSET_NAME" in
+            *.tar.xz) tar -xJf "$ASSET_NAME" -C oss-cad-suite --strip-components=1 ;;
+            *.tgz|*.tar.gz) tar -xzf "$ASSET_NAME" -C oss-cad-suite --strip-components=1 ;;
+            *) echo "Unknown oss-cad-suite archive: $ASSET_NAME" >&2; exit 1 ;;
+          esac
+          echo "OSS_CAD_BIN=$(pwd)/oss-cad-suite/bin" >> "$GITHUB_ENV"
+
+
+
