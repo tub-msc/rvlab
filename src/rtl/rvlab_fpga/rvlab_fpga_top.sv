@@ -144,8 +144,8 @@ module rvlab_fpga_top (
   // TL-UL DDR3 external memory controller
   // -------------------------------------
 
-  tlul_pkg::tl_h2d_t tl_ddr_h2d, tl_ddr_ctrl_h2d;
-  tlul_pkg::tl_d2h_t tl_ddr_d2h, tl_ddr_ctrl_d2h;
+  tlul_pkg::tl_h2d_t tl_ddr_h2d;
+  tlul_pkg::tl_d2h_t tl_ddr_d2h;
 
   rvlab_tlul_ddr tlul_ddr_i (
     .clk_i           (sys_clk),
@@ -154,8 +154,6 @@ module rvlab_fpga_top (
 
     .tl_i            (tl_ddr_h2d),
     .tl_o            (tl_ddr_d2h),
-    .tl_ctrl_i       (tl_ddr_ctrl_h2d),
-    .tl_ctrl_o       (tl_ddr_ctrl_d2h),
 
     .ddr3_dq,
     .ddr3_dqs_n,
@@ -410,8 +408,6 @@ module rvlab_fpga_top (
 
     .tl_ddr_o     (tl_ddr_h2d),
     .tl_ddr_i     (tl_ddr_d2h),
-    .tl_ddr_ctrl_o(tl_ddr_ctrl_h2d),
-    .tl_ddr_ctrl_i(tl_ddr_ctrl_d2h),
 
     .userio_i(userio_b2f),
     .userio_o(userio_f2b)

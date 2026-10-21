@@ -95,9 +95,11 @@ static int test_stream(void) {
 
 
 int main(void) {
-    if (ddr_init())
-        return 1;
-    
+    if (!ddr_available()) {
+        printf("Please run this program with the DDR RAM enabled.\n");
+        return -1;
+    }
+
     if (test_size_reads())
         return 1;
 

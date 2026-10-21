@@ -43,7 +43,7 @@ Host I/O
 
 **stdout** and **stdin**, the C standard output and standard input streams, are available for communication with the testbench or the host computer connected to the FPGA.
 
-Both stdout and stdin are implemented with ring buffers (software FIFOs) allocated in main BRAM. The data that Ibex writes to the stdout ring buffer is read by the testbench or host computer by system bus access through the RISC-V debug module. For stdin, this process is reversed.
+Both stdout and stdin are implemented with ring buffers (software FIFOs) allocated in main BRAM. The data that the RVLab CPU writes to the stdout ring buffer is read by the testbench or host computer by system bus access through the RISC-V debug module. For stdin, this process is reversed.
 
 When the stdout ring buffer is full, writes to stdout block until pending data is read by the debugger. Writes to stdout can block indefinitely when no debugger is attached to the system. 
 
@@ -54,13 +54,6 @@ Key source files for host I/O;
 - */flow/tools/openocd.py* -- When running programs on the :ref:`fpga_board`, this Python script connects stdin and stdout of the FPGA system to the host machine. JTAG-based memory accesses are performed via OpenOCD's RPC interface.  
 
 .. _`dynamic_memory_management`:
-
-Initializing DDR3
------------------
-
-The DDR3 memory controller must be initialized before use. If you want to use DDR3 memory in your project, feel free to copy *init.c* and *init.h* from */src/sw/monitor* into your program path and call :code:`ddr_init();` to initialize the memory controller.
-
-DDR3 initialization will fail during RTL simulations without DDR3 enabled. Simulation of the DDR3 memory is only feasible pre-synthesis using the special *sim_rtl_questa_ddr* (or *sim_rtl_xsim_ddr*) target. Pre-synthesis, a shortened memory reset and calibration sequence is used. Post-synthesis, the full reset and calibration sequence would be used, which is infeasible in terms of simulation time.
 
 Dynamic memory management
 -------------------------

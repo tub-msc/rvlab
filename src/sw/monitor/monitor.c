@@ -144,8 +144,6 @@ void cmd_sw(char *args[]) {
 
 
 int main(void) {
-    ddr_init();
-
     printf("Welcome to rvlab monitor.\n");
 
     while(1) {

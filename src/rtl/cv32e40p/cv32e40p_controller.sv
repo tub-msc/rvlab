@@ -94,7 +94,9 @@ module cv32e40p_controller import cv32e40p_pkg::*;
 
   // LSU
   input  logic        data_req_ex_i,              // data memory access is currently performed in EX stage
+  output logic        data_req_flush_o,           // Flush memory access request in EX stage (after bus error from previous instruction)
   input  logic        data_we_ex_i,
+  input  logic        data_we_wb_i,
   input  logic        data_misaligned_i,
   input  logic        data_load_event_i,
   input  logic        data_err_i,
@@ -149,6 +151,7 @@ module cv32e40p_controller import cv32e40p_pkg::*;
   output logic        csr_save_if_o,
   output logic        csr_save_id_o,
   output logic        csr_save_ex_o,
+  output logic        csr_save_wb_o,
   output logic [5:0]  csr_cause_o,
   output logic        csr_irq_sec_o,
   output logic        csr_restore_mret_id_o,
@@ -261,10 +264,12 @@ module cv32e40p_controller import cv32e40p_pkg::*;
     instr_req_o            = 1'b1;
 
     data_err_ack_o         = 1'b0;
+    data_req_flush_o       = 1'b0;
 
     csr_save_if_o          = 1'b0;
     csr_save_id_o          = 1'b0;
     csr_save_ex_o          = 1'b0;
+    csr_save_wb_o          = 1'b0;
     csr_restore_mret_id_o  = 1'b0;
     csr_restore_uret_id_o  = 1'b0;
 
@@ -430,7 +435,27 @@ module cv32e40p_controller import cv32e40p_pkg::*;
       DECODE:
       begin
 
-          if (branch_taken_ex_i)
+          // A bus error response for the load/store in WB has priority over a
+          // taken branch in EX: the branch is younger and must not redirect.
+          if (data_err_i)
+          begin //data error
+            // the current LW or SW received a bus error response
+
+            is_decoding_o     = 1'b0;
+            halt_if_o         = 1'b1;
+            halt_id_o         = 1'b1;
+            csr_save_wb_o     = 1'b1;
+            csr_save_cause_o  = 1'b1;
+            data_err_ack_o    = 1'b0; // Unused (PMP not implemented)
+            data_req_flush_o  = 1'b1;
+            //no jump in this stage as we have to wait one cycle to go to Machine Mode
+
+            csr_cause_o       = {1'b0, data_we_wb_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
+            ctrl_fsm_ns       = FLUSH_WB;
+
+          end  //data error
+
+          else if (branch_taken_ex_i)
           begin //taken branch
             // there is a branch in the EX stage that is taken
 
@@ -444,23 +469,6 @@ module cv32e40p_controller import cv32e40p_pkg::*;
             // be executed (NPC)
 
           end  //taken branch
-
-          else if (data_err_i)
-          begin //data error
-            // the current LW or SW have been blocked by the PMP
-
-            is_decoding_o     = 1'b0;
-            halt_if_o         = 1'b1;
-            halt_id_o         = 1'b1;
-            csr_save_ex_o     = 1'b1;
-            csr_save_cause_o  = 1'b1;
-            data_err_ack_o    = 1'b1;
-            //no jump in this stage as we have to wait one cycle to go to Machine Mode
-
-            csr_cause_o       = {1'b0, data_we_ex_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
-            ctrl_fsm_ns       = FLUSH_WB;
-
-          end  //data error
 
           else if (is_fetch_failed_i)
           begin
@@ -910,12 +918,13 @@ module cv32e40p_controller import cv32e40p_pkg::*;
 
         if (data_err_i)
         begin //data error
-            // the current LW or SW have been blocked by the PMP
-            csr_save_ex_o     = 1'b1;
+            // the current LW or SW received a bus error response
+            csr_save_wb_o     = 1'b1;
             csr_save_cause_o  = 1'b1;
-            data_err_ack_o    = 1'b1;
+            data_err_ack_o    = 1'b0;
+            data_req_flush_o  = 1'b1;
             //no jump in this stage as we have to wait one cycle to go to Machine Mode
-            csr_cause_o       = {1'b0, data_we_ex_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
+            csr_cause_o       = {1'b0, data_we_wb_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
             ctrl_fsm_ns       = FLUSH_WB;
             //putting illegal to 0 as if it was 1, the core is going to jump to the exception of the EX stage,
             //so the illegal was never executed
@@ -1023,13 +1032,12 @@ module cv32e40p_controller import cv32e40p_pkg::*;
         ctrl_fsm_ns = DECODE;
 
         if(data_err_q) begin
-            //PMP data_error
+            //bus data_error
             pc_mux_o              = PC_EXCEPTION;
             pc_set_o              = 1'b1;
             trap_addr_mux_o       = TRAP_MACHINE;
-            //little hack during testing
             exc_pc_mux_o          = EXC_PC_EXCEPTION;
-            exc_cause_o           = data_we_ex_i ? EXC_CAUSE_LOAD_FAULT : EXC_CAUSE_STORE_FAULT;
+            exc_cause_o           = data_we_wb_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT;
 
         end
         else if (is_fetch_failed_i) begin
@@ -1230,12 +1238,13 @@ module cv32e40p_controller import cv32e40p_pkg::*;
 
         if (data_err_i)
         begin //data error
-            // the current LW or SW have been blocked by the PMP
-            csr_save_ex_o     = 1'b1;
+            // the current LW or SW received a bus error response
+            csr_save_wb_o     = 1'b1;
             csr_save_cause_o  = 1'b1;
-            data_err_ack_o    = 1'b1;
+            data_err_ack_o    = 1'b0;
+            data_req_flush_o  = 1'b1;
             //no jump in this stage as we have to wait one cycle to go to Machine Mode
-            csr_cause_o       = {1'b0, data_we_ex_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
+            csr_cause_o       = {1'b0, data_we_wb_i ? EXC_CAUSE_STORE_FAULT : EXC_CAUSE_LOAD_FAULT};
             ctrl_fsm_ns       = FLUSH_WB;
         end  //data error
         else begin

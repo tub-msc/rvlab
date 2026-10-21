@@ -56,6 +56,7 @@ radix define riscv_instr {
     "32'b?????????????????101?????1110011" "CSRRWI",
     "32'b0000001??????????100?????0110011" "DIV",
     "32'b0000001??????????101?????0110011" "DIVU",
+    "32'b01111011001000000000000001110011" "DRET",
     "32'b00000000000100000000000001110011" "EBREAK",
     "32'b00000000000000000000000001110011" "ECALL",
     "32'b0000001??????????????????1010011" "FADD_D",
@@ -125,6 +126,7 @@ radix define riscv_instr {
     "32'b0000001??????????001?????0110011" "MULH",
     "32'b0000001??????????010?????0110011" "MULHSU",
     "32'b0000001??????????011?????0110011" "MULHU",
+    "32'b00110000001000000000000001110011" "MRET",
     "32'b0000000??????????110?????0110011" "OR",
     "32'b?????????????????110?????0010011" "ORI",
     "32'b0000001??????????110?????0110011" "REM",
@@ -144,6 +146,7 @@ radix define riscv_instr {
     "32'b0000000??????????101?????0010011" "SRLI",
     "32'b0100000??????????000?????0110011" "SUB",
     "32'b?????????????????010?????0100011" "SW",
+    "32'b00010000010100000000000001110011" "WFI",
     "32'b0000000??????????100?????0110011" "XOR",
     "32'b?????????????????100?????0010011" "XORI",
     -default default
@@ -692,7 +695,7 @@ add wave -noupdate -group {CPU Registers} -label {t4 (x29)} {/system_tb/board/DU
 add wave -noupdate -group {CPU Registers} -label {t5 (x30)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[30]}
 add wave -noupdate -group {CPU Registers} -label {t6 (x31)} {/system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/register_file_i/mem[31]}
 add wave -noupdate /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/pc_id_i
-add wave -noupdate /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/instr_rdata_i
+add wave -noupdate -radix riscv_instr /system_tb/board/DUT/core_i/cpu_i/u_core_default/core_i/id_stage_i/instr_rdata_i
 add wave -noupdate -divider TL-UL
 add wave -noupdate /system_tb/board/DUT/core_i/tl_cpui_h2d
 add wave -noupdate /system_tb/board/DUT/core_i/tl_cpui_d2h
@@ -712,9 +715,9 @@ add wave -noupdate /system_tb/board/DUT/core_i/student_i/rlight_i/re
 add wave -noupdate /system_tb/board/DUT/core_i/student_i/rlight_i/wdata
 add wave -noupdate /system_tb/board/DUT/core_i/student_i/rlight_i/we
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {40160000000 fs} 0}
+WaveRestoreCursors {{Cursor 1} {27847159279 fs} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 732
+configure wave -namecolwidth 396
 configure wave -valuecolwidth 288
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
@@ -728,4 +731,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 fs} {227074683962 fs}
+WaveRestoreZoom {27694056313 fs} {28043901174 fs}

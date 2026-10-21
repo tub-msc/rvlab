@@ -10,8 +10,6 @@ module rvlab_tlul_ddr (
   // TL-UL slave interface
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
-  input  tlul_pkg::tl_h2d_t tl_ctrl_i,
-  output tlul_pkg::tl_d2h_t tl_ctrl_o,
 
   inout  wire [15:0] ddr3_dq,
   inout  wire [ 1:0] ddr3_dqs_n,
@@ -30,53 +28,6 @@ module rvlab_tlul_ddr (
 );
 
   import rvlab_ddr_pkg::*;
-  import ddr_ctrl_reg_pkg::*;
-
-  /*
-    Control Interface Registers:
-      - DDR Status:
-        - Present
-        - Calibration complete
-        - Calibration status
-      - Control:
-        - Self refresh
-        - Reset
-      - Tags / cache interface?
-        -> Tag/Dirty mem support
-           additional read ports
-  */
-
-  //////////////////////////////
-  //                          //
-  // CONTROL+STATUS REGISTERS //
-  //                          //
-  //////////////////////////////
-
-  logic       ctrl_ddr_present;
-  logic       ctrl_calib_complete;
-  logic [4:0] ctrl_calib_status;
-  logic       ctrl_ddr_self_refresh;
-  logic       ctrl_ddr_rst_n;
-
-  ddr_ctrl_reg2hw_t reg2hw;
-  ddr_ctrl_hw2reg_t hw2reg;
-
-  ddr_ctrl_reg_top reg_top_i (
-    .clk_i,
-    .rst_ni,
-    .tl_i     (tl_ctrl_i),
-    .tl_o     (tl_ctrl_o),
-    .reg2hw,
-    .hw2reg,
-    .devmode_i('0)
-  );
-
-  assign hw2reg.status.present.d = ctrl_ddr_present;
-  assign hw2reg.status.calib_complete.d = ctrl_calib_complete;
-  assign hw2reg.status.calib_status.d = ctrl_calib_status;
-
-  assign ctrl_ddr_self_refresh = reg2hw.ctrl.self_refresh.q;
-  assign ctrl_ddr_rst_n = reg2hw.ctrl.rst_n.q;
 
 `ifdef WITH_EXT_DRAM
 
@@ -119,13 +70,16 @@ module rvlab_tlul_ddr (
     .locked_o    (ddr_locked)
   );
 
+  prim_rstsyn ddr_rstsyn_i (
+    .clk_i (clk_ctrl),
+    .rst_ni(rst_ni & ddr_locked),
+    .rst_no(ddr_rstn)
+  );
+
   /* LLC */
 
   ddr3_h2d_t blockmgr_req, llc_req, prefetch_req;
   ddr3_d2h_t blockmgr_rsp, llc_rsp, prefetch_rsp;
-
-  tlul_pkg::tl_h2d_t cache_req, err_resp_req;
-  tlul_pkg::tl_d2h_t cache_rsp, err_resp_rsp;
 
   rvlab_ddr_cache #(
     .IDX_BITS(9)
@@ -133,56 +87,12 @@ module rvlab_tlul_ddr (
     .clk_i,
     .rst_ni,
 
-    .tl_i(cache_req),
-    .tl_o(cache_rsp),
+    .tl_i,
+    .tl_o,
 
     .block_req_o(llc_req),
     .block_rsp_i(llc_rsp)
   );
-
-  // The tl_i/tl_o interface has an additional
-  // check for whether the DDR system is
-  // currently not calibrated. If it isn't,
-  // requests are answered with an error.
-
-  // Strategy: Dispatch incoming request to either an
-  //   error responder module, or to the cache,
-  //   depending on ctrl_calib_complete. If one module
-  //   asserts d_valid, forward that response. If both
-  //   assert d_valid at the same time, priority is
-  //   given to the cache's response, as a such
-  //   contention can only occur if calibration is
-  //   turned off immediately after a request to the
-  //   cache has been made, missing in the cache but
-  //   hitting in the prefetch buffer. Simultaneous
-  //   assertion of both d_valid signals should be
-  //   generally nearly impossible.
-
-  tlul_err_resp ddr_err_i (
-    .clk_i,
-    .rst_ni,
-    .tl_h_i(err_resp_req),
-    .tl_h_o(err_resp_rsp)
-  );
-
-  always_comb begin
-    tl_o = err_resp_rsp;
-
-    if (cache_rsp.d_valid) begin
-      tl_o = cache_rsp;
-      err_resp_req.d_ready = '0;
-    end
-
-    cache_req = tl_i;
-    err_resp_req = tl_i;
-
-    if (ctrl_calib_complete) begin
-      err_resp_req.a_valid = '0;
-    end else begin
-      cache_req.a_valid = '0;
-      tl_o.d_error = '1;
-    end
-  end
 
   /* Prefetcher */
 
@@ -234,12 +144,7 @@ module rvlab_tlul_ddr (
     .wb_aux_i     (ddr3if_rsp_aux)
   );
 
-  logic ddr3_self_refresh;
   logic ddr3_calib_complete;
-
-  logic [31:0] ddr3_debug_out;
-  logic [ 4:0] ddr3_calib_status;
-  assign ddr3_calib_status = ddr3_debug_out[4:0];
 
   /* DDR3 Controller */
   /*
@@ -317,59 +222,12 @@ module rvlab_tlul_ddr (
     .o_ddr3_dm(ddr3_dm), // width = BYTE_LANES
     .o_ddr3_odt(ddr3_odt),
     // CSR interface
-    .o_debug1(ddr3_debug_out),
-    .o_calib_complete(ddr3_calib_complete),
-    .i_user_self_refresh(ddr3_self_refresh),
+    .o_debug1(),
+    .o_calib_complete(),
+    .i_user_self_refresh('0),
     // UART
     .uart_tx()
   );
-
-  assign ctrl_ddr_present = '1;
-
-  //////////////
-  // CTRL CDC //
-  //////////////
-
-  /* CTRL clock -> SYS clock domain */
-
-  prim_flop_2sync #(
-    .Width(1)
-  ) sync_calib_complete_i (
-    .clk_i,
-    .rst_ni,
-    .d     (ddr3_calib_complete),
-    .q     (ctrl_calib_complete)
-  );
-
-  prim_flop_2sync #(
-    .Width(5)
-  ) sync_calib_status_i (
-    .clk_i,
-    .rst_ni,
-    .d     (ddr3_calib_status),
-    .q     (ctrl_calib_status)
-  );
-
-  /* SYS clock -> CTRL clock domain */
-
-  prim_flop_2sync #(
-    .Width(1)
-  ) sync_self_refresh_i (
-    .clk_i (clk_ctrl),
-    .rst_ni(ddr_rstn),
-    .d     (ctrl_ddr_self_refresh),
-    .q     (ddr3_self_refresh)
-  );
-
-  prim_flop_2sync #(
-    .Width(1)
-  ) sync_ddr_reset_i (
-    .clk_i (clk_ctrl),
-    .rst_ni(ddr_locked),
-    .d     (ctrl_ddr_rst_n),
-    .q     (ddr_rstn)
-  );
-
 
 `else
 
@@ -389,9 +247,7 @@ module rvlab_tlul_ddr (
 
   assign ddr3_dm      = '0;
 
-  assign ctrl_ddr_present = '0;
-  assign ctrl_calib_complete = '0;
-  assign ctrl_calib_status = '0;
+  assign ddr3_odt     = '0;
 
   tlul_err_resp ddr_err_i (
     .clk_i,

@@ -171,6 +171,7 @@ module cv32e40p_core
   logic               lsu_busy;
 
   logic        [31:0] pc_ex;  // PC of last executed branch or cv.elw
+  logic        [31:0] pc_wb;
 
   // ALU Control
   logic               alu_en_ex;
@@ -262,6 +263,7 @@ module cv32e40p_core
 
   // Data Memory Control:  From ID stage (id-ex pipe) <--> load store unit
   logic               data_we_ex;
+  logic               data_we_wb;
   logic        [ 5:0] data_atop_ex;
   logic        [ 1:0] data_type_ex;
   logic        [ 1:0] data_sign_ext_ex;
@@ -303,6 +305,8 @@ module cv32e40p_core
   logic                           csr_save_if;
   logic                           csr_save_id;
   logic                           csr_save_ex;
+  logic                           csr_save_wb;
+  logic [             31:0]       csr_save_adr;
   logic [              5:0]       csr_cause;
   logic                           csr_restore_mret_id;
   logic                           csr_restore_uret_id;
@@ -357,6 +361,7 @@ module cv32e40p_core
   logic                           data_gnt_pmp;
   logic                           data_err_pmp;
   logic                           data_err_ack;
+  logic                           data_err_valid;  // bus error, qualified by data_rvalid_i
   logic                           instr_req_pmp;
   logic                           instr_gnt_pmp;
   logic [             31:0]       instr_addr_pmp;
@@ -650,6 +655,7 @@ module cv32e40p_core
       .csr_save_if_o        (csr_save_if),  // control signal to save pc
       .csr_save_id_o        (csr_save_id),  // control signal to save pc
       .csr_save_ex_o        (csr_save_ex),  // control signal to save pc
+      .csr_save_wb_o        (csr_save_wb),  // control signal to save pc
       .csr_restore_mret_id_o(csr_restore_mret_id),  // control signal to restore pc
       .csr_restore_uret_id_o(csr_restore_uret_id),  // control signal to restore pc
 
@@ -674,11 +680,14 @@ module cv32e40p_core
       .data_reg_offset_ex_o(data_reg_offset_ex),  // to load store unit
       .data_load_event_ex_o(data_load_event_ex),  // to load store unit
 
+      .data_we_wb_i        (data_we_wb),
+      .lsu_busy_i          (lsu_busy),
+
       .data_misaligned_ex_o(data_misaligned_ex),  // to load store unit
 
       .prepost_useincr_ex_o(useincr_addr_ex),
       .data_misaligned_i   (data_misaligned),
-      .data_err_i          (data_err_pmp || data_err_i),
+      .data_err_i          (data_err_valid),
       .data_err_ack_o      (data_err_ack),
 
       // Interrupt Signals
@@ -871,11 +880,17 @@ module cv32e40p_core
       // stall control
       .is_decoding_i (is_decoding),
       .lsu_ready_ex_i(lsu_ready_ex),
-      .lsu_err_i     (data_err_pmp),
+      .lsu_err_i     (data_err_valid),
 
       .ex_ready_o(ex_ready),
       .ex_valid_o(ex_valid),
-      .wb_ready_i(lsu_ready_wb)
+      .wb_ready_i(lsu_ready_wb),
+
+      // signals that go through the EX <-> WB pipeline register
+      .pc_ex_i     (pc_ex),
+      .data_we_ex_i(data_we_ex),
+      .pc_wb_o     (pc_wb),
+      .data_we_wb_o(data_we_wb)
   );
 
 
@@ -888,6 +903,9 @@ module cv32e40p_core
   //                                                                                    //
   ////////////////////////////////////////////////////////////////////////////////////////
 
+  // OBI: data_err_i is only defined while data_rvalid_i is high
+  assign data_err_valid = data_err_i & data_rvalid_i;
+
   cv32e40p_load_store_unit #(
       .PULP_OBI(PULP_OBI)
   ) load_store_unit_i (
@@ -898,7 +916,7 @@ module cv32e40p_core
       .data_req_o    (data_req_pmp),
       .data_gnt_i    (data_gnt_pmp),
       .data_rvalid_i (data_rvalid_i),
-      .data_err_i    (1'b0),  // Bus error (not used yet)
+      .data_err_i    (data_err_i),  // Bus error (validity defined by data_rvalid_i)
       .data_err_pmp_i(data_err_pmp),  // PMP error
 
       .data_addr_o (data_addr_pmp),
@@ -933,7 +951,9 @@ module cv32e40p_core
       .lsu_ready_ex_o(lsu_ready_ex),
       .lsu_ready_wb_o(lsu_ready_wb),
 
-      .busy_o(lsu_busy)
+      .busy_o(lsu_busy),
+
+      .csr_save_adr_o(csr_save_adr)
   );
 
   // Tracer signal
@@ -1019,10 +1039,12 @@ module cv32e40p_core
       .pc_if_i(pc_if),
       .pc_id_i(pc_id),
       .pc_ex_i(pc_ex),
+      .pc_wb_i(pc_wb),
 
       .csr_save_if_i     (csr_save_if),
       .csr_save_id_i     (csr_save_id),
       .csr_save_ex_i     (csr_save_ex),
+      .csr_save_wb_i     (csr_save_wb),
       .csr_restore_mret_i(csr_restore_mret_id),
       .csr_restore_uret_i(csr_restore_uret_id),
 
@@ -1030,6 +1052,7 @@ module cv32e40p_core
 
       .csr_cause_i     (csr_cause),
       .csr_save_cause_i(csr_save_cause),
+      .csr_save_adr_i  (csr_save_adr),
 
       // from hwloop registers
       .hwlp_start_i(hwlp_start),

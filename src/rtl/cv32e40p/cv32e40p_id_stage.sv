@@ -167,6 +167,7 @@ module cv32e40p_id_stage
     output logic              csr_save_if_o,
     output logic              csr_save_id_o,
     output logic              csr_save_ex_o,
+    output logic              csr_save_wb_o,
     output logic              csr_restore_mret_id_o,
     output logic              csr_restore_uret_id_o,
     output logic              csr_restore_dret_id_o,
@@ -186,6 +187,9 @@ module cv32e40p_id_stage
     output logic [1:0] data_sign_ext_ex_o,
     output logic [1:0] data_reg_offset_ex_o,
     output logic       data_load_event_ex_o,
+
+    input  logic data_we_wb_i,
+    input  logic lsu_busy_i,  // load/store in EX or outstanding in WB
 
     output logic data_misaligned_ex_o,
 
@@ -298,6 +302,7 @@ module cv32e40p_id_stage
   logic        jr_stall;
   logic        load_stall;
   logic        csr_apu_stall;
+  logic        csr_lsu_stall;
   logic        hwlp_mask;
   logic        halt_id;
   logic        halt_if;
@@ -403,6 +408,7 @@ module cv32e40p_id_stage
   logic [1:0] data_sign_ext_id;
   logic [1:0] data_reg_offset_id;
   logic data_req_id;
+  logic data_req_flush;
   logic data_load_event_id;
 
   // Atomic memory instruction
@@ -919,6 +925,10 @@ module cv32e40p_id_stage
   assign apu_perf_dep_o = apu_stall;
   // stall when we access the CSR after a multicycle APU instruction
   assign csr_apu_stall  = (csr_access & (apu_en_ex_o & (apu_lat_ex_o[1] == 1'b1) | apu_busy_i));
+  // Hold CSR instructions in ID until no older load/store can still fault.
+  // CSR writes are not otherwise gated by WB completion, so a CSR instruction
+  // in EX behind a faulting load/store would modify architectural state.
+  assign csr_lsu_stall  = csr_access & lsu_busy_i;
 
   /////////////////////////////////////////////////////////
   //  ____  _____ ____ ___ ____ _____ _____ ____  ____   //
@@ -1174,7 +1184,9 @@ module cv32e40p_id_stage
 
       // LSU
       .data_req_ex_i    (data_req_ex_o),
+      .data_req_flush_o (data_req_flush),
       .data_we_ex_i     (data_we_ex_o),
+      .data_we_wb_i     (data_we_wb_i),
       .data_misaligned_i(data_misaligned_i),
       .data_load_event_i(data_load_event_id),
       .data_err_i       (data_err_i),
@@ -1229,6 +1241,7 @@ module cv32e40p_id_stage
       .csr_save_if_o        (csr_save_if_o),
       .csr_save_id_o        (csr_save_id_o),
       .csr_save_ex_o        (csr_save_ex_o),
+      .csr_save_wb_o        (csr_save_wb_o),
       .csr_restore_mret_id_o(csr_restore_mret_id_o),
       .csr_restore_uret_id_o(csr_restore_uret_id_o),
 
@@ -1490,7 +1503,8 @@ module cv32e40p_id_stage
 
       branch_in_ex_o         <= 1'b0;
 
-    end else if (data_misaligned_i) begin
+    end else begin
+     if (data_misaligned_i) begin
       // misaligned data access case
       if (ex_ready_i) begin  // misaligned access case, only unstall alu operands
 
@@ -1578,8 +1592,8 @@ module cv32e40p_id_stage
         csr_access_ex_o      <= csr_access;
         csr_op_ex_o          <= csr_op;
 
-        data_req_ex_o        <= data_req_id;
-        if (data_req_id) begin  // only needed for LSU when there is an active request
+        data_req_ex_o        <= data_req_id & ~data_req_flush;
+        if (data_req_id & ~data_req_flush) begin  // only needed for LSU when there is an active request
           data_we_ex_o         <= data_we_id;
           data_type_ex_o       <= data_type_id;
           data_sign_ext_ex_o   <= data_sign_ext_id;
@@ -1629,6 +1643,23 @@ module cv32e40p_id_stage
         //Not doing it can overwrite the RF file with the currennt CSR value rather than the old one
         regfile_alu_we_ex_o <= 1'b0;
       end
+     end
+
+     // Bus error on the load/store in WB: kill whatever is in EX. It is younger
+     // than the faulting access, so it must neither issue a bus request nor
+     // write the register file / CSRs. Done outside the if/else chain above so
+     // it also applies in the misaligned and multicycle-mult cases. Functional
+     // units in flight (e.g. a divide) are left to drain; only their
+     // architectural write enables are cleared.
+     if (data_req_flush) begin
+       data_req_ex_o        <= 1'b0;
+       data_misaligned_ex_o <= 1'b0;
+       data_load_event_ex_o <= 1'b0;
+       regfile_we_ex_o      <= 1'b0;
+       regfile_alu_we_ex_o  <= 1'b0;
+       csr_op_ex_o          <= CSR_OP_READ;
+       branch_in_ex_o       <= 1'b0;
+     end
     end
   end
 
@@ -1658,8 +1689,8 @@ module cv32e40p_id_stage
       id_valid_q <= id_valid_o;
       // ID stage counts
       mhpmevent_minstret_o <= minstret;
-      mhpmevent_load_o <= minstret && data_req_id && !data_we_id;
-      mhpmevent_store_o <= minstret && data_req_id && data_we_id;
+      mhpmevent_load_o <= minstret && data_req_id && ~data_req_flush && !data_we_id;
+      mhpmevent_store_o <= minstret && data_req_id && ~data_req_flush && data_we_id;
       mhpmevent_jump_o           <= minstret && ((ctrl_transfer_insn_in_id == BRANCH_JAL) || (ctrl_transfer_insn_in_id == BRANCH_JALR));
       mhpmevent_branch_o <= minstret && (ctrl_transfer_insn_in_id == BRANCH_COND);
       mhpmevent_compressed_o <= minstret && is_compressed_i;
@@ -1677,7 +1708,7 @@ module cv32e40p_id_stage
   end
 
   // stall control
-  assign id_ready_o = ((~misaligned_stall) & (~jr_stall) & (~load_stall) & (~apu_stall) & (~csr_apu_stall) & ex_ready_i);
+  assign id_ready_o = ((~misaligned_stall) & (~jr_stall) & (~load_stall) & (~apu_stall) & (~csr_apu_stall) & (~csr_lsu_stall) & ex_ready_i);
   assign id_valid_o = (~halt_id) & id_ready_o;
   assign halt_if_o = halt_if;
 

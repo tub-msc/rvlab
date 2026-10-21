@@ -104,10 +104,12 @@ module cv32e40p_cs_registers
     input logic [31:0] pc_if_i,
     input logic [31:0] pc_id_i,
     input logic [31:0] pc_ex_i,
+    input logic [31:0] pc_wb_i,
 
     input logic csr_save_if_i,
     input logic csr_save_id_i,
     input logic csr_save_ex_i,
+    input logic csr_save_wb_i,
 
     input logic csr_restore_mret_i,
     input logic csr_restore_uret_i,
@@ -117,6 +119,8 @@ module cv32e40p_cs_registers
     input logic [       5:0]       csr_cause_i,
     //coming from controller
     input logic                    csr_save_cause_i,
+    //coming from controller
+    input logic [      31:0]       csr_save_adr_i,
     // Hardware loops
     input logic [N_HWLP-1:0][31:0] hwlp_start_i,
     input logic [N_HWLP-1:0][31:0] hwlp_end_i,
@@ -218,6 +222,7 @@ module cv32e40p_cs_registers
   FS_t mstatus_fs_q, mstatus_fs_n;
   logic [5:0] mcause_q, mcause_n;
   logic [5:0] ucause_q, ucause_n;
+  logic [31:0] mtval_q, mtval_n;
   logic [23:0] mtvec_n, mtvec_q;
   logic [23:0] utvec_n, utvec_q;
   logic [1:0] mtvec_mode_n, mtvec_mode_q;
@@ -514,7 +519,7 @@ module cv32e40p_cs_registers
         end
 
         // unimplemented, read 0 CSRs
-        CSR_MTVAL: csr_rdata_int = 'b0;
+        CSR_MTVAL: csr_rdata_int = mtval_q;
 
         CSR_TSELECT, CSR_TDATA3, CSR_MCONTEXT, CSR_SCONTEXT: csr_rdata_int = 'b0;  // Always read 0
         CSR_TDATA1: csr_rdata_int = tmatch_control_rdata;
@@ -784,6 +789,7 @@ module cv32e40p_cs_registers
             csr_save_if_i: exception_pc = pc_if_i;
             csr_save_id_i: exception_pc = pc_id_i;
             csr_save_ex_i: exception_pc = pc_ex_i;
+            csr_save_wb_i: exception_pc = pc_wb_i;
             default: ;
           endcase
 
@@ -903,6 +909,7 @@ module cv32e40p_cs_registers
       mstatus_we_int = 1'b0;
       mstatus_n = mstatus_q;
       mcause_n = mcause_q;
+      mtval_n = mtval_q;
       ucause_n = '0;  // Not used if PULP_SECURE == 0
       exception_pc = pc_id_i;
       priv_lvl_n = priv_lvl_q;
@@ -989,6 +996,8 @@ module cv32e40p_cs_registers
         // mcause
         CSR_MCAUSE: if (csr_we_int) mcause_n = {csr_wdata_int[31], csr_wdata_int[4:0]};
 
+        CSR_MTVAL: if (csr_we_int) mtval_n = csr_wdata_int;
+
         CSR_DCSR:
         if (csr_we_int) begin
           // Following are read-only and never assigned here (dcsr_q value is used):
@@ -1046,6 +1055,7 @@ module cv32e40p_cs_registers
             csr_save_if_i: exception_pc = pc_if_i;
             csr_save_id_i: exception_pc = pc_id_i;
             csr_save_ex_i: exception_pc = pc_ex_i;
+            csr_save_wb_i: exception_pc = pc_wb_i;
             default: ;
           endcase
 
@@ -1062,6 +1072,11 @@ module cv32e40p_cs_registers
             mstatus_n.mpp  = PRIV_LVL_M;
             mepc_n         = exception_pc;
             mcause_n       = csr_cause_i;
+            unique case (csr_cause_i)
+              EXC_CAUSE_LOAD_FAULT,
+              EXC_CAUSE_STORE_FAULT: mtval_n = csr_save_adr_i;
+              default: mtval_n = '0;
+            endcase
           end
         end  //csr_save_cause_i
 
@@ -1209,6 +1224,7 @@ module cv32e40p_cs_registers
       mie_q <= '0;
       mtvec_q <= '0;
       mtvec_mode_q <= MTVEC_MODE;
+      mtval_q <= '0;
     end else begin
       // update CSRs
       if (FPU == 1) begin
@@ -1240,6 +1256,7 @@ module cv32e40p_cs_registers
       mie_q        <= mie_n;
       mtvec_q      <= mtvec_n;
       mtvec_mode_q <= mtvec_mode_n;
+      mtval_q      <= mtval_n;
     end
   end
   ////////////////////////////////////////////////////////////////////////

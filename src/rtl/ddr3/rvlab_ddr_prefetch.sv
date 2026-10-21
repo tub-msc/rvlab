@@ -141,6 +141,11 @@ module rvlab_ddr_prefetch #(
 
     /* States / Addresses */
 
+    // Simultaneous backend data response + conflicting frontend access
+    logic coincident_invalidate;
+    assign coincident_invalidate = (fe_req_xchg && fe_req_i.a_opcode != Get && addr_match_mask[be_rsp_i.d_anc])
+        || (fe_rsp_xchg && fe_rsp_o.d_opcode == AccessAckData && addr_le_mask[be_rsp_i.d_anc]);
+
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if (~rst_ni) begin
             for (int i = 0; i < SIZE; i++) begin
@@ -163,12 +168,6 @@ module rvlab_ddr_prefetch #(
                 end
             end
 
-            // BACKEND DATA RESPONSE
-            if (be_rsp_xchg && be_rsp_i.d_opcode == AccessAckData) begin
-                // If state is currently pending, set to valid, if stale, set to invalid
-                entry_states[be_rsp_i.d_anc] <= entry_states[be_rsp_i.d_anc] == Stale ? Invalid : Valid;
-            end
-
             // FRONTEND PUT REQUEST
             if (fe_req_xchg && fe_req_i.a_opcode != Get) begin
                 for (int i = 0; i < SIZE; i++) begin
@@ -184,6 +183,12 @@ module rvlab_ddr_prefetch #(
                 for (int i = 0; i < SIZE; i++) begin
                     if (addr_le_mask[i]) entry_states[i] <= (pending_mask[i] ? Stale : Invalid);
                 end
+            end
+
+            // BACKEND DATA RESPONSE
+            if (be_rsp_xchg && be_rsp_i.d_opcode == AccessAckData) begin
+                entry_states[be_rsp_i.d_anc] <=
+                    (entry_states[be_rsp_i.d_anc] == Stale || coincident_invalidate) ? Invalid : Valid;
             end
         end
     end

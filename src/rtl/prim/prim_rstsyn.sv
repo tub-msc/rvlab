@@ -3,7 +3,6 @@
 //
 // prim_rstsyn: 2-FF reset synchronizer with asynchronous reset assertion and
 // synchronous reset deassertion.
-// Currently not used anywhere in the design.
 
 module prim_rstsyn(
     input logic clk_i,
