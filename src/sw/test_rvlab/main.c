@@ -47,13 +47,15 @@ int main(void) {
     s.n_tests = 0;
     s.n_pass = 0;
 
-    bool ddr_available = !ddr_init();
-
     test_report(&s, "regdemo_test", regdemo_test());
     test_report(&s, "rv_timer_test", rv_timer_test());
     test_report(&s, "test_csrs", test_csrs());
-    if(ddr_available)
+
+    if (ddr_available()) {
         test_report(&s, "ddr_memtest", ddr_memtest());
+    } else {
+        printf("DDR not available.\n");
+    }
 
     return test_summary(&s);
 }

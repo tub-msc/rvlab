@@ -162,7 +162,12 @@ module cv32e40p_ex_stage
 
     output logic ex_ready_o,  // EX stage ready for new data
     output logic ex_valid_o,  // EX stage gets new data
-    input  logic wb_ready_i  // WB stage ready for new data
+    input  logic wb_ready_i,  // WB stage ready for new data
+
+    input  logic [31:0] pc_ex_i,
+    input  logic        data_we_ex_i,
+    output logic [31:0] pc_wb_o,
+    output logic        data_we_wb_o
 );
 
   logic [                31:0] alu_result;
@@ -213,10 +218,13 @@ module cv32e40p_ex_stage
         wb_contention = 1'b1;
       end
     end else begin
-      regfile_alu_we_fw_o = regfile_alu_we_i & ~apu_en_i;
-      regfile_alu_we_fw_power_o = (COREV_PULP == 0) ? regfile_alu_we_i & ~apu_en_i : 
-                                                     regfile_alu_we_i & ~apu_en_i &
-                                                     mult_ready & alu_ready & lsu_ready_ex_i;
+      regfile_alu_we_fw_o = regfile_alu_we_i & ~apu_en_i & ~lsu_err_i;
+      // Only commit to the register file once the instruction completes AND the
+      // older load/store in WB (if any) has completed without a bus error.
+      // Otherwise an instruction stalled in EX behind a faulting load/store
+      // would update architectural state before the precise fault is taken.
+      regfile_alu_we_fw_power_o = regfile_alu_we_i & ~apu_en_i & ~lsu_err_i & wb_ready_i &
+                                  mult_ready & alu_ready & lsu_ready_ex_i;
       regfile_alu_waddr_fw_o = regfile_alu_waddr_i;
       if (alu_en_i) regfile_alu_wdata_fw_o = alu_result;
       if (mult_en_i) regfile_alu_wdata_fw_o = mult_result;
@@ -232,9 +240,12 @@ module cv32e40p_ex_stage
     regfile_wdata_wb_o    = lsu_rdata_i;
     wb_contention_lsu     = 1'b0;
 
-    if (regfile_we_lsu) begin
+    if (regfile_we_lsu & ~lsu_err_i) begin // lsu_err_i valid in WB stage
       regfile_we_wb_o       = 1'b1;
-      regfile_we_wb_power_o = (COREV_PULP == 0) ? 1'b1 : ~data_misaligned_ex_i & wb_ready_i;
+      // Only write once the (final) response has arrived. Writing every cycle
+      // while waiting would put stale rdata into rd before a potential bus error
+      // is known, destroying e.g. the base register of `lw a0, 0(a0)`.
+      regfile_we_wb_power_o = ~data_misaligned_ex_i & wb_ready_i;
       if (apu_valid & (!apu_singlecycle & !apu_multicycle)) begin
         wb_contention_lsu = 1'b1;
       end
@@ -454,11 +465,15 @@ module cv32e40p_ex_stage
     if (~rst_n) begin
       regfile_waddr_lsu <= '0;
       regfile_we_lsu    <= 1'b0;
+      pc_wb_o           <= '0;
+      data_we_wb_o      <= 1'b0;
     end else begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
-        regfile_we_lsu <= regfile_we_i & ~lsu_err_i;
-        if (regfile_we_i & ~lsu_err_i) begin
+        regfile_we_lsu <= regfile_we_i;
+        pc_wb_o        <= pc_ex_i;
+        data_we_wb_o   <= data_we_ex_i;
+        if (regfile_we_i) begin
           regfile_waddr_lsu <= regfile_waddr_i;
         end
       end else if (wb_ready_i) begin

@@ -32,10 +32,10 @@ module cv32e40p_load_store_unit #(
 
     // output to data memory
     output logic data_req_o,
-    input logic data_gnt_i,
-    input logic data_rvalid_i,
-    input  logic         data_err_i,           // External bus error (validity defined by data_rvalid_i) (not used yet)
-    input logic data_err_pmp_i,  // PMP error (validity defined by data_gnt_i)
+    input  logic data_gnt_i,
+    input  logic data_rvalid_i,
+    input  logic data_err_i,      // External bus error (validity defined by data_rvalid_i)
+    input  logic data_err_pmp_i,  // PMP error (validity defined by data_gnt_i)
 
     output logic [31:0] data_addr_o,
     output logic        data_we_o,
@@ -70,10 +70,12 @@ module cv32e40p_load_store_unit #(
     output logic lsu_ready_ex_o,  // LSU ready for new data in EX stage
     output logic lsu_ready_wb_o,  // LSU ready for new data in WB stage
 
-    output logic busy_o
+    output logic busy_o,
+
+    output logic [31:0] csr_save_adr_o
 );
 
-  localparam DEPTH = 2;  // Maximum number of outstanding transactions
+  localparam DEPTH = 1;  // Maximum number of outstanding transactions
 
   // Transaction request (to cv32e40p_obi_interface)
   logic trans_valid;
@@ -443,8 +445,12 @@ module cv32e40p_load_store_unit #(
   always_ff @(posedge clk, negedge rst_n) begin
     if (rst_n == 1'b0) begin
       cnt_q <= '0;
+      csr_save_adr_o <= '0;
     end else begin
       cnt_q <= next_cnt;
+      if (ctrl_update) begin
+        csr_save_adr_o <= trans_addr;
+      end
     end
   end
 
@@ -490,7 +496,7 @@ module cv32e40p_load_store_unit #(
 
 `ifdef CV32E40P_ASSERT_ON
 
-  // External data bus errors are not supported yet. PMP errors are not supported yet.
+  // PMP errors are not supported yet. (External bus errors are supported.)
   // 
   // Note: Once PMP is re-introduced please consider to make data_err_pmp_i a 'data' signal
   // that is qualified with data_req_o && data_gnt_i (instead of suppressing data_gnt_i 
@@ -500,7 +506,7 @@ module cv32e40p_load_store_unit #(
   // NO LONGER FEEDS INTO LSU_READY_EX_O.
 
   property p_no_error;
-    @(posedge clk) (1'b1) |-> ((data_err_i == 1'b0) && (data_err_pmp_i == 1'b0));
+    @(posedge clk) (1'b1) |-> (data_err_pmp_i == 1'b0);
   endproperty
 
   a_no_error :

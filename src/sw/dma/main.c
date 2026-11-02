@@ -123,8 +123,6 @@ int test_memcpy(void (*func_memcpy)(void *, void *, uint32_t)) {
 // ----
 
 int main(void) {
-    ddr_init();
-
     int res, retval=0;
     
     printf("test memset_soft:\n");    

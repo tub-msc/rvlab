@@ -32,6 +32,16 @@ class Ddr3Model(Block):
                 "%MEM_DEVICE_WIDTH": "16",
             })
 
+        # Set DEBUG = 0 in the parameters file
+        # Otherwise simulation print output is polluted with DDR controller messages
+        params_file = cwd / "ddr3_parameters.vh"
+        params_content = params_file.read_text()
+        params_file.write_text(re.sub(
+            r"(?<=DEBUG)(\s*=\s*)1; // Turn on Debug messages",
+            r"\g<1>0; // Turn off Debug messages",
+            params_content
+        ))
+
         r = Result()
         r.tb_srcs = [cwd / 'ddr3.sv']
         r.include_dirs = [cwd]
