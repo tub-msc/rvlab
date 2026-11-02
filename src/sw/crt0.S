@@ -154,6 +154,10 @@ trap_entry:
     la t0, _exit
     csrrw t0, mepc, t0
 
+    // overwrite the saved a0 (x10) so that _exit reports the trap handler's
+    // return value instead of the a0 value at the time of the trap
+    sw  a0,  0x20(sp)
+
     // automatically fall through to return_from_trap
 
 return_from_trap:

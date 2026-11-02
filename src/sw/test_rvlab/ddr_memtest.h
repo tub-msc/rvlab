@@ -2,6 +2,5 @@
  * SPDX-FileCopyrightText: 2024 RVLab Contributors
  */
 
-int ddr_init(void);
 int memtest(void *start, size_t length);
 int ddr_memtest(void);

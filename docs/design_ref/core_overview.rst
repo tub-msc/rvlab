@@ -25,7 +25,7 @@ Components:
 - **rvlab_timer** -- simple timer module, can raise interrupt request irq_timer
 - **regdemo** -- register generation demo module
 
-The tl_ddr_i/tl_ddr_o and tl_ddr_ctrl_i/tl_ddr_ctrl_o ports connect to a DDR3 memory controller instantiated outside of rvlab_core.
+The tl_ddr_i/tl_ddr_o ports connect to a DDR3 memory controller instantiated outside of rvlab_core.
 
 To obtain the most accurate documentation of CV32E40P and OpenTitan for the purposes of the RISC-V Lab, please checkout the commits of CV32E40P and OpenTitan mentioned at :ref:`source_projects`. The latest online documentation of CV32E40P and OpenTitan may differ substantially from the used versions.
 

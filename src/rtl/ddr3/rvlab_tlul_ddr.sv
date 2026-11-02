@@ -144,8 +144,6 @@ module rvlab_tlul_ddr (
     .wb_aux_i     (ddr3if_rsp_aux)
   );
 
-  logic ddr3_calib_complete;
-
   /* DDR3 Controller */
   /*
    * Note on parameter settings: The DDR3 used is assumed to be part MT41K256M16HA-187E. The Nexys Video manual

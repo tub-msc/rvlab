@@ -17,7 +17,7 @@ Each program corresponds to one subfolder in */src/sw*.
 In addition to that, the */src/sw* folder contains following resources shared by all programs:
 
 - **crt0.S** -- Assembly code for system boot and interrupt handling
-- **sys** -- Shared system files (hostio.c, irq.c, ddr_init.c) and minimal libc implementation
+- **sys** -- Shared system files (hostio.c, rvlab_irq.c, rvlab_trap.c) and minimal libc implementation
 - **include** -- Shared system headers (rvlab.h, regaccess.h) and libc headers (stdio.h etc.), can be include via ``#include <...>``.
 - **link.ld** -- Linker script
 

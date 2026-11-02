@@ -100,10 +100,11 @@ int rvlab_trap(void) {
 		return irq_error_handler();
 	}
 
-	if (is_checking_ddr_availability) {
+	if (is_checking_ddr_availability && masked_mcause == EXC_CAUSE_LOAD_FAULT) {
 		// we only reach here if the DDR3_BASE_ADDR dereference in
 		// `ddr_available` causes a bus error / load fault, i.e.
-		// the ddr is not present / available
+		// the ddr is not present / available. Other exceptions during the
+		// check are handled normally below.
 		ddr_present = 0;
 
 		// The `mret` executed at the end of this handler will return to the
@@ -116,7 +117,8 @@ int rvlab_trap(void) {
 		uint16_t insn_halfword = *(uint16_t*)mepc;
 
 		// Decode whether the excepting load instruction was compressed
-		// (lowest two instruction word bits = 0b11) -> derive its length
+		// (lowest two instruction word bits = 0b11 -> 32-bit instruction,
+		// anything else -> 16-bit compressed instruction)
 		if ((insn_halfword & 0x3) == 0x3) {
 			write_csr("mepc", mepc + 4);
 		} else {

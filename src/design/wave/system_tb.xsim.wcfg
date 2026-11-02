@@ -8,7 +8,6 @@
             <top_module name="cv32e40p_apu_core_pkg" />
             <top_module name="cv32e40p_fpu_pkg" />
             <top_module name="cv32e40p_pkg" />
-            <top_module name="ddr_ctrl_reg_pkg" />
             <top_module name="dm" />
             <top_module name="glbl" />
             <top_module name="regdemo_reg_pkg" />
